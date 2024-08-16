@@ -1,0 +1,25 @@
+:root{
+    --blue: #063D58;
+    --white: #fff;
+    --gray: #f5f5f5;
+    --black1: #222;
+    --black2: #999;
+}
+.main-sidebar{
+ background-color: var(--blue);   
+}
+
+.main-sidebar .nav-link{
+    color: whitesmoke;
+}
+.new-client-button{
+    background-color: var(--blue);
+    color: whitesmoke;
+}
+.client-details-header, .clients-table-data{
+    background-color: var(--blue);
+    color: whitesmoke;
+}
+.action-icons{
+    color: var(--blue);
+}
