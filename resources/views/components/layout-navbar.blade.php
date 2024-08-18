@@ -4,7 +4,7 @@
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item px-3">
-            <a class="nav-link" href="{{ route('dashboard') }}" style="font-weight: 900;">
+            <a class="nav-link" style="color: #063D58; font-weight: bold;" href="{{ route('dashboard') }}" style="font-weight: 900;">
                 {{ __('BOOKKEEPING MANAGEMENT SYSTEM (BMS)') }}
             </a>
         </li>
@@ -13,7 +13,7 @@
         <li class="nav-item dropdown mr-3">
             <a id="navbarDropdown" class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false" v-pre>
-                {{ Auth::user()->role }} - {{ Auth::user()->name }}
+                {{ Auth::user()->role }} - {{ Auth::user()->LastName }}, {{Auth::user()->FirstName}}
             </a>
         </li>
         <li class="nav-item mr-3">

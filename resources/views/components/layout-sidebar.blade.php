@@ -25,7 +25,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{route('admin-hub')}}" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p class="text-sm">
                             {{ __('Admin Hub') }}
@@ -48,7 +48,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{route('external-services')}}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>{{ __('External') }}</p>
                             </a>

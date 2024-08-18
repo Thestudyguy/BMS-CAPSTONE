@@ -1,6 +1,6 @@
 
 <div class="modal fade" id="new-client-modal">
-    <div class="modal-dialog modal-center">
+    <div class="modal-dialog modal-center modal-fullscreen">
       <div class="modal-content rounded-0">
         <div class="modal-header">
           <h4 class="lead">New Client</h4>

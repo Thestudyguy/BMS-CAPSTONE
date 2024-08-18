@@ -10,16 +10,33 @@ use Illuminate\Support\Facades\Log;
 
 class Controller extends BaseController
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     public function __construct(){
         $this->middleware('auth');
     }
-    use AuthorizesRequests, ValidatesRequests;
-    public function clients(){
-        dd('Method called');
-        if(Auth::check()){
-            Log::info('you are not allowed man');
-        }else{
-            Log::info('wtf');
+
+    //temporary dd kay ngita pakog 403 template
+
+    public function services(){
+        if(auth::check()){
+            try {
+                return view('pages.external-services');
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
         }
+        dd('fuck you are not allowed');
+    }
+
+    public function adminHub(){
+        if(auth::check()){
+            try {
+                return view('pages.admin-hub');
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        }
+        dd('fuck you are not allowed');
     }
 }

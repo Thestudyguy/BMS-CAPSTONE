@@ -23,3 +23,13 @@
 .action-icons{
     color: var(--blue);
 }
+.external-services .card-header{
+    background-color: var(--blue);
+    color: whitesmoke;
+}
+.external-services tr{
+    cursor: pointer;
+}
+.external-services i{
+    color: var(--blue);
+}
