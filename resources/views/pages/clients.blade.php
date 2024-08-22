@@ -61,6 +61,26 @@
             </div>
             <div class="card-body">
                 <span><i class="text-sm">Click a Client to see Details</i></span>
+                <div class="row visually-hidden">
+                    <div class="col-sm-12">
+                        {{-- client information --}}
+                        <table class="table opacity-75 table-hover">
+                            {{-- client data --}}
+                        </table>
+                    </div>
+                    <div class="col-sm-6">
+                        {{-- client representative --}}
+                        <table class="table opacity-75 table-hover">
+                            {{-- client representative data --}}
+                        </table>
+                    </div>
+                    <div class="col-sm-6">
+                        {{-- client active service availed & documents progress --}}
+                        <table class="table opacity-75 table-hover">
+                            {{-- client service & progress data --}}
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,54 +1,69 @@
 @extends('layout')
 
 @section('content')
-    <div class="container-fluid p-5 mt-5 external-services">
-        <div class="container">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">External Services</div>
-                    <div class="card-tools">
-                        <button class="btn new-client-modal" data-bs-target='#new-service-modal' data-bs-toggle='modal'>
-                            <i class="fas fa-plus"></i>
-                        </button>
+    <div class="container-fluid mt-5 pt-5 external-services">
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">External Services</div>
+                            <div class="card-tools">
+                                <button class="btn new-client-modal" data-bs-target='#new-service-modal' data-bs-toggle='modal'>
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover opacity-50  external-services-action-icons">
+                                <tr class="" data-widget="expandable-table" aria-expanded="false">
+                                    <td>
+                                        Business Permit Processing/Renewal
+                                        <span class="float-right px-2 action-icons visually-hidden text-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </span>
+                                        <span class="float-right text-sm action-icons visually-hidden">
+                                            <i class="fas fa-file-import"></i>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="expandable-body cheque-expandable-body bg-light">
+                                    <td>
+                                        <div class="p-0 text-center expandable-body-append-table">
+                                            <table class="table table-hover float-left">
+                                                <thead class="text-left">
+                                                    <tr>
+                                                        <td>Pre Requisite</td>
+                                                        <td>Requirements</td>
+                                                        <td>Price</td>
+                                                    </tr>
+                                                </thead> 
+                                                <tbody class="text-left">
+                                                        <tr>
+                                                            <td>Community Tax Cedula</td>
+                                                            <td>Business Tax Cedula</td>
+                                                            <td>250P</td>
+                                                        </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-hover opacity-50">
-                        <tr class="" data-widget="expandable-table" aria-expanded="false">
-                            <td>
-                                Business Permit Processing/Renewal
-                                <span class="float-right px-2 text-sm">
-                                    <i class="fas fa-eye"></i>
-                                </span>
-                                <span class="float-right text-sm">
-                                    <i class="fas fa-file-import"></i>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr class="expandable-body cheque-expandable-body bg-light">
-                            <td>
-                                <div class="p-0 text-center expandable-body-append-table">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <td>Requirement</td>
-                                                <td>Price</td>
-                                            </tr>
-                                        </thead> 
-                                        <tbody>
-                                                <tr>
-                                                    <td>Business Tax Cedula</td>
-                                                    <td>250P</td>
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                <div class="col-sm-4">
+                    <div class="card">
+                        <div class="card-header">
+                            Service Details
+                            <div class="card-tools">
+                                <button class="btn service-detail-expand-button" data-card-widget='collapse'><i class="fas fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body"></div>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 @endsection
 {{-- services --}}

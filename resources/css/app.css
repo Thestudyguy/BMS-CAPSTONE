@@ -5,6 +5,10 @@
     --black1: #222;
     --black2: #999;
 }
+.card-header{
+    background-color: var(--blue);
+    color: whitesmoke;
+}
 .main-sidebar{
  background-color: var(--blue);   
 }
@@ -32,4 +36,11 @@
 }
 .external-services i{
     color: var(--blue);
+}
+.service-detail-expand-button{
+    background-color: var(--blue);
+    color: whitesmoke;
+}
+.service-detail-expand-button i{
+    color: whitesmoke;
 }

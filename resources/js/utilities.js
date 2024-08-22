@@ -20,5 +20,15 @@ $(document).ready(function(){
                 $(this).find('.action-icons').addClass('visually-hidden')
         }
     );
+
+    $(".external-services-action-icons").hover(
+        function() {
+                $(this).find('.action-icons').removeClass('visually-hidden')
+            
+        },
+        function() {
+                $(this).find('.action-icons').addClass('visually-hidden')
+        }
+    );
     
 });
