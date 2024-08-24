@@ -31,7 +31,7 @@
                         <tr class="expandable-body cheque-expandable-body bg-light">
                             <td>
                                 <div class="p-0 text-center expandable-body-append-table">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover text-left">
                                         <tbody>
                                             <tr data-widget="expandable-table">
                                                 <td>Services Availed</td>
@@ -53,35 +53,6 @@
 
             @include('modals.remove-selected-client')
             @include('modals.new-client-modal')
-        </div>
-
-        <div class="card">
-            <div class="card-header client-details-header">
-                Client Details
-            </div>
-            <div class="card-body">
-                <span><i class="text-sm">Click a Client to see Details</i></span>
-                <div class="row visually-hidden">
-                    <div class="col-sm-12">
-                        {{-- client information --}}
-                        <table class="table opacity-75 table-hover">
-                            {{-- client data --}}
-                        </table>
-                    </div>
-                    <div class="col-sm-6">
-                        {{-- client representative --}}
-                        <table class="table opacity-75 table-hover">
-                            {{-- client representative data --}}
-                        </table>
-                    </div>
-                    <div class="col-sm-6">
-                        {{-- client active service availed & documents progress --}}
-                        <table class="table opacity-75 table-hover">
-                            {{-- client service & progress data --}}
-                        </table>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 @endsection

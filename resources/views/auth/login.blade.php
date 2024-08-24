@@ -88,12 +88,12 @@
                     @csrf
                     <div class="form-group">
                         @if ($errors->any())
-                        <div class="alert alert-danger text-danger bg-transparent">
-                            @foreach ($errors->all() as $error)
-                                <strong>{{ $error }}</strong>
-                            @endforeach
-                        </div>
-                    @endif
+                            <div class="alert alert-danger text-danger bg-transparent">
+                                @foreach ($errors->all() as $error)
+                                    <strong>{{ $error }}</strong>
+                                @endforeach
+                            </div>
+                        @endif
                         <label for="Email">User Name</label>
                         {{-- <input id="email" type="email" class="form-control rounded-0 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus> --}}
                         <input id="username" class="form-control @error('UserName') is-invalid @enderror" type="text"

@@ -8,30 +8,37 @@
                         <div class="card-header">
                             <div class="card-title">External Services</div>
                             <div class="card-tools">
-                                <button class="btn new-client-modal" data-bs-target='#new-service-modal' data-bs-toggle='modal'>
-                                    <i class="fas fa-plus"></i>
+                                <button class="btn new-client-modal text-light" data-bs-target='#new-service-modal' data-bs-toggle='modal'>
+                                    <i class="fas fa-plus text-light"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="card-body" style="max-height: 600px; overflow-x: auto;">
-                            <table class="table table-hover opacity-50  external-services-action-icons">
+                            <table class="table table-hover opacity-50  external-services">
                                 @foreach ($services as $service)
-                                    <tr data-widget="expandable-table" aria-expanded="false">
+                                    <tr id="{{$service->id}}" class="external-service" data-widget="expandable-table" aria-expanded="false">
                                         <td>
                                             {{$service->Service}} <b>|</b> {{number_format($service->Price, 2)}}
-                                            <span class="float-right px-2 action-icons visually-hidden text-sm">
+                                            <span class="float-right px-1 action-icons new-sub-service visually-hidden text-sm" id="{{$service->id}}" data-bs-target='#new-sub-service-modal-{{$service->id}}' data-bs-toggle="modal">
+                                                <i class="fas fa-plus"></i>
+                                            </span>
+                                            <span class="float-right edit-service action-icons visually-hidden text-sm">
                                                 <i class="fas fa-eye"></i>
                                             </span>
-                                            <span class="float-right text-sm action-icons visually-hidden">
-                                                <i class="fas fa-file-import"></i>
+                                            <span class="float-right px-1 text-sm view-service-details action-icons visually-hidden" id="{{$service->id}}" data-bs-target='#edit-service-modal-{{$service->id}}' data-bs-toggle="modal">
+                                                <i class="fas fa-pen"></i>
+                                            </span>
+                                            <span class="float-right text-sm remove-service-icon action-icons visually-hidden" id="{{$service->id}}" data-bs-target='#remove-service-modal-{{$service->id}}' data-bs-toggle="modal">
+                                                <i class="fas fa-trash"></i>
                                             </span>
                                         </td>
                                     </tr>
                                     <tr class="expandable-body cheque-expandable-body bg-light">
                                         <td>
                                             <div class="p-0 text-center expandable-body-append-table">
-                                                {{-- <table class="table table-hover float-left">
-                                                    <thead class="text-left">
+                                                <center><div class="loader visually-hidden"></div></center>
+                                                <table class="table table-hover float-left append-sub-services-{{$service->id}}">
+                                                    {{-- <thead class="text-left">
                                                         <tr>
                                                             <td>Pre Requisite</td>
                                                             <td>Requirements</td>
@@ -44,11 +51,14 @@
                                                                 <td>Business Tax Cedula</td>
                                                                 <td>250P</td>
                                                             </tr>
-                                                    </tbody>
-                                                </table> --}}
+                                                    </tbody> --}}
+                                                </table>
                                             </div>
                                         </td>
                                     </tr>
+                                @include('modals.remove-service-modal')
+                                @include('modals.edit-service-modal')
+                                @include('modals.new-sub-service-modal')
                                 @endforeach
                             </table>
                         </div>
@@ -66,20 +76,7 @@
                     </div>
                 </div>
             </div>
+            @include('modals.new-service-modal')
+            @include('modals.remove-sub-service-modal')
     </div>
-@endsection
-{{-- services --}}
-{{-- <div class="col-sm-6 services">
-    <div class="row">
-        
-    </div>
-</div> --}}
-{{-- end of services --}}
-
-
-
-{{-- services details --}}
-{{-- <div class="col-sm-6 service-details">
-
-</div> --}}
-{{-- end of services details --}}
+    @endsection

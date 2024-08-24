@@ -12,5 +12,8 @@ Route::middleware('authenticated')->group(function(){
     Route::get('/clients', function(){return view('pages.clients');})->name('clients');
     Route::get('/external-services', [ServicesController::class, 'returnServices'])->name('external-services');
     Route::get('/admin-hub', [Controller::class, 'adminHub'])->name('admin-hub');
-
+    Route::post('sub-services-{id}', [ServicesController::class, 'returnSubServicesById']);
+    Route::post('new-service', [ServicesController::class, 'NewService']);
+    Route::post('remove-service-{id}', [ServicesController::class, 'removeService']);
+    Route::post('update-service', [ServicesController::class, 'UpdateService']);
 });
