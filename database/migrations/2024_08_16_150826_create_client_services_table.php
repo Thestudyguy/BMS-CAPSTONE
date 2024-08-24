@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('ClientService');
             $table->string('ClientServiceProgress');
             $table->string('dataEntryUser');
+            $table->boolean('isVisible')->default(true);
             $table->timestamps();
         });
     }

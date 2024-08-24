@@ -17,8 +17,10 @@ class ServicesSubTableFactory extends Factory
     public function definition(): array
     {
         return [
+            'BelongsToService' => fake(),
             'ServiceRequirements' => fake(),
-            'ServiceRequirementPrice' => fake()
+            'ServiceRequirementPrice' => fake(),
+            'dataEntryUser' => fake()
         ];
     }
 }

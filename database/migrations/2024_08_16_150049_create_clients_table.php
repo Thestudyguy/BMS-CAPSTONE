@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('CEODateOfBirth');
             $table->string('CEOContactInformation');//phone number or email
             $table->string('dataEntryUser');
+            $table->boolean('isVisible')->default(true);
             $table->timestamps();
         });
     }

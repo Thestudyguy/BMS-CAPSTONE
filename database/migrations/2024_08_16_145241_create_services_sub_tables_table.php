@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreign('BelongsToService')->references('id')->on('services')->cascadeOnDelete();
             $table->string('ServiceRequirements');
             $table->decimal('ServiceRequirementPrice')->nullable();
-            $table->string('dataEntryUser');
+            $table->string('dataEntryUser')->default(null);
+            $table->boolean('isVisible')->default(true);
             $table->timestamps();
         });
     }

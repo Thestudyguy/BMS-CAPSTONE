@@ -21,7 +21,7 @@ $(document).ready(function(){
         }
     );
 
-    $(".external-services-action-icons").hover(
+    $(".external-services-action-icons tr").hover(
         function() {
                 $(this).find('.action-icons').removeClass('visually-hidden')
             

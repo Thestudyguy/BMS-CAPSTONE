@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('Service');
             $table->decimal('Price');
+            $table->boolean('isVisible')->default(true);
             $table->string('dataEntryUser');
             $table->timestamps();
         });

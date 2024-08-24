@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('role');
             $table->string('PIN')->unique();
             $table->string('password');
+            $table->boolean('isVisible')->default(true);
+            $table->boolean('UserPrivilege')->default(true);//if false do not allow user to log in
             $table->timestamps();
         });
         Schema::create('sessions', function (Blueprint $table) {
