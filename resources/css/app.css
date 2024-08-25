@@ -72,3 +72,27 @@
 .service-detail-expand-button i{
     color: whitesmoke;
 }
+.dashboard-buttons {
+    display: flex;
+    gap: 0;
+    padding: 0;
+}
+.dashboard-buttons .btn {
+    margin: 0;
+    background-color: var(--blue);
+    color: whitesmoke;
+}
+.dashboard-buttons .btn:first-child {
+    margin: 0;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+.dashboard-buttons .btn:last-child {
+    margin: 0;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}

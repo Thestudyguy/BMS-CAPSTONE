@@ -1,4 +1,4 @@
-import { NewService, RemoveService, EditService } from "./ajax";
+import { NewService, RemoveService, EditService, NewSubServicec } from "./ajax";
 var Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -8,7 +8,6 @@ var Toast = Swal.mixin({
 var ToastError = Swal.mixin({
     toast: false,
     position: 'bottom-end',
-    showConfirmButton: true
 })
 $(document).ready(function () {
     //dom manipulations
@@ -31,10 +30,10 @@ $(document).ready(function () {
             $(this).find('.action-icons').addClass('visually-hidden')
         }
     );
-    $(".new-sub-service").on('click', function(e){
+    $(".new-sub-service-icon").on('click', function(e){
         e.stopPropagation();
     });
-    $(".edit-service").on('click', function(e){
+    $(".edit-service-icon").on('click', function(e){
         e.stopPropagation();
     });
     $(".view-service-details").on('click', function(e){
@@ -50,6 +49,11 @@ $(document).ready(function () {
     $(document).on('mouseleave', '.sub-service', function() {
         $(this).find('.sub-service-action-icons').attr('style', 'visibility: hidden;');
     });
+
+    function handleServiceOperation(status) {
+        localStorage.setItem('transaction-status', status);
+        location.reload(); // need i reload angg  page for heavy transactions 
+    }
     //end of dom manipulation
 
 
@@ -108,6 +112,9 @@ $(document).ready(function () {
 
     $('#new-service-form').on('submit', function(e){
         e.preventDefault();
+        $('.conflict-text').text('Service already exists');
+        $('.conflict-warning').addClass('visually-hidden');
+        $(`#new-service-form [name='Service']`).removeClass('is-invalid');
         var preparedServiceData = {};
         var serviceData = $(this).serializeArray();
         var callFlag = false;
@@ -135,17 +142,27 @@ $(document).ready(function () {
             errorCall
         );
         function successCall(response){
-            localStorage.setItem('new-data', 'created');
-            location.reload();
+            handleServiceOperation('created');
         }
         function errorCall(error, status, jqXHR){
             var errorResponse = JSON.parse(error.responseText);
             var errorMessage = errorResponse.error;
-            ToastError.fire({
-                icon: 'error',
-                title: 'Fatal Error',
-                text: `Translated: ${errorMessage}`
-            });
+
+            if(errorMessage === 'Service already exists'){
+                $('.conflict-warning').removeClass('visually-hidden');
+                $(`#new-service-form [name='Service']`).addClass('is-invalid');
+                $('.conflict-text').text('Service already exists');
+                return;
+            }
+            else{
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Fatal Error',
+                    text: `Translated: ${errorMessage}`
+                });
+                $('.conflict-warning').addClass('visually-hidden');
+                $(`#new-service-form [name='Service']`).removeClass('is-invalid');
+            }
         }
     });
     
@@ -157,8 +174,7 @@ $(document).ready(function () {
             errorCall
         )
         function successCall(response){
-            localStorage.setItem('removed-data', 'removed');
-            location.reload();
+            handleServiceOperation('removed');
         }
         function errorCall(error, status, jqXHR){
             ToastError.fire({
@@ -169,16 +185,17 @@ $(document).ready(function () {
         }
     });
 
-    $("#edit-service-form").on('submit', function(e){
+    $(".edit-service").on('click', function(e) {
         e.preventDefault();
-        console.log('form edit logged');
-        
-        var serializedUpdatedService = $(this).serializeArray();
+        var serviceId = $(this).attr('id');
+        var formId = '#edit-service-form-' + serviceId;
+        var serializedUpdatedService = $(formId).serializeArray();
+        console.log(serializedUpdatedService);
         var prepareUpdatedService = {};
         var callFlag = false;
-        $.each(serializedUpdatedService, (index, element)=>{
-            if(element.value === ''){
-                $(`#new-service-form [name='${element.name}']`).addClass('is-invalid');
+        $.each(serializedUpdatedService, (index, element) => {
+            if (element.value === '') {
+                $(formId + " [name='" + element.name + "']").addClass('is-invalid');
                 Toast.fire({
                     icon: 'warning',
                     title: 'Missing Fields',
@@ -186,53 +203,70 @@ $(document).ready(function () {
                 });
                 callFlag = true;
                 return false;
-            }else{
+            } else {
                 prepareUpdatedService[element.name] = element.value;
             }
         });
-        if(callFlag){
+        if (callFlag) {
             return;
         }
-        console.log(prepareUpdatedService);
-        
         EditService(
             'update-service',
             prepareUpdatedService,
-            $('.edit-service').attr('id'),
+            serviceId,
             { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             callSuccess,
             callError
-        )
-        function callSuccess(response){
-            console.log(response);
+        );
+    
+        function callSuccess(response) {
+            handleServiceOperation('updated');
         }
-        function callError(errors, status, jqXHR){
-            console.log(errors);
-            
+    
+        function callError(error, status, jqXHR) {
+            var errorResponse = JSON.parse(error.responseText);
+            var errorMessage = errorResponse.error;
+            ToastError.fire({
+                icon: 'error',
+                title: 'Fatal Error',
+                text: `Translated: ${errorMessage}`
+            });
         }
     });
-
-
-    //page reload after heavy transactions hehe
-    var newData = localStorage.getItem('new-data');
-    var removedData = localStorage.getItem('removed-data');
-    if(newData === 'created'){
-        localStorage.removeItem('new-data');
-        Toast.fire({
-            icon: 'success',
-            title: 'New Record',
-            text: 'New record added successfully'
+    
+    $(".submit-new-sub-service").on('click', function(e){
+        e.preventDefault();
+        var callFlag = false;
+        $.each(serializedNewSubService, (index, element) => {
+            if (element.value === '') {
+                $(`#new-sub-service [name='${element.name}']`).toggleClass('is-invalid');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'Please fill all fields'
+                });
+                callFlag = true;
+                return false;
+            } else {
+            }
         });
-        return;
+        if (callFlag) {
+            return;
+        }
+    });
+    
+    
+    const status = localStorage.getItem('transaction-status');
+    if (status) {
+        localStorage.removeItem('transaction-status');
+        const messages = {
+            created: { icon: 'success', title: 'New Record', text: 'New record added successfully' },
+            removed: { icon: 'success', title: 'Record Removed!', text: 'Record removed successfully' },
+            updated: { icon: 'success', title: 'Record Updated!', text: 'Record updated successfully' }
+        };
+        if (messages[status]) {
+            Toast.fire(messages[status]);
+        }
     }
 
-    if(removedData === 'removed'){
-        localStorage.removeItem('removed-data');
-        Toast.fire({
-            icon: 'success',
-            title: 'Record Removed!',
-            text: 'Record removed successfully'
-        });
-        return;
-    }
 });

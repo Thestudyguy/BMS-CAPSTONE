@@ -87,22 +87,28 @@ class ServicesController extends Controller
     public function UpdateService(Request $request){
         if(Auth::check()){
         try {
-            Log::info($request);
-            return;
+            $price = str_replace(',', '', $request->Price);
             $validator = Validator::make($request->all(), [
                 'Service' => 'required|string|max:255',
                 'Price' => 'required|min:0',
+                'id' => 'required|exists:services,id'
             ]);
             if ($validator->fails()) {
                 return response()->json(['validation_errors' => $validator->errors()], 422);
             }
-            $existingService = services::where('Service', $request['Service'])->first();
+            $existingService = Services::where('Service', $request->Service)
+                ->where('id', '!=', $request->id)
+                ->first();
+
             if ($existingService) {
-                return response()->json([
-                    'error' => 'Service already exists',], 409);
-                }
-            
-            
+                return response()->json(['error' => 'Service already exists'], 409);
+            }
+            services::where('id', $request->id)
+            ->update([
+                'Service' => $request->Service,
+                'Price' => $price
+            ]);
+            return response()->json(['update' => 'Service Updated Successfully'],200);
         } catch (\Throwable $th) {
             response()->json(['error' => "Something went wrong ".$th]);
             throw $th;

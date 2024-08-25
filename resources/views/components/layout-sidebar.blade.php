@@ -80,6 +80,27 @@
                         </p>
                     </a>
                 </li>
+                {{-- <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-arrow-left"></i></a>
+                </li> --}}
+                {{-- <li class="nav-item">
+                    <li class="nav-item dropdown mr-3">
+                        <a id="navbarDropdown" class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false" v-pre>
+                            {{ Auth::user()->role }} - {{ Auth::user()->LastName }}, {{Auth::user()->FirstName}}
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a class="nav-link" href="{{ route('logout') }}" 
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                        <span class="brand-text">Log Out</span>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                </li> --}}
             </ul>
         </nav>
     </div>

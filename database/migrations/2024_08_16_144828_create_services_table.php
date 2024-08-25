@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('Service');
-            $table->decimal('Price');
+            $table->decimal('Price', 15);
             $table->boolean('isVisible')->default(true);
             $table->string('dataEntryUser');
             $table->timestamps();
@@ -27,5 +27,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('services');
+        Schema::table('services', function (Blueprint $table) {
+            $table->decimal('Price', 8)->change();
+        });
     }
 };

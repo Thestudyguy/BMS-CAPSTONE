@@ -56,18 +56,40 @@ export function EditService(url, updatedService, refID, header, CallSuccess, Cal
         url: url,
         type: 'POST',
         data: {
-            data : updatedService,
-            id : refID
+            ...updatedService,
+            id: refID
         },
         headers: header,
         success: function(response) {
             CallSuccess(response);
         },
         error: function(xhr, status, errors) {
-            CallError(xhr,status,errors);
+            CallError(xhr, status, errors);
         }
     });
     console.log(updatedService);
     console.log(refID);
-    
+}
+
+/** create new requirement/sub service
+ *
+ * @param {string} url
+ * @param {Object} subService
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function NewSubServicec(url, subService, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: subService,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
 }
