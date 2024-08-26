@@ -255,6 +255,45 @@ $(document).ready(function () {
         }
     });
     
+
+    $('.next-form').on('click', function() {
+        var currentForm = $(".step:visible");
+        var form = currentForm.find('form').serializeArray();
+        var isCurrentFormValidated = false;
+        $.each(form, (index, element)=>{
+            var fields = currentForm.find(`[name='${element.name}']`);
+            if(element.value === ''){
+                fields.addClass('is-invalid');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'Fill all fields to proceed'
+                });
+                isCurrentFormValidated = true;
+                return false;
+            }
+            fields.removeClass('is-invalid');
+        });
+        
+        if(isCurrentFormValidated){
+            return;
+        }else{
+            currentForm.animate({
+                marginLeft: '-100%',
+                opacity: 0
+            }, function () {
+                currentForm.hide();
+                currentForm.next('.step').css({
+                    marginLeft: '100%',
+                    opacity: 0
+                }).show().animate({
+                    marginLeft: '0%',
+                    opacity: 1
+                });
+            });
+        }
+    });
+
     
     const status = localStorage.getItem('transaction-status');
     if (status) {

@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
-    public function CreateNewClient(Request $request){
-        if(Auth::check()){
+    public function CreateNewClient(Request $request)
+    {
+        if (Auth::check()) {
             try {
-                //validate client
                 $validateClient = $request->validate([
                     'CompanyName' => 'required|string|max:255',
                     'CompanyAddress' => 'required|string|max:255',
@@ -22,7 +23,6 @@ class ClientController extends Controller
                     'CEOContactInformation' => 'required|string|max:255',
                     'dataEntryUser' => 'required|string|max:255',
                 ]);
-                //validate client service
                 $validateClientService = $request->validate([
                     'Client' => 'nullable|exists:clients,id',
                     'ClientService' => 'required|string|max:255',
@@ -30,7 +30,6 @@ class ClientController extends Controller
                     'dataEntryUser' => 'required|string|max:255',
                 ]);
 
-                //validate rep
                 $validateClientRep = $request->validate([
                     'CompanyRepresented' => 'nullable|exists:clients,id',
                     'RepresentativeName' => 'required|string|max:255',
@@ -43,8 +42,22 @@ class ClientController extends Controller
             } catch (\Throwable $th) {
                 throw $th;
             }
-        }else{
+        } else {
             dd('not authorized');
+        }
+    }
+
+    public function returnClientData()
+    {
+        if (Auth::check()) {
+            try {
+                $services = services::where('isVisible', true)->get();
+                return view('pages.clients', compact('services'));
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        } else {
+            return response()->json(['error' => 'You are not authorized'], 403);
         }
     }
 }

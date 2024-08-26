@@ -8,4 +8,7 @@ $(document).ready(function(){
         var formatedNumber = input.value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         input.value = formatedNumber
     } 
+
+
+    
 });

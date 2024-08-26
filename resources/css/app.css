@@ -96,3 +96,17 @@
     border-top-right-radius: 30px;
     border-bottom-right-radius: 30px;
 }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove number input spinners for Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+.next-form{
+    background-color: var(--blue);
+    color: whitesmoke;
+}

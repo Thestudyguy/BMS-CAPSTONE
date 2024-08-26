@@ -23,7 +23,7 @@ class ServicesController extends Controller
         return response()->json(['error' => 'You are not authorized'], 403);
     }
    }
-
+  
    public function returnSubServicesById($id){
     if(Auth::check()){
         try {

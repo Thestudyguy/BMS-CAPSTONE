@@ -145,6 +145,22 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <td>User</td>
+                                    <td>Service</td>
+                                    <td>Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dave</td>
+                                    <td>Business Permit Processing</td>
+                                    <td>Deleted</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
