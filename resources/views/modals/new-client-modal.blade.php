@@ -35,29 +35,50 @@
 
                     <div class="representative-info step" style="display: none">
                       <form action="" id="client-rep">
-                        <label for="companyName" class="form-label text-secondary fw-normal">Company Representative</label>
-                        <input type="text" class="form-control rounded-0" id="companyName" name="CompanyName" placeholder="Enter company's name">
-                        <label for="companyName" class="form-label text-secondary fw-normal">Representative Contact Info<sup class="text-warning"><strong>(email or phone#)</strong></sup></label>
-                        <input type="text" class="form-control rounded-0" id="companyName" name="CompanyName" placeholder="Enter company's name">
+                        <label for="clientRepresentative" class="form-label text-secondary fw-normal">Company Representative</label>
+                        <input type="text" class="form-control rounded-0" id="clientrepresentative" name="clientRepresentative" placeholder="Enter Company Representative">
+                        
+                        <label for="representativeContactInfo" class="form-label text-secondary fw-normal">Representative Contact Info<sup class="text-warning"><strong>(email or phone#)</strong></sup></label>
+                        <input type="text" class="form-control rounded-0" id="representativecontactInfo" name="representativeContactInfo" placeholder="Enter Representative Contact Info">
 
-                        <label for="companyName" class="form-label text-secondary fw-normal">Date Of Birth</label>
-                        <input type="text" class="form-control rounded-0" id="companyName" name="CompanyName" placeholder="Enter company's name">
+                        <label for="representativeDOB" class="form-label text-secondary fw-normal">Date Of Birth</label>
+                        <input type="text" class="form-control rounded-0" id="representativedob" name="representativeDOB" placeholder="Enter Date Of Birth">
 
-                        <label for="companyName" class="form-label text-secondary fw-normal">Position</label>
-                        <input type="text" class="form-control rounded-0" id="companyName" name="CompanyName" placeholder="Enter company's name">
+                        <label for="representativePosition" class="form-label text-secondary fw-normal">Position</label>
+                        <input type="text" class="form-control rounded-0" id="representativeaosition" name="representativePosition" placeholder="Enter Position">
 
-                        <label for="companyName" class="form-label text-secondary fw-normal">Address</label>
-                        <input type="text" class="form-control rounded-0" id="companyName" name="CompanyName" placeholder="Enter company's name"> 
-
+                        <label for="representativeAddress" class="form-label text-secondary fw-normal">Address</label>
+                        <input type="text" class="form-control rounded-0" id="representativeaddress" name="representativeAddress" placeholder="Enter Address"> 
                       </form>
                     </div>
+
+                    <div class="services step" style="display: none">
+                        <form action="" id="services">
+                            Services
+                          <label for="clientRepresentative" class="form-label text-secondary fw-normal">Company Representative</label>
+                          <input type="text" class="form-control rounded-0" id="clientrepresentative" name="service" placeholder="Enter Company Representative">
+                          
+                          <label for="representativeContactInfo" class="form-label text-secondary fw-normal">Representative Contact Info<sup class="text-warning"><strong>(email or phone#)</strong></sup></label>
+                          <input type="text" class="form-control rounded-0" id="representativecontactInfo" name="representativeContactInfo" placeholder="Enter Representative Contact Info">
+  
+                          <label for="representativeDOB" class="form-label text-secondary fw-normal">Date Of Birth</label>
+                          <input type="text" class="form-control rounded-0" id="representativedob" name="representativeDOB" placeholder="Enter Date Of Birth">
+  
+                          <label for="representativePosition" class="form-label text-secondary fw-normal">Position</label>
+                          <input type="text" class="form-control rounded-0" id="representativeaosition" name="representativePosition" placeholder="Enter Position">
+  
+                          <label for="representativeAddress" class="form-label text-secondary fw-normal">Address</label>
+                          <input type="text" class="form-control rounded-0" id="representativeaddress" name="representativeAddress" placeholder="Enter Address"> 
+                        </form>
+                      </div>
                     
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success rounded-0 visually-hidden"
+                <button type="submit" class="btn btn-success finish visually-hidden"
                     id="submit-new-client">{{ __('Submit') }}</button>
-                <button class="btn next-form rounded-0">Next</button>
+                <button class="btn btn-secondary visually-hidden prev-form">Previous</button>
+                <button class="btn next-form">Next</button>
                 <button type="button" class="btn btn-secondary rounded-0"
                     data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             </div>

@@ -269,7 +269,7 @@ $(document).ready(function () {
                     title: 'Missing Fields',
                     text: 'Fill all fields to proceed'
                 });
-                isCurrentFormValidated = true;
+                // isCurrentFormValidated = true;
                 return false;
             }
             fields.removeClass('is-invalid');
@@ -278,22 +278,62 @@ $(document).ready(function () {
         if(isCurrentFormValidated){
             return;
         }else{
+            console.log({...form});
             currentForm.animate({
-                marginLeft: '-100%',
+                // marginLeft: '-100%',
                 opacity: 0
             }, function () {
                 currentForm.hide();
                 currentForm.next('.step').css({
-                    marginLeft: '100%',
+                    // marginLeft: '100%',
                     opacity: 0
                 }).show().animate({
-                    marginLeft: '0%',
+                    // marginLeft: '0%',
                     opacity: 1
                 });
             });
+            $(".prev-form").removeClass('visually-hidden');
+            if (!currentForm.next('.step').next('.step').length) {
+                $(".next-form").addClass('visually-hidden');
+                $(".finish").removeClass('visually-hidden');
+            }
+        }
+    });
+    $('.prev-form').on('click', function () {
+        var currentForm = $('.step:visible');
+        var prevForm = currentForm.prev('.step');
+
+        currentForm.animate({
+            // marginLeft: '100%',
+            opacity: 0
+        }, function () {
+            currentForm.hide();
+            prevForm.css({opacity: 0 }).show().animate({
+                // marginLeft: '0%',
+                opacity: 1
+            });
+        });
+        $(".next-form").removeClass('visually-hidden');
+        $(".finish").addClass('visually-hidden');
+        if (prevForm.prev('.step').length === 0) {
+            console.log(prevForm.prev('.step').length);
+            $(".prev-form").addClass('visually-hidden');
         }
     });
 
+    $('#submit-new-client').on('click', function(){
+        var clientForm = $(".step:visible").find('form');
+        var serializeClientForm = clientForm.serializeArray();
+        $.each(serializeClientForm, (index, element)=>{
+            if(element.value == ''){
+                $(`[name='${element.name}']`).addClass('is-invalid');
+                return false;
+            }
+            else{
+                console.log('proceed now');
+            }
+        });        
+    });
     
     const status = localStorage.getItem('transaction-status');
     if (status) {
