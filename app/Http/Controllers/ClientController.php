@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 class ClientController extends Controller
 {
     public function CreateNewClient(Request $request)
     {
         if (Auth::check()) {
             try {
+                Log::info($request);
+                return;
                 $validateClient = $request->validate([
                     'CompanyName' => 'required|string|max:255',
                     'CompanyAddress' => 'required|string|max:255',

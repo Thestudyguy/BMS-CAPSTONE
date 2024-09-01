@@ -74,7 +74,7 @@
                                 <div class="row">
                                     @foreach ($services as $item)
                                         <div class="col-sm-3">
-                                            <input type="checkbox" name="Service" id="service-{{$item->id}}" value="{{$item->id}}">{{$item->Service}}
+                                            <input type="checkbox" name="Service[]" id="service-{{$item->id}}" value="{{$item->id}}">{{$item->Service}}
                                         </div>
                                     @endforeach
                                 </div>

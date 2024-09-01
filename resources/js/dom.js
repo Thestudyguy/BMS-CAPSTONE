@@ -1,4 +1,4 @@
-import { NewService, RemoveService, EditService, NewSubServicec } from "./ajax";
+import { NewService, RemoveService, EditService, NewSubServicec, NewClientRecord } from "./ajax";
 var Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -338,11 +338,12 @@ $(document).ready(function () {
     $('.submit-new-client').on('click', function(){
         var company = {};
         var clientRep = {};
-        var service = {};
+        var service = [];
         var serializeCompany = $('.company-info').serializeArray();
         var serializeClientRep = $('.client-rep').serializeArray();
-        var service = $('.services').serializeArray();
+        var serializeServices = $('.services').serializeArray();
         $.each(serializeCompany, (index, element)=>{
+                console.log('not suppose to log');
                 if(element.value == ''){
                     $(`[name='${element.name}']`).addClass('is-invalid');
                     Toast.fire({
@@ -357,7 +358,8 @@ $(document).ready(function () {
                 }
         });
         $.each(serializeClientRep, (index, element)=>{
-            if(element.value == ''){
+                console.log('not suppose to log');
+                if(element.value == ''){
                 $(`[name='${element.name}']`).addClass('is-invalid');
                 Toast.fire({
                     icon: 'warning',
@@ -370,24 +372,34 @@ $(document).ready(function () {
                 clientRep[element.name] = element.value;
             }
         });
-        $.each(service, (index, element)=>{
-            if(element.value == ''){
-                $(`[name='${element.name}']`).addClass('is-invalid');
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Fields',
-                    text: 'All fields are required'
-                });
-            }
-            else{
-                $(`[name='${element.name}']`).removeClass('is-invalid');
-                service[element.name] = element.value;
-            }
+        $('#services input[name="Service[]"]:checked').each(function() {
+            service.push($(this).val());
         });
-        console.log(company);
-        console.log(clientRep);
-        console.log(service);
-        
+
+        if(clientRep.length == 0 || company.length == 0){
+            Toast.fire({
+                icon: 'error',
+                title: 'Fatal Error',
+                text: 'Something went wrong, check your inputs or try reloading the page'
+            });
+            return false;
+        }else{
+            NewClientRecord(
+                'new-client-record',
+                { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                company,
+                clientRep,
+                service,
+                successCall,
+                failedCall
+            )
+            function successCall(response){
+                console.log(response);
+            }
+            function failedCall(errors, status, jqXHR){
+                console.log(errors);
+            }
+        }
     });
     
     const status = localStorage.getItem('transaction-status');
