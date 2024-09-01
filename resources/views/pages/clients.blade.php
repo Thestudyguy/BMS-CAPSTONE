@@ -6,10 +6,15 @@
             <div class="card-header clients-table-data">
                 <div class="card-title lead fw-bold">Clients</div>
                 <div class="card-tools">
-                    <button class="btn rounded-0 new-client-button" data-bs-target="#new-client-modal"
+                    {{-- <button class="btn rounded-0 new-client-button" data-bs-target="#new-client-modal"
                         data-bs-toggle="modal">
                         <i class="fas fa-plus"></i>
-                    </button>
+                    </button> --}}
+                    <a href="{{route('new-client-form')}}">
+                        <button class="btn btn-rounded-0 new-client-button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </a>
                 </div>
             </div>
             <div class="card-body" style="max-height: 200px; overflow-x: auto;">

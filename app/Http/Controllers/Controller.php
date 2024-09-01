@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\services;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -33,6 +34,18 @@ class Controller extends BaseController
         if(auth::check()){
             try {
                 return view('pages.admin-hub');
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        }
+        dd('fuck you are not allowed');
+    }
+
+    public function newClient(){
+        if(auth::check()){
+            try {
+                $services = services::where('isVisible', true)->get();
+                return view('pages.client-form', compact('services'));
             } catch (\Exception $exception) {
                 throw $exception;
             }

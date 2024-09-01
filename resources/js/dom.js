@@ -256,83 +256,138 @@ $(document).ready(function () {
     });
     
 
-    $('.next-form').on('click', function() {
-        var currentForm = $(".step:visible");
-        var form = currentForm.find('form').serializeArray();
-        var isCurrentFormValidated = false;
-        $.each(form, (index, element)=>{
-            var fields = currentForm.find(`[name='${element.name}']`);
-            if(element.value === ''){
-                fields.addClass('is-invalid');
+    // $('.next-form').on('click', function() {
+    //     var currentForm = $(".step:visible");
+    //     var form = currentForm.find('form').serializeArray();
+    //     var isCurrentFormValidated = false;
+    //     $.each(form, (index, element)=>{
+    //         var fields = currentForm.find(`[name='${element.name}']`);
+    //         if(element.value === ''){
+    //             fields.addClass('is-invalid');
+    //             Toast.fire({
+    //                 icon: 'warning',
+    //                 title: 'Missing Fields',
+    //                 text: 'Fill all fields to proceed'
+    //             });
+    //             // isCurrentFormValidated = true;
+    //             return false;
+    //         }
+    //         fields.removeClass('is-invalid');
+    //     });
+        
+    //     if(isCurrentFormValidated){
+    //         return;
+    //     }else{
+    //         console.log({...form});
+    //         currentForm.animate({
+    //             // marginLeft: '-100%',
+    //             opacity: 0
+    //         }, function () {
+    //             currentForm.hide();
+    //             currentForm.next('.step').css({
+    //                 // marginLeft: '100%',
+    //                 opacity: 0
+    //             }).show().animate({
+    //                 // marginLeft: '0%',
+    //                 opacity: 1
+    //             });
+    //         });
+    //         $(".prev-form").removeClass('visually-hidden');
+    //         if (!currentForm.next('.step').next('.step').length) {
+    //             $(".next-form").addClass('visually-hidden');
+    //             $(".finish").removeClass('visually-hidden');
+    //         }
+    //     }
+    // });
+    // $('.prev-form').on('click', function () {
+    //     var currentForm = $('.step:visible');
+    //     var prevForm = currentForm.prev('.step');
+
+    //     currentForm.animate({
+    //         // marginLeft: '100%',
+    //         opacity: 0
+    //     }, function () {
+    //         currentForm.hide();
+    //         prevForm.css({opacity: 0 }).show().animate({
+    //             // marginLeft: '0%',
+    //             opacity: 1
+    //         });
+    //     });
+    //     $(".next-form").removeClass('visually-hidden');
+    //     $(".finish").addClass('visually-hidden');
+    //     if (prevForm.prev('.step').length === 0) {
+    //         console.log(prevForm.prev('.step').length);
+    //         $(".prev-form").addClass('visually-hidden');
+    //     }
+    // });
+
+    // $('#submit-new-client').on('click', function(){
+    //     var clientForm = $(".step:visible").find('form');
+    //     var serializeClientForm = clientForm.serializeArray();
+    //     $.each(serializeClientForm, (index, element)=>{
+    //         if(element.value == ''){
+    //             $(`[name='${element.name}']`).addClass('is-invalid');
+    //             return false;
+    //         }
+    //         else{
+    //             console.log('proceed now');
+    //         }
+    //     });        
+    // });
+    
+    $('.submit-new-client').on('click', function(){
+        var company = {};
+        var clientRep = {};
+        var service = {};
+        var serializeCompany = $('.company-info').serializeArray();
+        var serializeClientRep = $('.client-rep').serializeArray();
+        var service = $('.services').serializeArray();
+        $.each(serializeCompany, (index, element)=>{
+                if(element.value == ''){
+                    $(`[name='${element.name}']`).addClass('is-invalid');
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Missing Fields',
+                        text: 'All fields are required'
+                    });
+                }
+                else{
+                    $(`[name='${element.name}']`).removeClass('is-invalid');
+                    company[element.name] = element.value;
+                }
+        });
+        $.each(serializeClientRep, (index, element)=>{
+            if(element.value == ''){
+                $(`[name='${element.name}']`).addClass('is-invalid');
                 Toast.fire({
                     icon: 'warning',
                     title: 'Missing Fields',
-                    text: 'Fill all fields to proceed'
+                    text: 'All fields are required'
                 });
-                // isCurrentFormValidated = true;
-                return false;
-            }
-            fields.removeClass('is-invalid');
-        });
-        
-        if(isCurrentFormValidated){
-            return;
-        }else{
-            console.log({...form});
-            currentForm.animate({
-                // marginLeft: '-100%',
-                opacity: 0
-            }, function () {
-                currentForm.hide();
-                currentForm.next('.step').css({
-                    // marginLeft: '100%',
-                    opacity: 0
-                }).show().animate({
-                    // marginLeft: '0%',
-                    opacity: 1
-                });
-            });
-            $(".prev-form").removeClass('visually-hidden');
-            if (!currentForm.next('.step').next('.step').length) {
-                $(".next-form").addClass('visually-hidden');
-                $(".finish").removeClass('visually-hidden');
-            }
-        }
-    });
-    $('.prev-form').on('click', function () {
-        var currentForm = $('.step:visible');
-        var prevForm = currentForm.prev('.step');
-
-        currentForm.animate({
-            // marginLeft: '100%',
-            opacity: 0
-        }, function () {
-            currentForm.hide();
-            prevForm.css({opacity: 0 }).show().animate({
-                // marginLeft: '0%',
-                opacity: 1
-            });
-        });
-        $(".next-form").removeClass('visually-hidden');
-        $(".finish").addClass('visually-hidden');
-        if (prevForm.prev('.step').length === 0) {
-            console.log(prevForm.prev('.step').length);
-            $(".prev-form").addClass('visually-hidden');
-        }
-    });
-
-    $('#submit-new-client').on('click', function(){
-        var clientForm = $(".step:visible").find('form');
-        var serializeClientForm = clientForm.serializeArray();
-        $.each(serializeClientForm, (index, element)=>{
-            if(element.value == ''){
-                $(`[name='${element.name}']`).addClass('is-invalid');
-                return false;
             }
             else{
-                console.log('proceed now');
+                $(`[name='${element.name}']`).removeClass('is-invalid');
+                clientRep[element.name] = element.value;
             }
-        });        
+        });
+        $.each(service, (index, element)=>{
+            if(element.value == ''){
+                $(`[name='${element.name}']`).addClass('is-invalid');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'All fields are required'
+                });
+            }
+            else{
+                $(`[name='${element.name}']`).removeClass('is-invalid');
+                service[element.name] = element.value;
+            }
+        });
+        console.log(company);
+        console.log(clientRep);
+        console.log(service);
+        
     });
     
     const status = localStorage.getItem('transaction-status');

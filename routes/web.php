@@ -17,4 +17,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('new-service', [ServicesController::class, 'NewService']);
     Route::post('remove-service-{id}', [ServicesController::class, 'removeService']);
     Route::post('update-service', [ServicesController::class, 'UpdateService']);
+    Route::get('/new-client-form', [Controller::class, 'newClient'])->name('new-client-form');
 });
