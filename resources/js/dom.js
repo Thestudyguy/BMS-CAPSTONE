@@ -56,6 +56,12 @@ $(document).ready(function () {
     }
     //end of dom manipulation
 
+    $('.client-sub-table').on('click', function() {
+        console.log($(this).attr('id'));
+        var loaderClass = $(this).closest('tr').next('.expandable-body').find('.loader-td');
+        // loaderClass.removeClass('visually-hidden');
+    });
+    
 
     $('.external-service').on('click', function () {
         var loader = $(this).next('.expandable-body').find('.loader');
@@ -386,10 +392,10 @@ $(document).ready(function () {
         }else{
             NewClientRecord(
                 'new-client-record',
-                { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
                 company,
                 clientRep,
                 service,
+                {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")},
                 successCall,
                 failedCall
             )

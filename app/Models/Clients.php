@@ -16,6 +16,7 @@ class Clients extends Model
         'CEO',
         'CEODateOfBirth',
         'CEOContactInformation',
+        'dataEntryUser',
     ];
     
 }

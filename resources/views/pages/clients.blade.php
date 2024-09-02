@@ -17,43 +17,92 @@
                     </a>
                 </div>
             </div>
-            <div class="card-body" style="max-height: 200px; overflow-x: auto;">
-                <table class="table table-default table-hover text-sm opacity-50 fw-bold">
+            <div class="card-body" style="max-height: 600px; overflow-x: auto;">
+                <table class="table table-hover">
                     <tbody>
-                        <tr class="client-table-data" style="cursor: pointer;" data-widget="expandable-table"
-                            aria-expanded="false">
-                            <td>
-                                Client Data
-                                <span class="visually-hidden action-icons float-right mx-1 text-sm"
-                                    data-bs-target="#remove-client-modal" data-bs-toggle="modal">
+                        @foreach ($clients as $client)
+                            <tr data-widget="expandable-table" class="client-table-data" aria-expanded="false">
+                                <td>
+                                  {{$client->CEO}} <b>-</b> {{$client->CompanyName}}
+                                  <div class="action-icons float-right visually-hidden">
+                                    <i class="fas fa-pen"></i>
                                     <i class="fas fa-trash"></i>
-                                </span>
-                                <span class="visually-hidden action-icons float-right mx-1 text-sm">
-                                    <i class="fas fa-eye"></i>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr class="expandable-body cheque-expandable-body bg-light">
-                            <td>
-                                <div class="p-0 text-center expandable-body-append-table">
-                                    <table class="table table-hover text-left">
-                                        <tbody>
-                                            <tr data-widget="expandable-table">
-                                                <td>Services Availed</td>
-                                            </tr>
-                                            <tr data-widget="expandable-table">
-                                                <td>Accounting</td>
-                                            </tr>
-                                            <tr data-widget="expandable-table">
-                                                <td>Billing Statements</td>
-                                            </tr>
-                                        </tbody>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr class="expandable-body">
+                                <td>
+                                  <div class="p-0">
+                                    <table class="table table-hover">
+                                      <tbody>
+                                        <tr class="client-sub-table" data-widget="expandable-table" aria-expanded="false" id="services-{{$client->id}}">
+                                          <td>
+                                            Services
+                                          </td>
+                                        </tr>
+                                        <tr class="expandable-body">
+                                          <td>
+                                            <div class="p-0">
+                                              <table class="table table-hover">
+                                                <tbody class="services">
+                                                  <tr>
+                                                    <td class="services-loader loader-td visually-hidden">
+                                                        <div class="loader"></div>
+                                                    </td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        <tr class="client-sub-table" data-widget="expandable-table" aria-expanded="false" id="accounting-{{$client->id}}">
+                                          <td>
+                                            Accounting
+                                          </td>
+                                        </tr>
+                                        <tr class="expandable-body">
+                                          <td>
+                                            <div class="p-0">
+                                              <table class="table table-hover">
+                                                <tbody class="accounting">
+                                                  <tr>
+                                                    <td class="accounting-loader loader-td visually-hidden">
+                                                        <div class="loader asd"></div>
+                                                    </td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        <tr class="client-sub-table" data-widget="expandable-table" aria-expanded="false" id="billings-{{$client->id}}">
+                                            <td>
+                                              Billing Statements
+                                            </td>
+                                          </tr>
+                                          <tr class="expandable-body">
+                                            <td>
+                                              <div class="p-0">
+                                                <table class="table table-hover">
+                                                  <tbody class="billings">
+                                                    <tr>
+                                                      <td class="billing-loader loader-td visually-hidden">
+                                                        <div class="loader"></div>
+                                                      </td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                      </tbody>
                                     </table>
-                                </div>
-                            </td>
-                        </tr>
+                                  </div>
+                                </td>
+                              </tr>
+                        @endforeach
                     </tbody>
-                </table>
+                  </table>
             </div>
 
             @include('modals.remove-selected-client')

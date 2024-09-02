@@ -112,8 +112,9 @@ export function NewClientRecord(url, company, clientRep, services, header, CallS
             'company' : company,
             'rep' : clientRep,
             'service' : services,
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")
+            
         },
+        headers: header,
         success: function(response) {
             CallSuccess(response);
         },

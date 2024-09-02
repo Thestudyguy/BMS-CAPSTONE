@@ -60,6 +60,10 @@
                                 <input type="date" class="form-control rounded-0" name="RepresentativeDateOfBirth" id="repDOB">
                             </div>
     
+                            <div class="form-group">
+                                <label for="RepresentativeAddress">Address</label>
+                                <input type="text" class="form-control rounded-0" name="RepresentativeAddress" id="repAddress">
+                            </div>
                             
                             <div class="form-group">
                                 <label for="RepresentativePosition">Position</label>

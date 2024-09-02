@@ -14,6 +14,8 @@ class ClientRepresentative extends Model
         'RepresentativeDateOfBirth',
         'RepresentativePosition',
         'RepresentativeAddress',
+        'dataEntryUser',
+        'CompanyRepresented',
     ];
     
 }
