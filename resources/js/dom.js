@@ -349,6 +349,8 @@ $(document).ready(function () {
         var serializeClientRep = $('.client-rep').serializeArray();
         var serializeServices = $('.services').serializeArray();
         $.each(serializeCompany, (index, element)=>{
+            console.log(element.name);
+            
                 console.log('not suppose to log');
                 if(element.value == ''){
                     $(`[name='${element.name}']`).addClass('is-invalid');
@@ -361,6 +363,8 @@ $(document).ready(function () {
                 else{
                     $(`[name='${element.name}']`).removeClass('is-invalid');
                     company[element.name] = element.value;
+                    console.log(company);
+                    
                 }
         });
         $.each(serializeClientRep, (index, element)=>{
