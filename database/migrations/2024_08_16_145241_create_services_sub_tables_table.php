@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('services_sub_tables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('BelongsToService');
-            $table->foreign('BelongsToService')->references('id')->on('services')->cascadeOnDelete();
+            $table->unsignedBigInteger('BelongsToService')->nullable();
+            $table->foreign('BelongsToService')->references('id')->on('services')->nullOnDelete();
             $table->string('ServiceRequirements');
             $table->decimal('ServiceRequirementPrice', 15)->nullable();
             $table->string('dataEntryUser')->default(null);

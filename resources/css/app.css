@@ -144,3 +144,27 @@ input[type="number"] {
     color: #063D58;
     font-family: 'Open Sans', sans-serif;
 }
+
+.client-form{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.client-form .fw-bold, .client-form .form-label{
+    color: #063D58;
+}
+.nav-link.active {
+    background-color: whitesmoke;
+    color: #495057;
+}
+select, option {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+}
+.image-preview {
+    margin-bottom: 1rem;
+}
+
+#imagePreview {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}

@@ -261,157 +261,138 @@ $(document).ready(function () {
         }
     });
     
-
-    // $('.next-form').on('click', function() {
-    //     var currentForm = $(".step:visible");
-    //     var form = currentForm.find('form').serializeArray();
-    //     var isCurrentFormValidated = false;
-    //     $.each(form, (index, element)=>{
-    //         var fields = currentForm.find(`[name='${element.name}']`);
-    //         if(element.value === ''){
-    //             fields.addClass('is-invalid');
-    //             Toast.fire({
-    //                 icon: 'warning',
-    //                 title: 'Missing Fields',
-    //                 text: 'Fill all fields to proceed'
-    //             });
-    //             // isCurrentFormValidated = true;
-    //             return false;
-    //         }
-    //         fields.removeClass('is-invalid');
-    //     });
-        
-    //     if(isCurrentFormValidated){
-    //         return;
-    //     }else{
-    //         console.log({...form});
-    //         currentForm.animate({
-    //             // marginLeft: '-100%',
-    //             opacity: 0
-    //         }, function () {
-    //             currentForm.hide();
-    //             currentForm.next('.step').css({
-    //                 // marginLeft: '100%',
-    //                 opacity: 0
-    //             }).show().animate({
-    //                 // marginLeft: '0%',
-    //                 opacity: 1
-    //             });
-    //         });
-    //         $(".prev-form").removeClass('visually-hidden');
-    //         if (!currentForm.next('.step').next('.step').length) {
-    //             $(".next-form").addClass('visually-hidden');
-    //             $(".finish").removeClass('visually-hidden');
-    //         }
-    //     }
-    // });
-    // $('.prev-form').on('click', function () {
-    //     var currentForm = $('.step:visible');
-    //     var prevForm = currentForm.prev('.step');
-
-    //     currentForm.animate({
-    //         // marginLeft: '100%',
-    //         opacity: 0
-    //     }, function () {
-    //         currentForm.hide();
-    //         prevForm.css({opacity: 0 }).show().animate({
-    //             // marginLeft: '0%',
-    //             opacity: 1
-    //         });
-    //     });
-    //     $(".next-form").removeClass('visually-hidden');
-    //     $(".finish").addClass('visually-hidden');
-    //     if (prevForm.prev('.step').length === 0) {
-    //         console.log(prevForm.prev('.step').length);
-    //         $(".prev-form").addClass('visually-hidden');
-    //     }
-    // });
-
-    // $('#submit-new-client').on('click', function(){
-    //     var clientForm = $(".step:visible").find('form');
-    //     var serializeClientForm = clientForm.serializeArray();
-    //     $.each(serializeClientForm, (index, element)=>{
-    //         if(element.value == ''){
-    //             $(`[name='${element.name}']`).addClass('is-invalid');
-    //             return false;
-    //         }
-    //         else{
-    //             console.log('proceed now');
-    //         }
-    //     });        
-    // });
+    $(".next-form").on('click', function() {
+        var currentForm = $('.multi-step:visible');
+        var serializeCurrentForm = currentForm.serializeArray();
+        var hasError = false;
+        var clientObj = {};        
+        currentForm.find('.form-control').removeClass('is-invalid');// Reset previous validation states
     
-    $('.submit-new-client').on('click', function(){
-        var company = {};
-        var clientRep = {};
-        var service = [];
-        var serializeCompany = $('.company-info').serializeArray();
-        var serializeClientRep = $('.client-rep').serializeArray();
-        var serializeServices = $('.services').serializeArray();
-        $.each(serializeCompany, (index, element)=>{
-            console.log(element.name);
-            
-                console.log('not suppose to log');
-                if(element.value == ''){
-                    $(`[name='${element.name}']`).addClass('is-invalid');
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'All fields are required'
-                    });
-                }
-                else{
-                    $(`[name='${element.name}']`).removeClass('is-invalid');
-                    company[element.name] = element.value;
-                    console.log(company);
-                    
-                }
-        });
-        $.each(serializeClientRep, (index, element)=>{
-                console.log('not suppose to log');
-                if(element.value == ''){
+        $.each(serializeCurrentForm, (index, element) => {
+            if (element.value === '') {
                 $(`[name='${element.name}']`).addClass('is-invalid');
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Fields',
-                    text: 'All fields are required'
-                });
+                hasError = true;
             }
-            else{
-                $(`[name='${element.name}']`).removeClass('is-invalid');
-                clientRep[element.name] = element.value;
-            }
+            clientObj[element.name] = element.value;
         });
-        $('#services input[name="Service[]"]:checked').each(function() {
-            service.push($(this).val());
-        });
-
-        if(clientRep.length == 0 || company.length == 0){
+    
+        if (hasError) {
             Toast.fire({
-                icon: 'error',
-                title: 'Fatal Error',
-                text: 'Something went wrong, check your inputs or try reloading the page'
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Fill all fields to proceed'
             });
-            return false;
-        }else{
-            NewClientRecord(
-                'new-client-record',
-                company,
-                clientRep,
-                service,
-                {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")},
-                successCall,
-                failedCall
-            )
-            function successCall(response){
-                console.log(response);
-            }
-            function failedCall(errors, status, jqXHR){
-                console.log(errors);
+        } else {
+            console.log(clientObj);
+            
+            var nextForm = currentForm.next('.multi-step');
+            if (nextForm.length) {
+                currentForm.fadeOut(300, function() {
+                    $(this).hide();
+                    nextForm.fadeIn(200, function() {
+                        $(this).show();
+                    });
+                });
             }
         }
     });
+
+    // $(".next-form").on('click', function() {
+    //     var currentForm = $('.multi-step:visible');
+    //     var formData = new FormData(currentForm[0]); // Create FormData object from the current form
+    //     var hasError = false;
     
+    //     // Define objects for different sections
+    //     var clientObj = {};          // General client information
+    //     var clientProfile = {};      // For file inputs or specific profile data
+    //     var clientRep = {};          // Representative information
+    
+    //     // Reset previous validation states
+    //     currentForm.find('.form-control').removeClass('is-invalid');
+    
+    //     // Separate handling based on the form section
+    //     if (currentForm.hasClass('client-form')) {
+    //         // Handle general client information
+    //         currentForm.find('.form-control').each(function() {
+    //             if ($(this).val() === '') {
+    //                 $(this).addClass('is-invalid');
+    //                 hasError = true;
+    //             }
+    //             clientObj[$(this).attr('name')] = $(this).val();
+    //         });
+    //     } else if (currentForm.hasClass('client-rep')) {
+    //         // Handle representative information
+    //         currentForm.find('.form-control').each(function() {
+    //             if ($(this).val() === '') {
+    //                 $(this).addClass('is-invalid');
+    //                 hasError = true;
+    //             }
+    //             clientRep[$(this).attr('name')] = $(this).val();
+    //         });
+    //     } else if (currentForm.hasClass('client-services')) {
+    //         // Handle client services including file inputs
+    //         formData.forEach((value, key) => {
+    //             if (key === 'companyProfile') {
+    //                 // Special handling for file inputs
+    //                 clientProfile[key] = value;  // This will be a File object
+    //             } else {
+    //                 clientProfile[key] = value;
+    //             }
+    //         });
+    //     }
+    
+    //     if (hasError) {
+    //         Toast.fire({
+    //             icon: 'warning',
+    //             title: 'Missing Fields',
+    //             text: 'Fill all fields to proceed'
+    //         });
+    //     } else {
+    //         // Debugging output
+    //         console.log('Client Information:', clientObj);
+    //         console.log('Representative Information:', clientRep);
+    //         console.log('Client Profile:', clientProfile);
+    
+    //         // Proceed to the next form
+    //         var nextForm = currentForm.next('.multi-step');
+    //         if (nextForm.length) {
+    //             currentForm.fadeOut(300, function() {
+    //                 $(this).hide();
+    //                 nextForm.fadeIn(200, function() {
+    //                     $(this).show();
+    //                 });
+    //             });
+    //         }
+    //     }
+    // });
+    
+    
+    $('#fileInput').on('change', function(event) {
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagePreview').attr('src', e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#imagePreview').attr('src', '#').hide();
+        }
+    });
+
+
+    var activeLink = localStorage.getItem('activeNavItem');
+    if (activeLink) {
+        $('.nav-item a[href="' + activeLink + '"]').addClass('active');
+    }
+
+    $('.nav-item a').on('click', function() {
+        $('.nav-item a').removeClass('active');
+        $(this).addClass('active');
+
+        localStorage.setItem('activeNavItem', $(this).attr('href'));
+    });
+
     const status = localStorage.getItem('transaction-status');
     if (status) {
         localStorage.removeItem('transaction-status');

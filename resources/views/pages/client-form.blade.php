@@ -1,171 +1,149 @@
 @extends('layout')
 @section('content')
-<div class="container-fluid">
-    <div class="container">
-        <!-- Title -->
-       
-        <div class="lead fw-bold p-3 new-client-prompt"></div>
-        <!-- Main content -->
-        <div class="row">
-            <div class="d-flex p-5 mt-3 justify-content-between align-items-lg-center py-3 flex-column flex-lg-row">
-                <h2 class="h5 mb-3 mb-lg-0"><a href="../../pages/admin/customers.html" class="text-muted"><i class="bi bi-arrow-left-square me-2"></i></a> Create new customer</h2>
-                <div class="hstack gap-3">
-                  <button class="btn btn-light btn-sm btn-icon-text"><i class="bi bi-x"></i> <span class="text">Cancel</span></button>
-                  <button class="btn btn-primary btn-sm btn-icon-text"><i class="bi bi-save"></i> <span class="text">Save</span></button>
-                </div>
-              </div>
-          <!-- Left side -->
-          <div class="col-lg-8">
-            <!-- Basic information -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h3 class="h6 mb-4">Basic information</h3>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">First name</label>
-                      <input type="text" class="form-control">
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">Last name</label>
-                      <input type="text" class="form-control">
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">Email</label>
-                      <input type="email" class="form-control">
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">Phone number</label>
-                      <input type="text" class="form-control">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Address -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h3 class="h6 mb-4">Address</h3>
-                <div class="mb-3">
-                  <label class="form-label">Address Line 1</label>
-                  <input type="text" class="form-control">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Address Line 2</label>
-                  <input type="text" class="form-control">
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">Country</label>
-                      <select class="select2 form-control select2-hidden-accessible" data-select2-placeholder="Select country" data-select2-id="select2-data-1-gy14" tabindex="-1" aria-hidden="true">
-                        <option data-select2-id="select2-data-3-ibs9"></option>
-                        <option value="AF">Afghanistan</option>
-                        <option value="BS">Bahamas</option>
-                        <option value="KH">Cambodia</option>
-                        <option value="DK">Denmark</option>
-                        <option value="TL">East Timor</option>
-                        <option value="GM">Gambia</option>
-                      </select><span class="select2 select2-container select2-container--bootstrap-5" dir="ltr" data-select2-id="select2-data-2-46y9" style="width: 391px;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-vp8l-container" aria-controls="select2-vp8l-container"><span class="select2-selection__rendered" id="select2-vp8l-container" role="textbox" aria-readonly="true" title="Select country"><span class="select2-selection__placeholder">Select country</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">State</label>
-                      <select class="select2 form-control select2-hidden-accessible" data-select2-placeholder="Select state" data-select2-id="select2-data-4-680y" tabindex="-1" aria-hidden="true">
-                        <option data-select2-id="select2-data-6-cshs"></option>
-                        <option value="AL">Alabama</option>
-                        <option value="CA">California</option>
-                        <option value="DE">Delaware</option>
-                        <option value="FL">Florida</option>
-                        <option value="GA">Georgia</option>
-                        <option value="HI">Hawaii</option>
-                        <option value="ID">Idaho</option>
-                        <option value="KS">Kansas</option>
-                      </select><span class="select2 select2-container select2-container--bootstrap-5" dir="ltr" data-select2-id="select2-data-5-np4c" style="width: 391px;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-2fn7-container" aria-controls="select2-2fn7-container"><span class="select2-selection__rendered" id="select2-2fn7-container" role="textbox" aria-readonly="true" title="Select state"><span class="select2-selection__placeholder">Select state</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">City</label>
-                      <select class="select2 form-control select2-hidden-accessible" data-select2-placeholder="Select city" data-select2-id="select2-data-7-809c" tabindex="-1" aria-hidden="true">
-                        <option data-select2-id="select2-data-9-k35n"></option>
-                        <option value="b">Bangkok</option>
-                        <option value="d">Dubai</option>
-                        <option value="h">Hong Kong</option>
-                        <option value="k">Kuala Lumpur</option>
-                        <option value="l">London</option>
-                        <option value="n">New York City</option>
-                        <option value="m">Macau</option>
-                        <option value="p">Paris</option>
-                      </select><span class="select2 select2-container select2-container--bootstrap-5" dir="ltr" data-select2-id="select2-data-8-3peu" style="width: 391px;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-jdfi-container" aria-controls="select2-jdfi-container"><span class="select2-selection__rendered" id="select2-jdfi-container" role="textbox" aria-readonly="true" title="Select city"><span class="select2-selection__placeholder">Select city</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">ZIP code</label>
-                      <input type="text" class="form-control">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Right side -->
-          <div class="col-lg-4">
-            <!-- Status -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h3 class="h6">Services</h3>
-                <select name="Services[]" id="" class="form-control">
-                    <option value="" selected hidden>Select Services</option>
-                    @foreach ($services as $item)
-                    {{-- <div class="m-2">
-                        <input type="checkbox" name="Service[]" id="service-{{$item->id}}" value="{{$item->id}}">{{$item->Service}}
-                    </div> --}}
-                    <option value="{{$item->id}}">{{$item->Service}}</option>
-                @endforeach
-                </select>
-              </div>
-            </div>
-            <div class="card mb-4">
-                <div class="card-body">
-                  <h3 class="h6">Sub services</h3>
-                  <span class="badge bg-danger text-ligh"><strong>Select service first</strong></span>
-                  {{-- @foreach ($services as $item)
-                  <div class="m-2">
-                      <input type="checkbox" name="Service[]" id="service-{{$item->id}}" value="{{$item->id}}">{{$item->Service}}
-                  </div>
-              @endforeach --}}
-                </div>
-              </div>
-            <!-- Notes -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h3 class="h6">Notes</h3>
-                <textarea class="form-control" rows="3"></textarea>
-              </div>
-            </div>
-            <div class="card mb-4">
-                <div class="card-body">
-                  <h3 class="h6">Company Profile<sup class="text-danger fw-bold"><strong>(option)</strong></sup></h3>
-                  <input class="form-control" type="file" accept="image/*" aria-label="Upload Company Profile Image">
-                </div>
-              </div>
-          </div>
-        </div>
-        {{-- <button class="btn btn-primary float-right">Submit</button> --}}
+<div class="container-fluid client-form p-5 d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="container p-5 w-100">
+      <h4 class="h6 fw-bold text-dark">New Client</h4>
+      <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar" style="width: 0%; background: #063D58;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
+      <div class="card w-100">
+        <div class="card-body">
+          <form action="" class="client-form multi-step" hidden>
+            <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Company Information</h4>
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Company Name</label>
+                  <input type="text" name="CompanyName" id="companyname" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Company Email</label>
+                  <input type="email" name="CompanyEmail" id="companyemail" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Company Address</label>
+                  <input type="text" name="CompanyAddress" id="companyaddress" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">CEO/Owner</label>
+                  <input type="text" name="CEO" id="ceo" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Date of Birth</label>
+                  <input type="date" name="CEODateOfBirth" class="form-control" id="ceodob">
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Contact Information<sup class="text-danger fw-bold">(phone or email)</sup></label>
+                  <input type="text" name="CEOContactInformation" id="ceoContactInfo" class="form-control">
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <form action="" class="client-rep multi-step" style="display: none;">
+            <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Representative Information</h4>
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" name="RepresentativeName" id="repName" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contact Information</label>
+              <input type="text" name="RepresentativeContactInformation" id="repcontact" class="form-control">
+            </div>
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Date of Birth</label>
+                  <input type="date" name="RepresentativeDateOfBirth" id="repdob" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Position</label>
+                  <input type="text" name="RepresentativePosition" class="form-control" id="position">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  <label class="form-label">Address</label>
+                  <input type="text" name="RepresentativeAddress" id="repaddress" class="form-control">
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <form action="" class="client-services multi-step" style="display: none;">
+            <h4 class="h6 fw-bold">Company Profile</h4>
+            <hr>
+            <center>
+              <div class="image-preview">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 50%; border-radius: 50%; height: auto;"/>
+            </div>
+            </center>
+            <input type="file" name="companyProfile" class="form-control" id="fileInput" accept="image/*">
+        </form>
+
+        <form action="" class="data-entry-preview">
+          <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Review Client Information</h4>
+          <hr>
+          <div id="preview-container">
+            <div class="card">
+              <h4 class="h6 fw-bold">Company Information</h4>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div class="col-sm-6 fw-bold">Company Name: </div>
+                      <div class="col-sm-6 fw-bold companyName"></div>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div class="col-sm-6 fw-bold">Company Email:</div>
+                      <div class="col-sm-6"></div>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div class="col-sm-6 fw-bold">Address</div>
+                      <div class="col-sm-6"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        </div>
+       </div>
+       <div class="hstack gap-3 float-right">
+        <button class="btn btn-secondary btn-icon-text fw-bold text-light visually-hidden previous-form">
+          <span class="text" style="letter-spacing: 1px;">Previous</span>
+        </button>
+         <button class="btn btn-primary btn-icon-text fw-bold text-light next-form">
+           <span class="text" style="letter-spacing: 1px;">Next</span>
+         </button>
+         <button class="btn btn-icon-text fw-bold text-light visually-hidden save" style="background: #063D58;">
+          <span class="text" style="letter-spacing: 1px;">Save</span>
+        </button>
+       </div>
+    </div>
 </div>
+
 @endsection
-{{-- <sup class="text-danger"><strong>(email or phone#)</strong></sup> --}}
