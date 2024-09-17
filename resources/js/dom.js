@@ -261,18 +261,19 @@ $(document).ready(function () {
         }
     });
     
+    var clientObj = {};   
+    var profilePath = '';     
     $(".next-form").on('click', function() {
         var currentForm = $('.multi-step:visible');
         var serializeCurrentForm = currentForm.serializeArray();
         var hasError = false;
-        var clientObj = {};        
-        currentForm.find('.form-control').removeClass('is-invalid');// Reset previous validation states
+        currentForm.find('.form-control').removeClass('is-invalid');
     
         $.each(serializeCurrentForm, (index, element) => {
-            if (element.value === '') {
-                $(`[name='${element.name}']`).addClass('is-invalid');
-                hasError = true;
-            }
+            // if (element.value === '') {
+                // $(`[name='${element.name}']`).addClass('is-invalid');
+                // hasError = true;
+            // }
             clientObj[element.name] = element.value;
         });
     
@@ -283,9 +284,30 @@ $(document).ready(function () {
                 text: 'Fill all fields to proceed'
             });
         } else {
-            console.log(clientObj);
-            
             var nextForm = currentForm.next('.multi-step');
+            if (nextForm.hasClass('data-entry-preview')) {
+                $(".companyName").text($("[name='CompanyName']").val());
+                $(".companyEmail").text($("[name='CompanyEmail']").val());
+                $(".companyAddress").text($("[name='CompanyAddress']").val());
+                $(".companyCEO").text($("[name='CEO']").val());
+                $(".companyCEODob").text($("[name='CEODateOfBirth']").val());
+                $(".companyCEOContact").text($("[name='CEOContactInformation']").val());
+                
+                $(".representativeName").text($("[name='RepresentativeName']").val());
+                $(".representativeContact").text($("[name='RepresentativeContactInformation']").val());
+                $(".representativeDob").text($("[name='RepresentativeDateOfBirth']").val());
+                $(".representativePosition").text($("[name='RepresentativePosition']").val());
+                $(".representativeAddress").text($("[name='RepresentativeAddress']").val());
+    
+                var fileInput = document.getElementById('fileInput');
+                if (fileInput.files && fileInput.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#previewImage').attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                }
+            }
             if (nextForm.length) {
                 currentForm.fadeOut(300, function() {
                     $(this).hide();
@@ -294,9 +316,36 @@ $(document).ready(function () {
                     });
                 });
             }
+            $(".previous-form").removeClass('visually-hidden');
+            if (!currentForm.next('.multi-step').next('.multi-step').length) {
+            $(".next-form").addClass('visually-hidden');
+            $(".save").removeClass('visually-hidden');
+        }
         }
     });
 
+    $('.previous-form').on('click', function () {
+        var currentForm = $('.multi-step:visible');
+        var prevForm = currentForm.prev('.multi-step');
+    
+        currentForm.fadeOut(300, function() {
+            $(this).hide();
+            prevForm.fadeIn(300, function() {
+                $(this).show();
+            });
+        });
+        $(".next-form").removeClass('visually-hidden');
+        $(".save").addClass('visually-hidden');
+        if (prevForm.prev('.multi-step').length === 0) {
+            $(".previous-form").addClass('visually-hidden');
+        }
+    });
+
+    $('.save').on('click', function(){
+        console.log(clientObj);
+        
+    });
+    
     // $(".next-form").on('click', function() {
     //     var currentForm = $('.multi-step:visible');
     //     var formData = new FormData(currentForm[0]); // Create FormData object from the current form
@@ -373,6 +422,8 @@ $(document).ready(function () {
             var reader = new FileReader();
             reader.onload = function(e) {
                 $('#imagePreview').attr('src', e.target.result).show();
+                console.log(e.target.result);
+                
             };
             reader.readAsDataURL(file);
         } else {

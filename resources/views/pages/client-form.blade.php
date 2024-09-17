@@ -2,13 +2,19 @@
 @section('content')
 <div class="container-fluid client-form p-5 d-flex justify-content-center align-items-center" style="height: 100vh;">
     <div class="container p-5 w-100">
-      <h4 class="h6 fw-bold text-dark">New Client</h4>
-      <div class="progress mb-4">
+      <h4 class="h6 fw-bold text-dark lead">New Client</h4>
+      {{-- <div class="progress mb-4 position-relative">
+        <div class="row position-absolute w-100 mt-2 form-step-indicator">
+          <div class="col-sm-3 text-center">1</div>
+          <div class="col-sm-3 text-center">2</div>
+          <div class="col-sm-3 text-center">3</div>
+          <div class="col-sm-3 text-center">4</div>
+        </div>
         <div class="progress-bar" role="progressbar" style="width: 0%; background: #063D58;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-      </div>
+      </div> --}}
       <div class="card w-100">
         <div class="card-body">
-          <form action="" class="client-form multi-step" hidden>
+          <form action="" class="client-form multi-step">
             <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Company Information</h4>
             <div class="row">
               <div class="col-lg-6">
@@ -99,30 +105,82 @@
             <input type="file" name="companyProfile" class="form-control" id="fileInput" accept="image/*">
         </form>
 
-        <form action="" class="data-entry-preview">
+        <form action="" class="data-entry-preview multi-step" style="display: none;">
           <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Review Client Information</h4>
           <hr>
           <div id="preview-container">
-            <div class="card">
-              <h4 class="h6 fw-bold">Company Information</h4>
-              <div class="card-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="card mb-3">
+                  <h4 class="h6 fw-bold m-3">Company Information</h4>
+                  <div class="card-body">
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">Company Name: </div>
+                      <div class="col-sm-6 companyName fw-bold text-dark"></div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">Company Email: </div>
+                      <div class="col-sm-6 companyEmail fw-bold text-dark"></div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">Company Address: </div>
+                      <div class="col-sm-6 companyAddress fw-bold text-dark"></div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">CEO/Owner: </div>
+                      <div class="col-sm-6 companyCEO fw-bold text-dark"></div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">CEO Date of Birth: </div>
+                      <div class="col-sm-6 companyCEODob fw-bold text-dark"></div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-sm-6 fw-bold">CEO Contact Information: </div>
+                      <div class="col-sm-6 companyCEOContact fw-bold text-dark"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
                 <div class="row">
                   <div class="col-sm-12">
-                    <div class="row">
-                      <div class="col-sm-6 fw-bold">Company Name: </div>
-                      <div class="col-sm-6 fw-bold companyName"></div>
+                    <div class="card mb-3">
+                      <h4 class="h6 fw-bold m-3">Representative Information</h4>
+                      <div class="card-body">
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Representative Name: </div>
+                          <div class="col-sm-6 representativeName fw-bold text-dark"></div>
+                        </div>
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Representative Contact Information: </div>
+                          <div class="col-sm-6 representativeContact fw-bold text-dark"></div>
+                        </div>
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Date of Birth: </div>
+                          <div class="col-sm-6 representativeDob fw-bold text-dark"></div>
+                        </div>
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Position: </div>
+                          <div class="col-sm-6 representativePosition fw-bold text-dark"></div>
+                        </div>
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Address: </div>
+                          <div class="col-sm-6 representativeAddress fw-bold text-dark"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div class="col-sm-12">
-                    <div class="row">
-                      <div class="col-sm-6 fw-bold">Company Email:</div>
-                      <div class="col-sm-6"></div>
-                    </div>
-                  </div>
-                  <div class="col-sm-12">
-                    <div class="row">
-                      <div class="col-sm-6 fw-bold">Address</div>
-                      <div class="col-sm-6"></div>
+                    <div class="card mb-3">
+                      <h4 class="h6 fw-bold m-3">Company Profile</h4>
+                      <div class="card-body">
+                        <div class="row mb-2">
+                          <div class="col-sm-6 fw-bold">Uploaded Profile Picture: </div>
+                          <div class="col-sm-6">
+                            <img id="previewImage" style="max-width: 50%; border-radius: 50%; display: none;">
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

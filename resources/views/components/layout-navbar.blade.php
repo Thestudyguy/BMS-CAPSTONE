@@ -4,7 +4,7 @@
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item px-3">
-            <a class="nav-link" style="color: #063D58; font-weight: bold;" href="{{ route('dashboard') }}" style="font-weight: 900;">
+            <a class="nav-link" style="color: #063D58; font-weight: bold; background: transparent;" href="{{ route('dashboard') }}" style="font-weight: 900;">
                 {{ __('BOOKKEEPING MANAGEMENT SYSTEM (BMS)') }}
             </a>
         </li>
