@@ -263,27 +263,42 @@ $(document).ready(function () {
     
     var clientObj = {};   
     var profilePath = '';     
+    var profileInput = document.getElementById('fileInput'); // wow we need to access DOM element directly ew!
     $(".next-form").on('click', function() {
         var currentForm = $('.multi-step:visible');
         var serializeCurrentForm = currentForm.serializeArray();
         var hasError = false;
+        var isProfileEmpty = false;
         currentForm.find('.form-control').removeClass('is-invalid');
     
         $.each(serializeCurrentForm, (index, element) => {
-            // if (element.value === '') {
-                // $(`[name='${element.name}']`).addClass('is-invalid');
-                // hasError = true;
-            // }
+            if (element.value === '') {
+                $(`[name='${element.name}']`).addClass('is-invalid');
+                hasError = true;
+            }
             clientObj[element.name] = element.value;
         });
-    
+        if (currentForm.hasClass('client-profile')) {
+            if (!profileInput.files || profileInput.files.length === 0) {
+                $('#fileInput').addClass('is-invalid');
+                isProfileEmpty = true;
+            } else {
+                $('#fileInput').removeClass('is-invalid');
+            }
+        }
         if (hasError) {
             Toast.fire({
                 icon: 'warning',
                 title: 'Missing Fields',
                 text: 'Fill all fields to proceed'
             });
-        } else {
+        }else if(isProfileEmpty){
+            Toast.fire({
+                icon: 'warning',
+                title: 'Missing File',
+                text: 'Please upload a profile picture before proceeding.'
+            });
+        }else {
             var nextForm = currentForm.next('.multi-step');
             if (nextForm.hasClass('data-entry-preview')) {
                 $(".companyName").text($("[name='CompanyName']").val());
@@ -341,9 +356,22 @@ $(document).ready(function () {
         }
     });
 
-    $('.save').on('click', function(){
+    $('.save').on('click', function() {
+        var formData = new FormData();
         console.log(clientObj);
         
+        NewClientRecord(
+            'new-client-record',
+            clientObj,                  
+            fileInput.files[0],         
+            {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},                    
+            function success(response) { 
+                console.log('Success:', response);
+            },
+            function error(xhr, status, errors) {  
+                console.log('Error:', status, errors);
+            }
+        );
     });
     
     // $(".next-form").on('click', function() {

@@ -28,7 +28,7 @@
                     <a href="{{route('admin-hub')}}" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p class="text-sm">
-                            {{ __('Admin Hub') }}
+                            {{ __('Activity Log') }}
                         </p>
                     </a>
                 </li>

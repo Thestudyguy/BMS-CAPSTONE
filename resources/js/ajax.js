@@ -97,24 +97,29 @@ export function NewSubServicec(url, subService, header, CallSuccess, CallError) 
 /** create new requirement/sub service
  *
  * @param {string} url
- * @param {Object} company
  * @param {Object} clientRep
- * @param {Object} services
+ * @param {File} profile
  * @param {string} header
  * @param {function} success
  * @param {function} error
  */
-export function NewClientRecord(url, company, clientRep, services, header, CallSuccess, CallError) {
+export function NewClientRecord(url, client, profile, header, CallSuccess, CallError) {
+    var formData = new FormData();
+    for (var key in client) {
+        if (client.hasOwnProperty(key)) {
+            formData.append(key, client[key]);
+        }
+    }
+    if (profile) {
+        formData.append('profile', profile);
+    }
     $.ajax({
         url: url,
         type: 'POST',
-        data: {
-            'company' : company,
-            'rep' : clientRep,
-            'service' : services,
-            
-        },
+        data: formData,
         headers: header,
+        processData: false,           
+        contentType: false, 
         success: function(response) {
             CallSuccess(response);
         },

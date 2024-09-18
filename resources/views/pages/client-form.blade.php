@@ -94,7 +94,7 @@
             </div>
           </form>
 
-          <form action="" class="client-services multi-step" style="display: none;">
+          <form action="" class="client-profile multi-step" style="display: none;">
             <h4 class="h6 fw-bold">Company Profile</h4>
             <hr>
             <center>
