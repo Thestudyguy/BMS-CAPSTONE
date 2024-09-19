@@ -369,81 +369,35 @@ $(document).ready(function () {
                 console.log('Success:', response);
             },
             function error(xhr, status, errors) {  
-                console.log('Error:', status, errors);
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    ToastError.fire({
+                        icon: 'warning',
+                        title: 'Oops Something went wrong!',
+                        text: `Translated: ${xhr.responseJSON.message}`,
+                    });
+                    console.log(xhr.responseJSON.errors);
+                }
+                // if (xhr.responseJSON && xhr.responseJSON.errors) {
+                //     let ValidationError = xhr.responseJSON.errors;
+                //     let profileErrors = xhr.responseJSON.errors.profile;
+                //     if (profileErrors && profileErrors.length > 0) {
+                //         ToastError.fire({
+                //             icon: 'warning',
+                //             title: 'File Conflict',
+                //             text: 'Translated: ' + profileErrors[0],
+                //         });
+                //     }else{
+                //         ToastError.fire({
+                //             icon: 'warning',
+                //             title: 'Error',
+                //             text: 'Translated: ' + ValidationError,
+                //         });
+                //     }
+                // }
             }
         );
     });
-    
-    // $(".next-form").on('click', function() {
-    //     var currentForm = $('.multi-step:visible');
-    //     var formData = new FormData(currentForm[0]); // Create FormData object from the current form
-    //     var hasError = false;
-    
-    //     // Define objects for different sections
-    //     var clientObj = {};          // General client information
-    //     var clientProfile = {};      // For file inputs or specific profile data
-    //     var clientRep = {};          // Representative information
-    
-    //     // Reset previous validation states
-    //     currentForm.find('.form-control').removeClass('is-invalid');
-    
-    //     // Separate handling based on the form section
-    //     if (currentForm.hasClass('client-form')) {
-    //         // Handle general client information
-    //         currentForm.find('.form-control').each(function() {
-    //             if ($(this).val() === '') {
-    //                 $(this).addClass('is-invalid');
-    //                 hasError = true;
-    //             }
-    //             clientObj[$(this).attr('name')] = $(this).val();
-    //         });
-    //     } else if (currentForm.hasClass('client-rep')) {
-    //         // Handle representative information
-    //         currentForm.find('.form-control').each(function() {
-    //             if ($(this).val() === '') {
-    //                 $(this).addClass('is-invalid');
-    //                 hasError = true;
-    //             }
-    //             clientRep[$(this).attr('name')] = $(this).val();
-    //         });
-    //     } else if (currentForm.hasClass('client-services')) {
-    //         // Handle client services including file inputs
-    //         formData.forEach((value, key) => {
-    //             if (key === 'companyProfile') {
-    //                 // Special handling for file inputs
-    //                 clientProfile[key] = value;  // This will be a File object
-    //             } else {
-    //                 clientProfile[key] = value;
-    //             }
-    //         });
-    //     }
-    
-    //     if (hasError) {
-    //         Toast.fire({
-    //             icon: 'warning',
-    //             title: 'Missing Fields',
-    //             text: 'Fill all fields to proceed'
-    //         });
-    //     } else {
-    //         // Debugging output
-    //         console.log('Client Information:', clientObj);
-    //         console.log('Representative Information:', clientRep);
-    //         console.log('Client Profile:', clientProfile);
-    
-    //         // Proceed to the next form
-    //         var nextForm = currentForm.next('.multi-step');
-    //         if (nextForm.length) {
-    //             currentForm.fadeOut(300, function() {
-    //                 $(this).hide();
-    //                 nextForm.fadeIn(200, function() {
-    //                     $(this).show();
-    //                 });
-    //             });
-    //         }
-    //     }
-    // });
-    
-    
+
     $('#fileInput').on('change', function(event) {
         var file = this.files[0];
         if (file) {

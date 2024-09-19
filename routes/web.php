@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 Route::get('/', function () {return view('auth.login');});
 Route::middleware('authenticated')->group(function(){
-    Route::get('/dashboard', function(){return view('pages.dashboard');})->name('dashboard');
+    Route::get('/dashboard', [Controller::class, 'dashboard'])->name('dashboard');
     Route::get('/clients', [ClientController::class, 'returnClientData'])->name('clients');
     Route::get('/external-services', [ServicesController::class, 'returnServices'])->name('external-services');
     Route::get('/admin-hub', [Controller::class, 'adminHub'])->name('admin-hub');

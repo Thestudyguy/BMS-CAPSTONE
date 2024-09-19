@@ -29,75 +29,29 @@ class ClientController extends Controller
             return response()->json(['error' => 'You are not authorized'], 403);
         }
     }
-    // public function CreateNewClient(Request $request)
-    // {
-    //     if (Auth::check()) {
-    //         $client = $request->all();
-    //         $profile = $request->file('profile');
-    //         $validateClient = Validator::make($request->all(), [
-    //             'CompanyName' => 'required|string|max:255|unique:clients,CompanyName',
-    //             'CompanyAddress' => 'required|string|max:255',
-    //             'TIN' => 'required|string|max:255|unique:clients,TIN',
-    //             'CompanyEmail' => 'required|string|email|max:255|unique:clients,CompanyEmail',
-    //             'CEO' => 'required|string|max:255',
-    //             'CEODateOfBirth' => 'required|date',
-    //             'CEOContactInformation' => 'required|string|max:255|unique:clients,CEOContactInformation',
-    //         ]);
-    //         $validateClientRep = Validator::make($request->all(), [
-    //         'CompanyRepresented' => 'nullable|exists:clients,id',
-    //         'RepresentativeName' => 'required|string|max:255|unique:client_representatives,RepresentativeName',
-    //         'RepresentativeContactInformation' => 'required|string|max:255|unique:client_representatives,RepresentativeContactInformation',
-    //         'RepresentativeDateOfBirth' => 'required|date',
-    //         'RepresentativePosition' => 'required|string|max:255',
-    //         'RepresentativeAddress' => 'required|string|max:255',
-    //         ]);
-    //         if ($validateClientRep->fails() || $validateClient->fails()) {
-    //             return response()->json(['error' => 'Validation Failed', 'details' => $clientRepValidator->errors()], 422);
-    //         }
-    //         if ($profile) {
-    //             $profilePath = $profile->store('profiles', 'public');
-    //             Log::info("Profile stored at: " . $profilePath);
-    //         }
-    //         return response()->json(['success' => 'Client and profile received successfully'], 200);
-    //     } else {
-    //         return response()->json(['error' => 'Not authorized'], 403);
-    //     }
-    // }
-
     public function CreateNewClient(Request $request)
     {
-        // Check if the user is authenticated
         if (!Auth::check()) {
             return response()->json(['error' => 'Not authorized'], 403);
         }
-    
-        // Validation rules
         $validatedData = $request->validate([
-            // Client data validation
-            'CompanyName' => 'required|string|max:255',
+            'CompanyName' => 'required|string|max:255|unique:clients',
             'CompanyAddress' => 'required|string|max:255',
             // 'TIN' => 'required|string|max:50',
-            'CompanyEmail' => 'required|email|max:255',
+            'CompanyEmail' => 'required|email|max:255|unique:clients',
             'CEO' => 'required|string|max:255',
             'CEODateOfBirth' => 'required|date',
-            'CEOContactInformation' => 'required|string|max:255',
-    
-            // Representative data validation
+            'CEOContactInformation' => 'required|string|max:255|unique:clients',
             'RepresentativeName' => 'required|string|max:255',
             'RepresentativeContactInformation' => 'required|string|max:255',
             'RepresentativeDateOfBirth' => 'required|date',
             'RepresentativePosition' => 'required|string|max:255',
             'RepresentativeAddress' => 'required|string|max:255',
-    
-            // Profile image validation
-            'profile' => 'nullable|file|image|max:2048',  // Optional, but if provided, should be an image
+            'profile' => 'nullable|file|image|max:2048',
         ]);
     
         try {
-            // Start database transaction
             DB::beginTransaction();
-    
-            // Save client data to the 'clients' table
             $client = new Clients();
             $client->CompanyName = $validatedData['CompanyName'];
             $client->CompanyAddress = $validatedData['CompanyAddress'];
@@ -106,10 +60,8 @@ class ClientController extends Controller
             $client->CEO = $validatedData['CEO'];
             $client->CEODateOfBirth = $validatedData['CEODateOfBirth'];
             $client->CEOContactInformation = $validatedData['CEOContactInformation'];
-            $client->dataEntryUser = Auth::user()->id; // assuming the user ID as dataEntryUser
+            $client->dataEntryUser = Auth::user()->id;
             $client->save();
-    
-            // Save representative data to the 'client_representatives' table
             $representative = new ClientRepresentative();
             $representative->CompanyRepresented = $client->id;
             $representative->RepresentativeName = $validatedData['RepresentativeName'];
@@ -119,33 +71,22 @@ class ClientController extends Controller
             $representative->RepresentativeAddress = $validatedData['RepresentativeAddress'];
             $representative->dataEntryUser = Auth::user()->id;
             $representative->save();
-    
-            // If profile image is provided, save it to 'company_profiles' table
             if ($request->hasFile('profile')) {
                 $profile = $request->file('profile');
-                $profilePath = $profile->store('profiles', 'public');  // Save the profile image in the 'public/profiles' directory
-    
+                $profilePath = $profile->store('profiles', 'public');
                 $companyProfile = new CompanyProfile();
                 $companyProfile->company = $client->id;
                 $companyProfile->image_path = $profilePath;
                 $companyProfile->dataUserEntry = Auth::user()->id;
                 $companyProfile->save();
             }
-    
-            // Commit the transaction after successful saving
             DB::commit();
-    
-            // Return success response
+            redirect('pages.clients');
             return response()->json(['success' => 'Client, representative, and profile saved successfully'], 200);
     
         } catch (\Exception $e) {
-            // Rollback transaction in case of an error
             DB::rollBack();
-    
-            // Log the error for debugging
             Log::error('Error creating new client: ' . $e->getMessage());
-    
-            // Return error response
             return response()->json(['error' => 'An error occurred while saving data'], 500);
         }
     }

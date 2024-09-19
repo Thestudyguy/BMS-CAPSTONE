@@ -82,6 +82,24 @@
       <div class="card">
         <div class="card-header text-sm fw-bold">Payment Status</div>
         <div class="card-body">
+          <table class="table table-striped">
+            <tbody>
+                @foreach($clientPaymentStatus as $client)
+                    <tr>
+                        <td>
+                            @if($client->image_path)
+                                <img src="{{ asset('storage/' . $client->image_path) }}" alt="Company Profile Image" width="50" style="border-radius: 50%;">
+                            @else
+                                <p>No profile image available</p>
+                            @endif
+                        </td>
+                        <td class="text-center fw-bold" style="color: #063D58;">{{$client->CompanyName}}</td>
+                        <td><span class="badge text-sm bg-warning fw-bold text-light">Pending</span></td>
+                      </tr>
+                @endforeach
+            </tbody>
+        </table>
+        
         </div>
       </div>
     </div>
@@ -114,8 +132,8 @@
         options: {
           responsive: true,
           animation: {
-            duration: 1000, // Set the duration of the animation
-            easing: 'easeOutQuart' // You can choose different easing options
+            duration: 1000,
+            easing: 'easeOutQuart'
           },
           scales: {
             x: {

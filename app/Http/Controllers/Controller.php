@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clients;
 use App\Models\services;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -46,6 +47,23 @@ class Controller extends BaseController
             try {
                 $services = services::where('isVisible', true)->get();
                 return view('pages.client-form', compact('services'));
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        }
+        dd('fuck you are not allowed');
+    }
+
+    public function dashboard(){
+        if(auth::check()){
+            try {
+                $clientPaymentStatus = Clients::where('clients.isVisible', true)
+                ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
+                ->select('clients.CompanyName', 'company_profiles.image_path')
+                ->get();
+
+            
+            return view('pages.dashboard', compact('clientPaymentStatus'));
             } catch (\Exception $exception) {
                 throw $exception;
             }

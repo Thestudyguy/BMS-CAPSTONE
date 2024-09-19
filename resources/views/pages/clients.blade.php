@@ -111,8 +111,8 @@
           </div>
           <div class="col-sm-4 pt-5">
             <div class="card">
-              <div class="card-body">
-                client brief details
+              <div class="card-body text-center">
+                <span class="badge text-center text-light" style="background: #063D58;"><strong>Click any client to view details</strong></span>
               </div>
             </div>
           </div>
