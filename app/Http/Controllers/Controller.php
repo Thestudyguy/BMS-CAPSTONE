@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clients;
 use App\Models\services;
+use App\Models\ServicesSubTable;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -24,6 +25,20 @@ class Controller extends BaseController
         if(auth::check()){
             try {
                 return view('pages.external-services');
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        }
+        dd('fuck you are not allowed');
+    }
+    public function addClientServices(){
+        if(auth::check()){
+            try {
+                $services = services::where('isVisible', true)->get();
+                foreach ($services as $service) {
+                   $subServices = ServicesSubTable::where('isVisible', true)->where('id', $service->id)->get();
+                }
+                return view('forms.services-form', compact('services', 'subServices'));
             } catch (\Exception $exception) {
                 throw $exception;
             }

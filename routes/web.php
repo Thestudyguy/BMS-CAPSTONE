@@ -19,4 +19,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('update-service', [ServicesController::class, 'UpdateService']);
     Route::post('new-client-record', [ClientController::class, 'CreateNewClient']);
     Route::get('/new-client-form', [Controller::class, 'newClient'])->name('new-client-form');
+    Route::get('/add-services', [Controller::class, 'addClientServices'])->name('add-client-services');
 });

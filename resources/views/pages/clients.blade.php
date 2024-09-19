@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid p-5">
         <div class="row">
-          <div class="col-sm-8">
+          <div class="col">
             <div class="card mt-5">
               <div class="card-header clients-table-data">
                 <div class="card-title fw-bold lead">Clients</div>
@@ -39,8 +39,10 @@
                                       <table class="table table-hover">
                                         <tbody>
                                           <tr class="client-sub-table" data-widget="expandable-table" aria-expanded="false" id="services-{{$client->id}}">
-                                            <td>
-                                              Services
+                                            <td onclick="window.location.href='{{ route('add-client-services') }}'" style="cursor: pointer;">
+                                              {{-- <a href="{{route('add-client-services')}}" class="text-dark" style="text-decoration: none;"> --}}
+                                                Services
+                                              {{-- </a> --}}
                                             </td>
                                           </tr>
                                           <tr class="expandable-body">
@@ -109,13 +111,13 @@
               </div>
           </div>
           </div>
-          <div class="col-sm-4 pt-5">
+          {{-- <div class="col-sm-4 pt-5">
             <div class="card">
               <div class="card-body text-center">
                 <span class="badge text-center text-light" style="background: #063D58;"><strong>Click any client to view details</strong></span>
               </div>
             </div>
-          </div>
+          </div> --}}
         </div>
     </div>
 @endsection
