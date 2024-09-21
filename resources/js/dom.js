@@ -367,6 +367,8 @@ $(document).ready(function () {
             {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},                    
             function success(response) { 
                 console.log('Success:', response);
+                handleServiceOperation('created');
+                window.location.href = 'clients';
             },
             function error(xhr, status, errors) {  
                 if (xhr.responseJSON && xhr.responseJSON.message) {

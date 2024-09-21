@@ -1,6 +1,6 @@
 <aside class="main-sidebar sidebar-info-primary elevation-4 fixed" style="position: fixed;">
     <a href="" class="brand-link" style="text-decoration: none; ">
-        <span class="brand-text text-light" >{{ __('BMS') }}</span>
+        <span class="brand-text" >{{ __('BMS') }}</span>
     </a>
     <div class="sidebar" style="">
         <nav class="mt-2">

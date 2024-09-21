@@ -20,29 +20,45 @@
                   </div>
               </div>
               <div class="card-body" style="max-height: 600px; overflow-x: auto;">
-                  <table class="table table-hover">
+                  <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                      <tr class="text-sm fw-bold">
+                        <td class="fw-bold">Company</td>
+                        <td class="fw-bold">Owner</td>
+                        <td class="fw-bold">Contact</td>
+                        <td class="fw-bold">Actions</td>
+                      </tr>
+                    </thead>
                       <tbody>
                           @foreach ($clients as $client)
-                              <tr data-widget="expandable-table" class="client-table-data" aria-expanded="false">
+                              <tr>
+                                {{-- data-widget="expandable-table" class="client-table-data" aria-expanded="false" --}}
                                   <td>
-                                    {{$client->CEO}} <b>-</b> {{$client->CompanyName}}
+                                    {{$client->CompanyName}}
                                     <div class="action-icons float-right visually-hidden">
-                                      <i class="fas fa-pen text-secondary opacity-50"></i>
+                                      {{-- <i class="fas fa-pen text-secondary opacity-50"></i>
                                       <i class="fas fa-trash text-secondary opacity-50"></i>
-                                      <i id="view-client-{{$client->id}}" class="fas fa-eye text-secondary opacity-50"></i>
+                                      <i id="view-client-{{$client->id}}" class="fas fa-eye text-secondary opacity-50"></i> --}}
                                     </div>
                                   </td>
+                                  <td>{{$client->CEO}}</td>
+                                  <td>{{$client->CompanyEmail}}</td>
+                                  <td>
+                                    <span class="badge bg-warning text-dark fw-bold" id="{{$client->id}}" onclick="window.location.href='{{ route('add-services', ['id' => $client->id]) }}'">Add Service</span>
+                                    <span class="badge bg-warning text-dark fw-bold">Generate FS</span>
+                                    <span class="badge bg-warning text-dark fw-bold">Generate FP</span>
+                                    <span class="badge bg-warning text-dark fw-bold">Journal</span>
+                                    <span class="badge bg-warning text-dark fw-bold">Vew Client Profile</span>
+                                  </td>
                                 </tr>
-                                <tr class="expandable-body">
+                                {{-- <tr class="expandable-body">
                                   <td>
                                     <div class="p-0">
                                       <table class="table table-hover">
                                         <tbody>
                                           <tr class="client-sub-table" data-widget="expandable-table" aria-expanded="false" id="services-{{$client->id}}">
                                             <td onclick="window.location.href='{{ route('add-client-services') }}'" style="cursor: pointer;">
-                                              {{-- <a href="{{route('add-client-services')}}" class="text-dark" style="text-decoration: none;"> --}}
                                                 Services
-                                              {{-- </a> --}}
                                             </td>
                                           </tr>
                                           <tr class="expandable-body">
@@ -54,6 +70,9 @@
                                                       <td class="services-loader loader-td visually-hidden">
                                                           <div class="loader"></div>
                                                       </td>
+                                                      <td class="">
+                                                        test
+                                                    </td>
                                                     </tr>
                                                   </tbody>
                                                 </table>
@@ -104,7 +123,7 @@
                                       </table>
                                     </div>
                                   </td>
-                                </tr>
+                                </tr> --}}
                           @endforeach
                       </tbody>
                     </table>

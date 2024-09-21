@@ -81,7 +81,6 @@ class ClientController extends Controller
                 $companyProfile->save();
             }
             DB::commit();
-            redirect('pages.clients');
             return response()->json(['success' => 'Client, representative, and profile saved successfully'], 200);
     
         } catch (\Exception $e) {

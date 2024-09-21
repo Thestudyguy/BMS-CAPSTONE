@@ -7,6 +7,7 @@ use App\Models\services;
 use App\Models\ServicesSubTable;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -31,19 +32,23 @@ class Controller extends BaseController
         }
         dd('fuck you are not allowed');
     }
-    public function addClientServices(){
+    public function addClientServices(Request $request)
+    {
         if(auth::check()){
+            Log::info($request['id']);
             try {
-                $services = services::where('isVisible', true)->get();
+                $services = Services::where('isVisible', true)->get();
+                $client = Clients::where('id', $request['id'])->select('CompanyName')->first();
                 foreach ($services as $service) {
-                   $subServices = ServicesSubTable::where('isVisible', true)->where('id', $service->id)->get();
+                    $subServices = ServicesSubTable::where('isVisible', true)->where('id', $service->id)->get();
                 }
-                return view('forms.services-form', compact('services', 'subServices'));
+    
+                return view('forms.services-form', compact('services', 'client'));
             } catch (\Exception $exception) {
                 throw $exception;
             }
         }
-        dd('fuck you are not allowed');
+        dd('You are not allowed');
     }
 
     public function adminHub(){
