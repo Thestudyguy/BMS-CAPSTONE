@@ -18,10 +18,19 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'FirstName' => 'Edrian',
             'LastName' => 'Lagrosa',
-            'UserName' => 'edrian123',
+            'UserName' => 'edrian',
             'email' => 'edrian@gmail.com',
             'role' => 'Admin',
             'PIN' => '101106',
+            'password' => FacadesHash::make('admin')
+        ]);
+        User::factory()->create([
+            'FirstName' => 'Dave',
+            'LastName' => 'Batista',
+            'UserName' => 'Dave',
+            'email' => 'Dave@gmail.com',
+            'role' => 'Bookkeeper',
+            'PIN' => '101105',
             'password' => FacadesHash::make('admin')
         ]);
 

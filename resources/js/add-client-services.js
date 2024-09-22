@@ -173,6 +173,8 @@ function submitServices() {
 
     function redirectUser(response) {
         console.log(response);
+        window.location.href = 'clients';
+        localStorage.setItem('services', true);
     }
 
     function callFailed(error, status, jqXHR) {
@@ -189,4 +191,13 @@ function submitServices() {
     $('.submit-services').on('click', function() {
         submitServices();
     });
+
+    var operation = localStorage.getItem('services');
+    if(operation){
+        Toast.fire({
+            icon: 'success',
+            title: 'Services Added to Client',
+        });
+        localStorage.removeItem('services');
+    }
 });

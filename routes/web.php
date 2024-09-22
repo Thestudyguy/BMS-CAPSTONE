@@ -22,4 +22,7 @@ Route::middleware('authenticated')->group(function(){
     Route::get('/add-services', [Controller::class, 'addClientServices'])->name('add-services');
     Route::post('/fetch-sub-services-{id}', [ServicesController::class, 'returnSubServices']);
     Route::post('client-services-{id}', [ClientController::class, 'ClientServices']);
+    Route::get('client-profile', [ClientController::class, 'viewClientProfile'])->name('client-profile');
+    Route::get('client-journal', [ClientController::class, 'ClientJournal'])->name('client-journal');
+    Route::get('client-journal-form', [ClientController::class, 'ClientJournalForm'])->name('client-journal-form');
 });

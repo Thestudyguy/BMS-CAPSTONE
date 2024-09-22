@@ -1,5 +1,6 @@
 import './dom';
 import './add-client-services';
+import './journalDom';
 //global functions
 $(document).ready(function(){
     window.formatValueInput = function (input) {

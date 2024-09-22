@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
+use App\Models\ClientServices;
 use App\Models\CompanyProfile;
 use App\Models\services;
 use DB;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 class ClientController extends Controller
 {
     public function returnClientData()
@@ -94,28 +96,39 @@ class ClientController extends Controller
     public function ClientServices(Request $request) {
         if (Auth::check()) {
             try {
-                Log::info($request['services']);
+                $clientId = $request->input('client_id');
                 foreach ($request['services'] as $services) {
-                    // Log::info($services['serviceName']);
-                    // Log::info($services['servicePrice']);
+                    $file = $services['serviceFile'] ?? null;
     
-                    if (isset($services['serviceFile'])) {
-                        $file = $services['serviceFile'] ?? 'none';
-                        $testFile = $file->getClientOriginalName();
-                        Log::info("{
-                        Service: $services[serviceName] \n
-                        Service: $services[servicePrice] \n
-                        File: $testFile
-                    }");
-                        // Log::info('File Details:');
-                        // Log::info('Original Name: ' . $file->getClientOriginalName());
-                        // Log::info('MIME Type: ' . $file->getClientMimeType());
-                        // Log::info('Size: ' . $file->getSize() . ' bytes');
-                        // Log::info('Path: ' . $file->getRealPath());
-                        // Log::info('Error: ' . $file->getError());
-                    } else {
-                        Log::info('No service file provided');
+                    $fileName = 'none';
+                    $mimeType = null;
+                    $size = null;
+                    $realPath = null;
+    
+                    if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        $fileName = $file->getClientOriginalName();
+                        $mimeType = $file->getClientMimeType();
+                        $size = $file->getSize();
+                        $realPath = $file->getRealPath();
                     }
+    
+                    Log::info("{
+                        Service: {$services['serviceName']} \n
+                        Price: {$services['servicePrice']} \n
+                        File: $fileName
+                    }");
+    
+                    ClientServices::create([
+                        'Client' => $clientId,
+                        'ClientService' => $services['serviceName'],
+                        'ClientServiceProgress' => 'Pending',
+                        'getClientOriginalName' => $fileName,
+                        'getClientMimeType' => $mimeType,
+                        'getSize' => $size,
+                        'getRealPath' => $realPath,
+                        'dataEntryUser' => Auth::user()->id,
+                        'isVisible' => true,
+                    ]);
                 }
             } catch (\Throwable $th) {
                 Log::error($th);
@@ -126,5 +139,45 @@ class ClientController extends Controller
         }
     }
     
+    public function viewClientProfile(Request $request){
+        if(Auth::check()){
+            Log::info($request->id);
+            $client = Clients::where('id', $request->id)->first();
+            if (!$client) {
+                return redirect()->back()->with('error', 'Client not found.');
+            }
+            $dataEntryUserId = $client->dataEntryUser;
+            $clientServices = ClientServices::where('isVisible', true)->where('Client', $request->id)->get();
+            $clientProfile = CompanyProfile::where('isVisible', true)
+                ->where('company', $request->id)
+                ->select('image_path')
+                ->first();
+            $repInfo = ClientRepresentative::where('CompanyRepresented', $request->id)->get();
+            $user = User::where('id', $dataEntryUserId)->select('FirstName', 'LastName', 'role')->first();
     
+            return view('pages.client-profile', compact('client', 'clientServices', 'clientProfile', 'repInfo', 'user'));
+        } else {
+            return redirect()->route('login')->with('error', 'Unauthorized access');
+        }
+    }
+    
+    public function ClientJournal(Request $request){
+        if(Auth::check()){
+            Log::info($request->id);
+            $client = Clients::where('id', $request->id)->first();
+            return view('pages.client-journal', compact('client'));
+        }else{
+            dd('unauthorize access');
+        }
+    }
+
+    public function ClientJournalForm(Request $request){
+        if(Auth::check()){
+            Log::info($request->id);
+            $client = Clients::where('id', $request->id)->first();
+            return view('pages.client-journal-form', compact('client'));
+        }else{
+            dd('unauthorize access');
+        }
+    }
 }
