@@ -1,4 +1,5 @@
 import './dom';
+import './add-client-services';
 //global functions
 $(document).ready(function(){
     window.formatValueInput = function (input) {

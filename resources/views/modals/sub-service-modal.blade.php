@@ -14,8 +14,8 @@
                   </div>
 
                   <div class="form-group mb-3">
-                    <label for="Service" class="form-label text-secondary fw-normal">Price</label>
-                    <input type="text" class="form-control rounded-0" id="serviceprice" name="ServicePrice" placeholder="Enter Price">
+                    <label for="Service" class="form-label text-secondary fw-normal">Amount</label>
+                    <input type="text" class="form-control rounded-0" id="serviceprice" name="ServicePrice" placeholder="Enter Amount">
                     <span class="badge text-danger text-sm visually-hidden conflict-warning"><strong class="conflict-text"></strong></span>
                   </div>
 

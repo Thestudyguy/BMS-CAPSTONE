@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid mt-5 pt-5 external-services">
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">External Services</div>
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
+                {{-- <div class="col-sm-4">
                     <div class="card">
                         <div class="card-header">
                             Service Details
@@ -71,7 +71,7 @@
                         </div>
                         <div class="card-body"></div>
                     </div>
-                </div>
+                </div> --}}
             </div>
             @include('modals.new-service-modal')
             @include('modals.remove-sub-service-modal')

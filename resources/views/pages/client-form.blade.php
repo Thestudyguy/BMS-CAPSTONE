@@ -1,6 +1,6 @@
 @extends('layout')
 @section('content')
-<div class="container-fluid client-form p-5 d-flex justify-content-center align-items-center" style="height: 100vh;">
+<div class="container-fluid client-form p-5 d-flex justify-content-center align-items-center">
     <div class="container p-5 w-100">
       <h4 class="h6 fw-bold text-dark lead">New Client</h4>
       {{-- <div class="progress mb-4 position-relative">
@@ -104,11 +104,10 @@
             </center>
             <input type="file" name="companyProfile" class="form-control" id="fileInput" accept="image/*">
         </form>
-
         <form action="" class="data-entry-preview multi-step" style="display: none;">
           <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Review Client Information</h4>
           <hr>
-          <div id="preview-container">
+          <div id="preview-container" class="">
             <div class="row">
               <div class="col-sm-6">
                 <div class="card mb-3">

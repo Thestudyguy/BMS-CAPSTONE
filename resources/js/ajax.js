@@ -94,7 +94,7 @@ export function NewSubServicec(url, subService, header, CallSuccess, CallError) 
     });
 }
 
-/** create new requirement/sub service
+/** create new client
  *
  * @param {string} url
  * @param {Object} clientRep
@@ -120,6 +120,28 @@ export function NewClientRecord(url, client, profile, header, CallSuccess, CallE
         headers: header,
         processData: false,           
         contentType: false, 
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}
+
+/** create new requirement/sub service
+ *
+ * @param {string} url
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function FetchSubServices(url, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        // data: id,
+        headers: header,
         success: function(response) {
             CallSuccess(response);
         },

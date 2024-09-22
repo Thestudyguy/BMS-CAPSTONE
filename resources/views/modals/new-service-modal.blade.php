@@ -15,8 +15,8 @@
                   </div>
             
                 <div class="form-group mb-3">
-                    <label for="ServicePrice" class="form-label text-secondary fw-normal">Service Price</label>
-                    <input type="text" oninput="formatValueInput(this)" class="form-control rounded-0" id="Price" name="Price" placeholder="Enter price">
+                    <label for="ServicePrice" class="form-label text-secondary fw-normal">Amount</label>
+                    <input type="text" oninput="formatValueInput(this)" class="form-control rounded-0" id="Price" name="Price" placeholder="Enter Amount">
                 </div>
                 {{-- <div class="form-group mb-3">
                     <label for="description" class="form-label text-secondary fw-normal">Date of Birth</label>
