@@ -90,4 +90,41 @@ class ClientController extends Controller
         }
     }
     
+
+    public function ClientServices(Request $request) {
+        if (Auth::check()) {
+            try {
+                Log::info($request['services']);
+                foreach ($request['services'] as $services) {
+                    // Log::info($services['serviceName']);
+                    // Log::info($services['servicePrice']);
+    
+                    if (isset($services['serviceFile'])) {
+                        $file = $services['serviceFile'] ?? 'none';
+                        $testFile = $file->getClientOriginalName();
+                        Log::info("{
+                        Service: $services[serviceName] \n
+                        Service: $services[servicePrice] \n
+                        File: $testFile
+                    }");
+                        // Log::info('File Details:');
+                        // Log::info('Original Name: ' . $file->getClientOriginalName());
+                        // Log::info('MIME Type: ' . $file->getClientMimeType());
+                        // Log::info('Size: ' . $file->getSize() . ' bytes');
+                        // Log::info('Path: ' . $file->getRealPath());
+                        // Log::info('Error: ' . $file->getError());
+                    } else {
+                        Log::info('No service file provided');
+                    }
+                }
+            } catch (\Throwable $th) {
+                Log::error($th);
+                throw $th;
+            }
+        } else {
+            dd('Unauthorized Access');
+        }
+    }
+    
+    
 }

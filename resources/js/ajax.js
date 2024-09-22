@@ -150,3 +150,29 @@ export function FetchSubServices(url, header, CallSuccess, CallError) {
         }
     });
 }
+
+
+/** add new services to client
+ *
+ * @param {string} url
+ * @param {Object} services
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function ClientServices(url, services, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: services,
+        headers: header,
+        processData: false, // Important
+        contentType: false, // Important
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}

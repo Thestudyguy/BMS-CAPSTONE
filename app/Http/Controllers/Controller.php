@@ -38,7 +38,7 @@ class Controller extends BaseController
             Log::info($request['id']);
             try {
                 $services = Services::where('isVisible', true)->get();
-                $client = Clients::where('id', $request['id'])->select('CompanyName')->first();
+                $client = Clients::where('id', $request['id'])->select('CompanyName', 'id')->first();
                 foreach ($services as $service) {
                     $subServices = ServicesSubTable::where('isVisible', true)->where('id', $service->id)->get();
                 }

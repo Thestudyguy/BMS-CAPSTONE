@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreign('Client')->references('id')->on('clients')->nullOnDelete();
             $table->string('ClientService');
             $table->string('ClientServiceProgress');
+            $table->string('getClientOriginalName')->nullable();
+            $table->string('getClientMimeType')->nullable();
+            $table->string('getSize')->nullable();
+            $table->string('getRealPath')->nullable();
             $table->string('dataEntryUser');
             $table->boolean('isVisible')->default(true);
             $table->timestamps();

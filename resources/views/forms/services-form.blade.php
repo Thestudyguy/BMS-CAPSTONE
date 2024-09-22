@@ -4,6 +4,7 @@
     <div class="container p-5 w-100">
       <h4 class="h6 fw-bold lead">Add Service <b>|</b> {{$client->CompanyName}}</h4>
       <div class="row">
+        <span class="hidden-client-id" hidden id="{{$client->id}}"></span>
         <div class="col-sm-6">
             <div class="row">
                 <div class="col-sm-12">
@@ -34,41 +35,32 @@
             </div>
         </div>
         <div class="col-sm-6">
-            <div class="card elevation-1" style='width: fit-content;'>
+            <div class="card elevation-1">
                 <h4 class="h6 fw-bold p-4">Service Details</h4>
                 <div class="card-body">
                    <div class="service-input">
-                    
-                    <ul>
-                        <li>let user select service</li>
-                        <li>selected service displays sub services</li>
-                        <li>require or do not require sub service or service file input if necesarry</li>
-                        <li>preview services/sub services </li>
-                        <li>sum up the total amount</li>
-                        <li>send to journal</li>
-                        <li>link to current user/admin</li>
-                       </ul>
                    </div>
+                </div>
+                <div class="card-footer services-total" style="font-size: 14px; display:none;">
+                    <span class="totalAmount"></span>
+                    <span class="totalServices"></span>
+                    <div class="save-services float-right"><button class="btn btn-primary fw-bold text-sm btn-md text-light submit-services">Save Services</button></div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 m-2">
+        {{-- <div class="col-sm-12 m-2">
             <div class="card">
-                <span class="fw-bold m-2">Selected Services</span>
+                <span class="fw-bold mt-4 ml-4">Selected Services</span>
                 <div class="card-body">
                     <table class="table table-bordered">
-                        <tr>
-                            <td>Service 1</td>
-                            <td>Service 2</td>
-                        </tr>
                     </table>
                 </div>
             </div>
         </div>
       </div>
       <div class="float-right mt-3">
-        <button class="btn btn-primary">Save</button>
-      </div>
+        <button class="btn btn-primary fw-bold text-light">Save</button>
+      </div> --}}
     </div>
 </div>
 

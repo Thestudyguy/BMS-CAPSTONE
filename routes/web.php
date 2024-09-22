@@ -21,4 +21,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('/new-client-form', [Controller::class, 'newClient'])->name('new-client-form');
     Route::get('/add-services', [Controller::class, 'addClientServices'])->name('add-services');
     Route::post('/fetch-sub-services-{id}', [ServicesController::class, 'returnSubServices']);
+    Route::post('client-services-{id}', [ClientController::class, 'ClientServices']);
 });

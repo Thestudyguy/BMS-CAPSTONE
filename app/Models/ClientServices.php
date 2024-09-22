@@ -8,5 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class ClientServices extends Model
 {
     use HasFactory;
-    protected $fillable = ['ClientServices', 'ClientServiceProgress'];
+    protected $fillable = [
+        'Client',                
+        'ClientService',
+        'ClientServiceProgress',
+        'getClientOriginalName',
+        'getClientMimeType',
+        'getSize',
+        'getRealPath',
+        'dataEntryUser',
+        'isVisible',
+    ];
 }
