@@ -166,8 +166,8 @@ export function ClientServices(url, services, header, CallSuccess, CallError) {
         type: 'POST',
         data: services,
         headers: header,
-        processData: false, // Important
-        contentType: false, // Important
+        processData: false,
+        contentType: false,
         success: function(response) {
             CallSuccess(response);
         },
