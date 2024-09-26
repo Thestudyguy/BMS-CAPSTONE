@@ -7,12 +7,12 @@
                 <div class="col-sm-4">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Client Profile</h6>
-                            <div class="card">
-                                <div class="card-body text-center">
+                            {{-- <h6 class="h5 fw-bold">Client Profile</h6> --}}
+                            <div class="card elevation-0" style="background: transparent;">
+                                <div class="card-body">
                                     @if ($clientProfile && $clientProfile->image_path)
                                         <img src="{{ asset('storage/' . $clientProfile->image_path) }}" 
-                                             alt="Company Profile Image" width="100" style="border-radius: 50%;">
+                                             alt="Company Profile Image" width="100">
                                     @else
                                         <img src="default-image-path.jpg" alt="Default Image">
                                     @endif
@@ -101,7 +101,7 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Journal</h6>
+                            <h6 class="h5 fw-bold">Journal Entries</h6>
                             <div class="card">
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
                                     <table class="table-hover table-bordered table-striped">

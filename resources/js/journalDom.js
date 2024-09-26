@@ -28,8 +28,6 @@ $(document).ready(function() {
             const start = new Date(startDate);
             const end = new Date(endDate);
             const monthsContainer = $('.months-container');
-    
-            // Check if the selected period exceeds 12 months
             const monthDifference = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
             if (monthDifference > 12) {
                 ToastError.fire({
@@ -39,9 +37,8 @@ $(document).ready(function() {
                 return;
             }
     
-            // Set the fiscal year to start from the selected start date and last 12 months
             const fiscalYearEnd = new Date(start);
-            fiscalYearEnd.setMonth(fiscalYearEnd.getMonth() + 11); // Fiscal year lasts for 12 months
+            fiscalYearEnd.setMonth(fiscalYearEnd.getMonth() + 12);
     
             if (end > fiscalYearEnd) {
                 ToastError.fire({
@@ -53,7 +50,6 @@ $(document).ready(function() {
     
             monthsContainer.empty();
     
-            // Generate month inputs between start and end dates
             let current = new Date(start);
             while (current <= end) {
                 const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -63,14 +59,13 @@ $(document).ready(function() {
                             <span class="input-group-text">${monthYear}</span>
                         </div>
                         <div class="col-sm-6">
-                            <input type="number" class="form-control" placeholder="Amount">
+                            <input type="number" name='month[]' class="form-control" placeholder="Amount">
                         </div>
                     </div>
+                    <button class='sddd btn btn-primary'>submit</button>
                 `);
-                // Move to the next month
                 current.setMonth(current.getMonth() + 1);
             }
         }
     });
-    
 });
