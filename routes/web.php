@@ -25,4 +25,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('client-profile', [ClientController::class, 'viewClientProfile'])->name('client-profile');
     Route::get('client-journal', [ClientController::class, 'ClientJournal'])->name('client-journal');
     Route::get('client-journal-form', [ClientController::class, 'ClientJournalForm'])->name('client-journal-form');
+    Route::get('chart-of-accounts', [Controller::class, 'ChartOfAccounts'])->name('chart-of-accounts');
 });

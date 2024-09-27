@@ -87,7 +87,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{route('chart-of-accounts')}}" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>
                         <p class="text-sm">
                             {{ __('Chart of Accounts') }}

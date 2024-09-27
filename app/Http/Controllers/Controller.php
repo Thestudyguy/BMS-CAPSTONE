@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfAccounts;
 use App\Models\Clients;
 use App\Models\services;
 use App\Models\ServicesSubTable;
@@ -89,5 +90,18 @@ class Controller extends BaseController
             }
         }
         dd('fuck you are not allowed');
+    }
+
+    public function ChartOfAccounts(){
+        try {
+            if(Auth::check()){
+            $ChartofAccounts = ChartOfAccounts::where('isVisible', true)->get();
+            return view('pages.chart-of-account', compact('ChartofAccounts'));
+            }else{
+
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

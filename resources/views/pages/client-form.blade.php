@@ -12,7 +12,32 @@
         </div>
         <div class="progress-bar" role="progressbar" style="width: 0%; background: #063D58;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
       </div> --}}
+      <div class="step-indicator-container text-center mb-4">
+        <section class="step-indicator">
+            <div class="step step1 active">
+                <div class="step-icon">1</div>
+                <p>Company </p>
+            </div>
+            <div class="indicator-line active"></div>
+            <div class="step step2">
+                <div class="step-icon">2</div>
+                <p>Representative </p>
+            </div>
+            <div class="indicator-line"></div>
+            <div class="step step3">
+                <div class="step-icon">3</div>
+                <p>Profile</p>
+            </div>
+            <div class="indicator-line"></div>
+            <div class="step step5">
+                <div class="step-icon">4</div>
+                <p>Summary</p>
+            </div>
+          
+        </section>
+    </div>
       <div class="card w-100">
+        
         <div class="card-body">
           <form action="" class="client-form multi-step">
             <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Company Information</h4>

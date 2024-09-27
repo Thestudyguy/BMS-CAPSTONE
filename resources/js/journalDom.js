@@ -54,15 +54,12 @@ $(document).ready(function() {
             while (current <= end) {
                 const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
                 monthsContainer.append(`
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <span class="input-group-text">${monthYear}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="number" name='month[]' class="form-control" placeholder="Amount">
-                        </div>
+                    <div class="col-sm-12 my-2">
+                    <div class="input-group">
+                    <span class="input-group-text">${monthYear}</span>
+                    <input type="text" class="form-control" name="month[]" id="">
                     </div>
-                    <button class='sddd btn btn-primary'>submit</button>
+                    </div>
                 `);
                 current.setMonth(current.getMonth() + 1);
             }

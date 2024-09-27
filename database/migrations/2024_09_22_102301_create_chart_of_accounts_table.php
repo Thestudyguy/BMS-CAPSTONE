@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('chart_of_accounts', function (Blueprint $table) {
             $table->id();
             $table->string('Account');
-            $table->string('AssetType');
+            $table->string('AccountType');
+            $table->string('Category');
+            $table->boolean('isVisible')->default(true);
+            $table->string('dataUserEntry');
             $table->timestamps();
         });
     }

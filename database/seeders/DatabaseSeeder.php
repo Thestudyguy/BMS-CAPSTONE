@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ChartOfAccounts;
 use App\Models\Services;
 use App\Models\ServicesSubTable;
 use App\Models\User;
@@ -13,8 +14,11 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
+    protected $model = ChartOfAccounts::class;
+
     public function run(): void
     {
+        // Creating Users
         User::factory()->create([
             'FirstName' => 'Edrian',
             'LastName' => 'Lagrosa',
@@ -24,6 +28,7 @@ class DatabaseSeeder extends Seeder
             'PIN' => '101106',
             'password' => FacadesHash::make('admin')
         ]);
+
         User::factory()->create([
             'FirstName' => 'Dave',
             'LastName' => 'Batista',
@@ -34,6 +39,54 @@ class DatabaseSeeder extends Seeder
             'password' => FacadesHash::make('admin')
         ]);
 
+        // Seeding Chart of Accounts
+        $chartOfAccounts = [
+            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Cash on Hand/Bank'],
+            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Accounts Receivable'],
+            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Inventory'],
+            ['Account' => 'Assets', 'AccountType' => 'Non-Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Property, Plants & Equipment'],
+            ['Account' => 'Assets', 'AccountType' => 'Fixed Assets', 'Category' => 'Asset', 'AccountNames' => 'Property, Plants & Equipment'],
+
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Accounts Payable'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Short-Term Loans'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Accrued Expenses'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Payroll Liabilities'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Taxes Payable'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Current Portion of Long-Term Debt'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Unearned Revenue'],
+
+            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Long-Term Debt'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Bonds Payable'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Deferred Tax Liabilities'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Lease Obligations'],
+            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Pension Obligations'],
+
+            ['Account' => 'Equity', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity', 'AccountNames' => 'Owner’s Capital'],
+            ['Account' => 'Equity', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity', 'AccountNames' => 'Owner’s Drawings'],
+            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Common Stock'],
+            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Preferred Stock'],
+            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Retained Earnings'],
+
+            ['Account' => 'Revenue', 'AccountType' => 'Operating Revenue', 'Category' => 'Revenue', 'AccountNames' => 'Construction of Other Civil Engineering Projects'],
+            ['Account' => 'Revenue', 'AccountType' => 'Sales Revenue', 'Category' => 'Revenue', 'AccountNames' => 'Construction Supplies'],
+
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Supplies & Materials'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Labor & Overhead'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Gasoline & Oil'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Repairs & Maintenance'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Depreciation Exp.'],
+
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Amortization'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Meals and Snack'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Miscellaneous'],
+            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Taxes and Licenses'],
+        ];
+
+        foreach ($chartOfAccounts as $account) {
+            ChartOfAccounts::factory()->create($account);
+        }
+
+        // Services and Sub-Services seeding
         $services = [
             ['Service' => 'Application for Business Registration', 'Price' => 1000, 'dataEntryUser' => '1'],
             ['Service' => 'Business Permit Processing/Renewal', 'Price' => 1500, 'dataEntryUser' => '1'],
@@ -55,35 +108,12 @@ class DatabaseSeeder extends Seeder
             ['BelongsToService' => 1, 'ServiceRequirements' => 'PAG-IBIG', 'ServiceRequirementPrice' => 500, 'dataEntryUser' => '1'],
             ['BelongsToService' => 1, 'ServiceRequirements' => 'BIR', 'ServiceRequirementPrice' => 1000, 'dataEntryUser' => '1'],
             ['BelongsToService' => 1, 'ServiceRequirements' => '1901', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 1, 'ServiceRequirements' => 'VALID ID', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 1, 'ServiceRequirements' => 'BIR PRINTED RECEIPT', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 1, 'ServiceRequirements' => 'REG. FEE', 'ServiceRequirementPrice' => 500, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 1, 'ServiceRequirements' => 'LOOSE STAMP', 'ServiceRequirementPrice' => 30, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 2, 'ServiceRequirements' => 'BUSINESS INFORMATION SHEET', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 2, 'ServiceRequirements' => 'OLD BUSINESS PERMIT', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 2, 'ServiceRequirements' => 'DTI', 'ServiceRequirementPrice' => 750, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 3, 'ServiceRequirements' => 'CASH SALES BOOKS', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 3, 'ServiceRequirements' => 'DISBURSEMENT BOOKS', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 3, 'ServiceRequirements' => 'EXPENSES RECEIPTS', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'TIN NUMBER', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'COR', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'SALES/ SERVICE INVOICE', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'NOTES TO FINANCIAL STATEMENTS', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'BIR RECEIPTS', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
-            ['BelongsToService' => 4, 'ServiceRequirements' => 'INDEPENDENT AUDIT REPORT', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
+            ['BelongsToService' => 1, 'ServiceRequirements' => '0605', 'ServiceRequirementPrice' => 0, 'dataEntryUser' => '1'],
+            ['BelongsToService' => 2, 'ServiceRequirements' => 'Previous BP', 'ServiceRequirementPrice' => 250, 'dataEntryUser' => '1'],
         ];
 
-        foreach ($servicesSubService as $servicesReqs) {
-            if (!isset($serviceIds[$servicesReqs['BelongsToService']])) {
-                throw new \Exception("Service ID not found: " . $servicesReqs['BelongsToService']);
-            }
-
-            ServicesSubTable::factory()->create([
-                'BelongsToService' => $serviceIds[$servicesReqs['BelongsToService']],
-                'ServiceRequirements' => $servicesReqs['ServiceRequirements'],
-                'ServiceRequirementPrice' => $servicesReqs['ServiceRequirementPrice'],
-                'dataEntryUser' => $servicesReqs['dataEntryUser'],
-            ]);
+        foreach ($servicesSubService as $subService) {
+            ServicesSubTable::factory()->create($subService);
         }
     }
 }

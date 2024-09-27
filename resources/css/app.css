@@ -47,9 +47,17 @@ html, body, *{
 .main-sidebar .nav-link, .brand-text{
     color: whitesmoke;
 }
-.nav-item a:hover{
+.main-sidebar .nav-item:hover{
     color: whitesmoke;
-    background-color: #063D58;
+    background-color: whitesmoke;
+    border-radius: 10px;
+}
+.main-sidebar .nav-link {
+    color: whitesmoke;
+}
+
+.main-sidebar .nav-link:hover {
+    color: #063D58 !important;
 }
 .new-client-button{
     background-color: var(--blue);
@@ -268,3 +276,11 @@ font-weight: 700;
     background: #063D58;
 }
 
+.test{
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#new-COA{
+    font-family: 'Open Sans', sans-serif;
+}

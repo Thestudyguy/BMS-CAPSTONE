@@ -70,9 +70,7 @@
         </div> --}}
             <div class="col-sm-6 login-vector d-flex justify-content-center align-items-center"
                 style="height: 100%; 
-        box-shadow: 11px 14px 33px -8px rgba(0,0,0,0.75);
--webkit-box-shadow: 11px 14px 33px -8px rgba(0,0,0,0.75);
--moz-box-shadow: 11px 14px 33px -8px rgba(0,0,0,0.75);">
+        ;">
                 <div class="row justify-content-center">
                     <div class="col-sm-12 text-lg login-title text-dark lead fw-bold h-100">
                         <center>BMS | LogIn</center>
