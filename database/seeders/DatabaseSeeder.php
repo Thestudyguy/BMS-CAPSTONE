@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Creating Users
         User::factory()->create([
             'FirstName' => 'Edrian',
             'LastName' => 'Lagrosa',
@@ -39,54 +38,52 @@ class DatabaseSeeder extends Seeder
             'password' => FacadesHash::make('admin')
         ]);
 
-        // Seeding Chart of Accounts
         $chartOfAccounts = [
-            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Cash on Hand/Bank'],
-            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Accounts Receivable'],
-            ['Account' => 'Assets', 'AccountType' => 'Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Inventory'],
-            ['Account' => 'Assets', 'AccountType' => 'Non-Current Assets', 'Category' => 'Asset', 'AccountNames' => 'Property, Plants & Equipment'],
-            ['Account' => 'Assets', 'AccountType' => 'Fixed Assets', 'Category' => 'Asset', 'AccountNames' => 'Property, Plants & Equipment'],
-
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Accounts Payable'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Short-Term Loans'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Accrued Expenses'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Payroll Liabilities'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Taxes Payable'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Current Portion of Long-Term Debt'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Unearned Revenue'],
-
-            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Long-Term Debt'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Bonds Payable'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Deferred Tax Liabilities'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Lease Obligations'],
-            ['Account' => 'Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability', 'AccountNames' => 'Pension Obligations'],
-
-            ['Account' => 'Equity', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity', 'AccountNames' => 'Owner’s Capital'],
-            ['Account' => 'Equity', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity', 'AccountNames' => 'Owner’s Drawings'],
-            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Common Stock'],
-            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Preferred Stock'],
-            ['Account' => 'Equity', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity', 'AccountNames' => 'Retained Earnings'],
-
-            ['Account' => 'Revenue', 'AccountType' => 'Operating Revenue', 'Category' => 'Revenue', 'AccountNames' => 'Construction of Other Civil Engineering Projects'],
-            ['Account' => 'Revenue', 'AccountType' => 'Sales Revenue', 'Category' => 'Revenue', 'AccountNames' => 'Construction Supplies'],
-
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Supplies & Materials'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Labor & Overhead'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Gasoline & Oil'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Repairs & Maintenance'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses', 'AccountNames' => 'Depreciation Exp.'],
-
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Amortization'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Meals and Snack'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Miscellaneous'],
-            ['Account' => 'Expenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses', 'AccountNames' => 'Taxes and Licenses'],
+            ['Account' => 'Cash on Hand/Bank', 'AccountType' => 'Current Assets', 'Category' => 'Asset'],
+            ['Account' => 'Accounts Receivable', 'AccountType' => 'Current Assets', 'Category' => 'Asset'],
+            ['Account' => 'Inventory', 'AccountType' => 'Current Assets', 'Category' => 'Asset'],
+            ['Account' => 'Property, Plants & Equipment', 'AccountType' => 'Non-Current Assets', 'Category' => 'Asset'],
+            ['Account' => 'Property, Plants & Equipment', 'AccountType' => 'Fixed Assets', 'Category' => 'Asset'],
+        
+            ['Account' => 'Accounts Payable', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Short-Term Loans', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Accrued Expenses', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Payroll Liabilities', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Taxes Payable', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Current Portion of Long-Term Debt', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Unearned Revenue', 'AccountType' => 'Current Liabilities', 'Category' => 'Liability'],
+        
+            ['Account' => 'Long-Term Debt', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Bonds Payable', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Deferred Tax Liabilities', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Lease Obligations', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability'],
+            ['Account' => 'Pension Obligations', 'AccountType' => 'Long-Term Liabilities', 'Category' => 'Liability'],
+        
+            ['Account' => 'Owner’s Capital', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity'],
+            ['Account' => 'Owner’s Drawings', 'AccountType' => 'Owner’s Equity', 'Category' => 'Equity'],
+            ['Account' => 'Common Stock', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity'],
+            ['Account' => 'Preferred Stock', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity'],
+            ['Account' => 'Retained Earnings', 'AccountType' => 'Stockholders\' Equity (Corporations)', 'Category' => 'Equity'],
+        
+            ['Account' => 'Construction of Other Civil Engineering Projects', 'AccountType' => 'Operating Revenue', 'Category' => 'Revenue'],
+            ['Account' => 'Construction Supplies', 'AccountType' => 'Sales Revenue', 'Category' => 'Revenue'],
+        
+            ['Account' => 'Supplies & Materials', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses'],
+            ['Account' => 'Labor & Overhead', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses'],
+            ['Account' => 'Gasoline & Oil', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses'],
+            ['Account' => 'Repairs & Maintenance', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses'],
+            ['Account' => 'Depreciation Exp.', 'AccountType' => 'Less: Direct Cost', 'Category' => 'Expenses'],
+        
+            ['Account' => 'Amortization', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses'],
+            ['Account' => 'Meals and Snack', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses'],
+            ['Account' => 'Miscellaneous', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses'],
+            ['Account' => 'Taxes and Licenses', 'AccountType' => 'Less: Operating Expenses', 'Category' => 'Expenses'],
         ];
-
+        
         foreach ($chartOfAccounts as $account) {
             ChartOfAccounts::factory()->create($account);
         }
 
-        // Services and Sub-Services seeding
         $services = [
             ['Service' => 'Application for Business Registration', 'Price' => 1000, 'dataEntryUser' => '1'],
             ['Service' => 'Business Permit Processing/Renewal', 'Price' => 1500, 'dataEntryUser' => '1'],

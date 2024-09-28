@@ -13,7 +13,7 @@
         <li class="nav-item dropdown mr-3">
             <a id="navbarDropdown" class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false" v-pre>
-                {{ Auth::user()->role }} - {{ Auth::user()->LastName }}, {{Auth::user()->FirstName}}
+               Hello, {{ Auth::user()->role }}
             </a>
         </li>
         <li class="nav-item mr-3">
