@@ -3,7 +3,9 @@
 @section('content')
     <div class="container-fluid p-5 mt-5">
         <div class="container">
-            <h6 class="h4 fw-bold">Add New Journal</h6>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="h4 fw-bold">Add New Journal</h6>
             <span class="text-md fw-bold" style="color: #063D58;">Client: {{$client->CEO}}</span><br>
             <span class="text-md fw-bold" style="color: #063D58;">Company: {{$client->CompanyName}}</span>
             <hr>
@@ -54,6 +56,10 @@
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <div class="input-group">
+                                                        <select name="" id=""></select>
+                                                        @foreach ($accounts as $account)
+                                                            
+                                                        @endforeach
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">Select Start Date</span>
                                                         </div>
@@ -77,7 +83,6 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <table class="table table-hover table-bordered table-striped">
-                                        <!-- Additional table content can go here -->
                                     </table>
                                 </div>
                             </div>
@@ -85,14 +90,18 @@
                     </div>
                 </form>
             </div>
-            {{-- End of Expense Form --}}
-
-            {{-- Other Forms --}}
-            <div class="multi-step-journal income" style="display: none;"></div>
+            <div class="multi-step-journal income" style="display: none;">asd</div>
             <div class="multi-step-journal assets" style="display: none;"></div>
             <div class="multi-step-journal liability" style="display: none;"></div>
             <div class="multi-step-journal equity" style="display: none;"></div>
             <div class="multi-step-journal summary" style="display: none;"></div>
+            <div class="multi-step-action-buttons float-right">
+                <button class="btn btn-secondary" style="font-weight: bold; font-family: Open Sans, sans-serif;">Previous</button>
+                <button class="btn" style="background: #063D58; font-family: Open Sans, sans-serif; font-weight: Bold; color: whitesmoke;">Next</button>
+                <button class="btn btn-primary" style="background: #063D58; font-family: Open Sans, sans-serif; font-weight: Bold; display:none;">Save</button>
+            </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

@@ -104,4 +104,17 @@ class Controller extends BaseController
             throw $th;
         }
     }
+
+    // public function Journal(){
+    //     try {
+    //         if(Auth::check()){
+    //             $accounts = ChartOfAccounts::where('isVisible', true)->get();
+    //             return view('pages.client-journal-form', compact('accounts'));
+    //         }else{
+    //             return dd('unauthorized access');
+    //         }
+    //     } catch (\Throwable $th) {
+    //         throw $th;
+    //     }
+    // }
 }
