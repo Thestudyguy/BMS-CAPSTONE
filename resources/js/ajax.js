@@ -176,3 +176,28 @@ export function ClientServices(url, services, header, CallSuccess, CallError) {
         }
     });
 }
+
+
+
+/** add new account type
+ *
+ * @param {string} url
+ * @param {Object} accounttype
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function NewAccountType(url, accounttype, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: accounttype,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}

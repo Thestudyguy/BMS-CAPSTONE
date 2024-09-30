@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_journals', function (Blueprint $table) {
+        Schema::create('account_types', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client')->nullable();
-            $table->foreign('client')->references('id')->on('clients')->nullOnDelete();
-            $table->string('month');
-            $table->decimal('amount', 15)->default(0);
+            $table->string('AccountType');
+            $table->string('Category');
             $table->boolean('isVisible')->default(true);
             $table->string('dataUserEntry');
             $table->timestamps();
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_journals');
+        Schema::dropIfExists('account_types');
     }
 };

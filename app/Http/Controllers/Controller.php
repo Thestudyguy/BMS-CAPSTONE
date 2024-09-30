@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChartOfAccounts;
+use App\Models\AccountType;
 use App\Models\Clients;
 use App\Models\services;
 use App\Models\ServicesSubTable;
@@ -95,26 +95,42 @@ class Controller extends BaseController
     public function ChartOfAccounts(){
         try {
             if(Auth::check()){
-            $ChartofAccounts = ChartOfAccounts::where('isVisible', true)->get();
-            return view('pages.chart-of-account', compact('ChartofAccounts'));
+            $at = AccountType::where('isVisible', true)->get();
+            return view('pages.chart-of-account', compact('at'));
             }else{
-
             }
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    // public function Journal(){
-    //     try {
-    //         if(Auth::check()){
-    //             $accounts = ChartOfAccounts::where('isVisible', true)->get();
-    //             return view('pages.client-journal-form', compact('accounts'));
-    //         }else{
-    //             return dd('unauthorized access');
-    //         }
-    //     } catch (\Throwable $th) {
-    //         throw $th;
-    //     }
-    // }
+
+    public function NewAccountType(Request $request){
+        try {
+            if(Auth::check()){
+                Log::info($request['AccountType']);
+                Log::info($request['Category']);
+                AccountType::create([
+                    'AccountType' => $request['AccountType'],
+                    'Category' => $request['Category'],
+                    'dataUserEntry' => Auth::user()->id
+                ]);
+                return response()->json(['success' => 'data saved successfully']);
+            }else{
+                dd('Unauthorized Access');
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
+
+// try {
+//     if(Auth::check()){
+
+//     }else{
+
+//     }
+// } catch (\Throwable $th) {
+//     throw $th;
+// }

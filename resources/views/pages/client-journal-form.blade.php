@@ -47,19 +47,20 @@
             {{-- Expense Form --}}
             <div class="multi-step-journal expense">
                 <form action="" class="expense-form">
-                    <div class="card">
+                    <div class="card elevation-2 mt-5">
+                        <h6 class="h4 fw-bold p-3" style="color:#063D58; font-family: 'Open Sans', sans-serif;">Expense</h6>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <div class="row">
+                                            <select name="expense" class="form-control" id="expense-category">
+                                                <option value="" selected hidden>Select Account</option>
+                                                
+                                            </select>
+                                            <div class="row visually-hidden expense-form">
                                                 <div class="col-sm-6">
                                                     <div class="input-group">
-                                                        <select name="" id=""></select>
-                                                        @foreach ($accounts as $account)
-                                                            
-                                                        @endforeach
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">Select Start Date</span>
                                                         </div>
@@ -74,10 +75,13 @@
                                                         <input type="month" name="end-month" class="form-control end-date">
                                                     </div>
                                                 </div>
+                                                <div class="save-expense-category">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12">
+                                        <div class="col-sm-12 test">
                                             <div class="months-container"></div>
+                                            <button class="btn btn-primary float-right visually-hidden save-expense">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -90,6 +94,7 @@
                     </div>
                 </form>
             </div>
+            {{-- Expense Form --}}
             <div class="multi-step-journal income" style="display: none;">asd</div>
             <div class="multi-step-journal assets" style="display: none;"></div>
             <div class="multi-step-journal liability" style="display: none;"></div>
@@ -105,3 +110,10 @@
         </div>
     </div>
 @endsection
+{{-- 
+<select name="" class="form-control" id="">
+                                                        <option value="" selected hidden>Select Account</option>
+                                                        @foreach ($accounts as $account)
+                                                            <option value="{{$account->Account}}">{{$account->Account}}</option>
+                                                        @endforeach
+                                                    </select> --}}

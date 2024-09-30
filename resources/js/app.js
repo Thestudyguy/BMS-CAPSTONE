@@ -1,6 +1,8 @@
 import './dom';
 import './add-client-services';
 import './journalDom';
+import './coa-dom';
+
 //global functions
 $(document).ready(function(){
     window.formatValueInput = function (input) {

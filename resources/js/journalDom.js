@@ -11,21 +11,23 @@ var ToastError = Swal.mixin({
 });
 
 $(document).ready(function() {
-    $('#createNewSelect').on('change', function() {
-        const selectedValue = $(this).val();
-        if (selectedValue === 'Journal') {
-            const modalTarget = $(this).find('option:selected').data('bs-target');
-            const modal = new bootstrap.Modal($(modalTarget));
-            modal.show();
-        }
+
+    var expenses = {};
+
+    $('#expense-category').on('change', function(){
+        $('.expense-form').removeClass('visually-hidden');
+        $('.months-container').empty();
+        $('.save-expense').addClass('visually-hidden');
     });
+    
 
     $('.start-date, .end-date').on('change', function() {
         const startDate = $('.start-date').val();
         const endDate = $('.end-date').val();
     
         if (startDate && endDate) {
-            const start = new Date(startDate);
+        $('.save-expense').removeClass('visually-hidden');
+        const start = new Date(startDate);
             const end = new Date(endDate);
             const monthsContainer = $('.months-container');
             const monthDifference = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
@@ -56,13 +58,17 @@ $(document).ready(function() {
                 monthsContainer.append(`
                     <div class="col-sm-12 my-2">
                     <div class="input-group">
-                    <span class="input-group-text">${monthYear}</span>
-                    <input type="text" class="form-control" name="month[]" id="">
+                    <input type="text" class="form-control month-input" name="${monthYear}" id="" placeholder='${monthYear}'>
                     </div>
                     </div>
                 `);
                 current.setMonth(current.getMonth() + 1);
             }
+            $('.months-container').on('input', '.month-input', function() {
+                formatValueInput(this);
+                console.log($(this).val());
+                
+            });
         }
     });
 });

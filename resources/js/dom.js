@@ -11,6 +11,37 @@ var ToastError = Swal.mixin({
 })
 $(document).ready(function () {
     //dom manipulations
+
+    $('#createNewSelect').on('change', function() {
+        const selectedValue = $(this).val();
+        if (selectedValue === 'Journal') {
+            const modalTarget = $(this).find('option:selected').data('bs-target');
+            const modal = new bootstrap.Modal($(modalTarget));
+            modal.show();
+        }
+    });
+    
+    $('.search-coa').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('#coa-table tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+    });
+
+    $('#filter-coa').on('change', function() {
+        var selectedValue = $(this).val();
+        $('.coa-table tbody tr').each(function() {
+            var rowCategory = $(this).data('category');
+
+            if (selectedValue === "clear") {
+                $(this).show(); // Show all rows
+            } else if (selectedValue === "" || rowCategory === selectedValue) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
     $(".client-table-data").hover(
         function () {
             $(this).find('.action-icons').removeClass('visually-hidden')

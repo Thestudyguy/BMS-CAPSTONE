@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChartOfAccounts;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
@@ -176,8 +175,7 @@ class ClientController extends Controller
         if(Auth::check()){
             Log::info($request->id);
             $client = Clients::where('id', $request->id)->first();
-            $accounts = ChartOfAccounts::where('isVisible', true)->get();
-            return view('pages.client-journal-form', compact('client', 'accounts'));
+            return view('pages.client-journal-form', compact('client'));
         }else{
             dd('unauthorize access');
         }

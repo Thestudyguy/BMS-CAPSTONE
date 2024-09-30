@@ -26,4 +26,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('client-journal', [ClientController::class, 'ClientJournal'])->name('client-journal');
     Route::get('client-journal-form', [ClientController::class, 'ClientJournalForm'])->name('client-journal-form');
     Route::get('chart-of-accounts', [Controller::class, 'ChartOfAccounts'])->name('chart-of-accounts');
+    Route::post('new-account-type', [Controller::class, 'NewAccountType']);
 });

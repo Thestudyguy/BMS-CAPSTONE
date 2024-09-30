@@ -15,16 +15,18 @@
                         <label for="Price" class="form-label text-secondary fw-normal">Account Type</label>
                         <select name="AccountType" class="form-control" id="">
                             <option value="" selected hidden>Select Account Type</option>
-                            <option value="">Type 1 Diabetes hahaha</option>
-                            <option value="">Type 2</option>
+                           @foreach ($at as $ats)
+                               <option value="{{$ats->id}}">{{$ats->AccountType}} - {{$ats->Category}}</option>
+                           @endforeach
                         </select>
                     </div>
                     <div class="form-group mb-3">
                         <label for="Price" class="form-label text-secondary fw-normal">Category</label>
                         <select name="Category" class="form-control" id="">
                             <option value="" selected hidden>Select Category</option>
-                            <option value="">Liabilities</option>
-                            <option value="">Assets</option>
+                            <option value="Liability">Liability</option>
+                            <option value="Assets">Assets</option>
+                            <option value="Equity">Equity</option>
                         </select>
                     </div>
                     <input type="hidden" name="id" value="">
