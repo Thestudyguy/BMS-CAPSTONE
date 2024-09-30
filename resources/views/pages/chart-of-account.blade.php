@@ -4,20 +4,19 @@
 <div class="container-fluid p-5 my-5">
     <div class="container">
         <div class="row">
+            <h6 class="h4 fw-bold">Chart of Accounts</h6>
             <div class="col-sm-8">
-                <h6 class="h4 fw-bold">Chart of Accounts</h6>
-                <div class="coa-action-buttons">
-                    <button class="btn ml-3 fw-bold"
-                        data-bs-target='#new-COA' data-bs-toggle='modal'
+                <div class="card elevation-3">
+                    <div class="card-header">
+                    <div class="card-title">
+                    <h6 class="fw-bold">Accounts</h6>
+                    </div>
+                    <div class="card-tools">
+                    <button class="btn ml-3 fw-bold" data-bs-target='#new-COA' data-bs-toggle='modal'
                         style="background: #063D58; color: whitesmoke; border-bottom-left-radius: 0px;border-bottom-right-radius: 0px;">
-                        New Account <i class="fas fa-plus text-sm"></i></button>
-                    <button class="btn ml-3 fw-bold"
-                        data-bs-target='#new-acc-type' data-bs-toggle='modal'
-                        style="background: #063D58; color: whitesmoke; border-bottom-left-radius: 0px;border-bottom-right-radius: 0px;">
-                        New Account Type <i class="fas fa-plus text-sm"></i></button>
-                       
-                </div>
-                <div class="card elevation-3 p-3">
+                        <i class="fas fa-plus text-sm"></i></button>
+                    </div>
+                    </div>
                     <div class="card-body" style="max-height: 500px; overflow: auto;">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -29,48 +28,64 @@
                                     <option value="clear">Clear Filter</option>
                                 </select>
                             </div>
-                            <input type="search" class="form-control search-coa" name="search-coa" id="search-coa" placeholder="search...">
+                            <input type="search" class="form-control search-coa" name="search-coa" id="search-coa"
+                                placeholder="search...">
                         </div>
                         <table class="table table-hover table-bordered table-striped coa-table" id="coa-table">
-                            <thead style="position: sticky;">
+                            <!-- <thead style="position: sticky;">
                                 <tr>
-                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1;">Account Name</th>
-                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1;">Account Type</th>
-                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1;">Account Category</th>
-                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1;">Actions</th>
+                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Account
+                                        Name</th>
+                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Account
+                                        Type</th>
+                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Account
+                                        Category</th>
+                                    <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Actions
+                                    </th>
                                 </tr>
-                            </thead>
+                            </thead> -->
                             <tbody style="font-size: .8em;">
-                              
+
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             <div class="col-sm-4">
-                <h6 class="h4 fw-bold">Account Types</h6>
                 <div class="card">
-                    <div class="card-body"></div>
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h6 class="fw-bold">Account Types</h6>
+                        </div>
+                        <div class="card-tools">
+                            <button class="btn ml-3 fw-bold" data-bs-target='#new-acc-type' data-bs-toggle='modal'
+                                style="background: #063D58; color: whitesmoke; border-bottom-left-radius: 0px;border-bottom-right-radius: 0px;">
+                                <i class="fas fa-plus text-sm"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-hovered table-bordered table-striped">
+                            <tbody style="font-size: .8rem; font-family 'Open Sans', sans-serif;">
+                                @foreach ($at as $ats)
+                                    <tr id="{{$ats->id}}">
+                                        <td>{{$ats->AccountType}}</td>
+                                        <td>{{$ats->Category}}</td>
+                                        <td>
+                                            <span class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
+                                            <span class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-    @include('modals.create-new-COA')
-    @include('modals.new-account-type-modal')
+</div>
+@include('modals.create-new-COA')
+@include('modals.new-account-type-modal')
 @endsection
-{{-- @foreach ($ChartofAccounts as $coa)
-                                  <tr id="{{$coa->id}}" data-category="{{$coa->Category}}">
-                                    <td>{{$coa->Account}}</td>
-                                    <td>{{$coa->AccountType}}</td>
-                                    <td>{{$coa->Category}}</td>
-                                    <td>
-                                        <span id="edit-coa-{{$coa->id}}" class="badge bg-warning fw-bold text-light">
-                                            <i class="fas fa-pen p-1" style="color:#063D58"></i>
-                                        </span>
-                                        <span id="remove-coa-{{$coa->id}}" class="badge bg-warning fw-bold text-light">
-                                            <i class="fas fa-trash p-1" style="color:#063D58"></i>
-                                        </span>
-                                    </td>
-                                  </tr>
-                              @endforeach --}}

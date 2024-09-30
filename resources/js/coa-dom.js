@@ -41,11 +41,31 @@ $(document).ready(function(){
             )
             function CallSuccess(response){
                 console.log(response);
+                $('.new-account-type-form')[0].reset();
+                localStorage.setItem('account-type', 'created');
+                location.reload();
             }
-            function CallFailed(error, status, jqXHR){
-                console.log(error);
+            function CallFailed(jqXHR, textStatus, errorThrown) {
+                try {
+                    const response = JSON.parse(jqXHR.responseText);
+                    console.log('Parsed Response:', response);
+                    ToastError.fire({
+                        icon: 'warning',
+                        title: 'Conflict',
+                        text: response.error
+                    });
+                } catch (e) {
+                    console.log('Could not parse JSON response:', e);
+                }
             }
         }
     });
-    
+    var accountType = localStorage.getItem('account-type');
+    if(accountType === 'created'){
+        Toast.fire({
+            icon: 'success',
+            title: 'New Account Type created!',
+        });
+        localStorage.removeItem('account-type');
+    }
 });

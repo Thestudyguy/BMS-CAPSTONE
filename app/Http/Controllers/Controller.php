@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Accounts;
 use App\Models\AccountType;
 use App\Models\Clients;
 use App\Models\services;
@@ -96,7 +97,8 @@ class Controller extends BaseController
         try {
             if(Auth::check()){
             $at = AccountType::where('isVisible', true)->get();
-            return view('pages.chart-of-account', compact('at'));
+            $accounts = Accounts::where('isVisible', true)->get();
+            return view('pages.chart-of-account', compact('at', 'accounts'));
             }else{
             }
         } catch (\Throwable $th) {
@@ -105,24 +107,37 @@ class Controller extends BaseController
     }
 
 
-    public function NewAccountType(Request $request){
-        try {
-            if(Auth::check()){
-                Log::info($request['AccountType']);
-                Log::info($request['Category']);
-                AccountType::create([
-                    'AccountType' => $request['AccountType'],
-                    'Category' => $request['Category'],
-                    'dataUserEntry' => Auth::user()->id
-                ]);
-                return response()->json(['success' => 'data saved successfully']);
-            }else{
-                dd('Unauthorized Access');
-            }
-        } catch (\Throwable $th) {
-            throw $th;
+    public function NewAccountType(Request $request)
+{
+    try {
+        if (Auth::check()) {
+            // Validate the request
+            $request->validate([
+                'AccountType' => 'required|string|unique:account_types,AccountType',
+                'Category' => 'required|string|in:Asset,Liability,Equity',
+            ]);
+
+            // Create a new account type
+            AccountType::create([
+                'AccountType' => $request['AccountType'],
+                'Category' => $request['Category'],
+                'dataUserEntry' => Auth::user()->id,
+            ]);
+
+            return response()->json(['success' => 'Data saved successfully']);
+        } else {
+            return response()->json(['error' => 'Unauthorized Access'], 403);
         }
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        if ($e->validator->errors()->has('AccountType')) {
+            return response()->json(['error' => 'Account Type already exists'], 409);
+        }
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (\Throwable $th) {
+        return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
     }
+}
+
 }
 
 // try {
