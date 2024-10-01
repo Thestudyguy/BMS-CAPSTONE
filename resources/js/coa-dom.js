@@ -1,4 +1,4 @@
-import { NewAccountType } from "./ajax";
+import { NewAccountType, NewAccount } from "./ajax";
 var Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -32,6 +32,7 @@ $(document).ready(function(){
         });
         
         if(callFlag){
+        $('.loader-container').removeClass('visually-hidden');
             NewAccountType(
                 'new-account-type',
                 AccountTypeObj,
@@ -41,11 +42,12 @@ $(document).ready(function(){
             )
             function CallSuccess(response){
                 console.log(response);
-                $('.new-account-type-form')[0].reset();
+                // $('.new-account-type-form')[0].reset();
                 localStorage.setItem('account-type', 'created');
                 location.reload();
             }
             function CallFailed(jqXHR, textStatus, errorThrown) {
+        $('.loader-container').addClass('visually-hidden');
                 try {
                     const response = JSON.parse(jqXHR.responseText);
                     console.log('Parsed Response:', response);
@@ -60,12 +62,67 @@ $(document).ready(function(){
             }
         }
     });
+
+
+    $('.save-account').on('click', function(){
+        var accForm = $('#account-form').serializeArray();
+        var AccObj = {};
+        var callFlag = true;
+        console.log(accForm);
+        
+        $.each(accForm, (index, element)=>{
+            $(`#account-form [name='${element.name}']`).addClass('is-invalid');
+            if(element.value === ''){
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields!',
+                    text: 'Please fill all fields'
+                });
+                callFlag = false;
+                return;
+            }else{
+                $(`#account-form [name='${element.name}']`).removeClass('is-invalid');
+                AccObj[element.name] = element.value;
+            }
+        });
+
+        if(callFlag){
+            NewAccount(
+                'new-account',
+                AccObj,
+                { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                CallSuccess,
+                CallFailed
+            )
+
+            function CallSuccess(response){
+                console.log(response);
+                
+            }
+            function CallFailed(error, status, jqXHR){
+                console.log(status);
+                
+            }
+        }
+       
+    });
+
     var accountType = localStorage.getItem('account-type');
+    var account = localStorage.getItem('account');
     if(accountType === 'created'){
         Toast.fire({
             icon: 'success',
             title: 'New Account Type created!',
         });
         localStorage.removeItem('account-type');
+        return;
+    }
+    if(account === 'created'){
+        Toast.fire({
+            icon: 'success',
+            title: 'New Account created!',
+        });
+        localStorage.removeItem('account-type');
+        return;
     }
 });

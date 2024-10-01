@@ -201,3 +201,27 @@ export function NewAccountType(url, accounttype, header, CallSuccess, CallError)
         }
     });
 }
+
+
+/** add new account
+ *
+ * @param {string} url
+ * @param {Object} account
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function NewAccount(url, account, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: account,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}

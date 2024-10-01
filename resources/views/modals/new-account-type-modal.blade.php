@@ -22,6 +22,7 @@
                             <option value="Asset">Asset</option>
                             <option value="Liability">Liability</option>
                             <option value="Equity">Equity</option>
+                            <option value="Expenses">Expenses</option>
                         </select>
                     </div>
                 </form>

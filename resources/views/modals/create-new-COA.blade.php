@@ -6,21 +6,21 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="" id="">
+                <form action="" id="account-form">
                     <div class="form-group mb-3">
                         <label for="Service" class="form-label text-secondary fw-normal">Account Name</label>
-                        <input type="text" class="form-control rounded-0" id="accountname" name="Account" placeholder="Enter Service">
+                        <input type="text" class="form-control rounded-0" id="accountname" name="AccountName" placeholder="Enter Service">
                     </div>
                     <div class="form-group mb-3">
                         <label for="Price" class="form-label text-secondary fw-normal">Account Type</label>
-                        <select name="AccountType" class="form-control" id="">
+                        <select name="AccountType" class="form-control">
                             <option value="" selected hidden>Select Account Type</option>
                            @foreach ($at as $ats)
                                <option value="{{$ats->id}}">{{$ats->AccountType}} - {{$ats->Category}}</option>
                            @endforeach
                         </select>
                     </div>
-                    <div class="form-group mb-3">
+                    {{-- <div class="form-group mb-3">
                         <label for="Price" class="form-label text-secondary fw-normal">Category</label>
                         <select name="Category" class="form-control" id="">
                             <option value="" selected hidden>Select Category</option>
@@ -28,12 +28,11 @@
                             <option value="Assets">Assets</option>
                             <option value="Equity">Equity</option>
                         </select>
-                    </div>
-                    <input type="hidden" name="id" value="">
+                    </div> --}}
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn edit-service rounded-0" style="background: #063D58; border-radius: 0px; color: whitesmoke;">{{__('Save')}}</button>
+                <button type="submit" class="btn save-account rounded-0" style="background: #063D58; border-radius: 0px; color: whitesmoke;">{{__('Save')}}</button>
                 <button type="button" class="btn btn-secondary rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
             </div>
         </div>

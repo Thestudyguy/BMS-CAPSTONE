@@ -14,25 +14,17 @@ $(document).ready(function() {
         position: 'bottom-end',
     });
 
-    // Next button handler
     $('.next-btn').on('click', function() {
-        // if (!validateStep(currentStep)) {
-        //     ToastError.fire({
-        //         icon: 'error',
-        //         title: 'Please fill out the required fields.'
-        //     });
-        //     return;
-        // }
+        
 
         if (currentStep < 6) {
-            $('.multi-step-journal').hide(); // Hide all forms
+            $('.multi-step-journal').hide();
             currentStep++;
-            showStep(currentStep); // Show the current step
+            showStep(currentStep);
         }
 
         updateStepIndicator(currentStep);
 
-        // Handle final step (show Save button)
         if (currentStep === 6) {
             $('.next-btn').hide();
             $('.save-btn').show();
@@ -42,7 +34,6 @@ $(document).ready(function() {
         }
     });
 
-    // Previous button handler
     $('.prev-btn').on('click', function() {
         if (currentStep > 1) {
             $('.multi-step-journal').hide();
@@ -51,18 +42,15 @@ $(document).ready(function() {
         }
         updateStepIndicator(currentStep);
 
-        // Reset the buttons
         $('.next-btn').show();
         $('.save-btn').hide();
     });
 
-    // Function to show the appropriate step
     function showStep(step) {
         $('.multi-step-journal').hide();
         $('.multi-step-journal').eq(step - 1).show();
     }
 
-    // Function to update step indicator
     function updateStepIndicator(step) {
         $('.step').removeClass('active');
         $('.indicator-line').removeClass('active');
@@ -74,7 +62,6 @@ $(document).ready(function() {
         });
     }
 
-    // Validation for the current step (simplified, can be customized per step)
     function validateStep(step) {
         let valid = true;
         if (step === 1) {
@@ -82,11 +69,9 @@ $(document).ready(function() {
                 valid = false;
             }
         }
-        // Add more validations for other steps
         return valid;
     }
 
-    // Initialize step 1 view
     showStep(currentStep);
     updateStepIndicator(currentStep);
 });

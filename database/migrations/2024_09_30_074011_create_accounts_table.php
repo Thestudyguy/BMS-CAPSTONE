@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('AccounntName');
             $table->unsignedBigInteger(column: 'AccountType')->nullable();
             $table->foreign('AccountType')->references('id')->on('account_types')->nullOnDelete();
-            $table->string('Category');
+            // $table->string('Category');
             $table->boolean('isVisible')->default(true);
             $table->string('dataUserEntry');
             $table->timestamps();

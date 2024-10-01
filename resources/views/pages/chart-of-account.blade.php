@@ -64,9 +64,9 @@
                         </div>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body" style="max-height: 400px; overflow: auto;">
                         <table class="table table-hovered table-bordered table-striped">
-                            <tbody style="font-size: .8rem; font-family 'Open Sans', sans-serif;">
+                            <tbody style="font-size: .6rem; font-family 'Open Sans', sans-serif;">
                                 @foreach ($at as $ats)
                                     <tr id="{{$ats->id}}">
                                         <td>{{$ats->AccountType}}</td>

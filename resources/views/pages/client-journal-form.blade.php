@@ -82,7 +82,7 @@
                             </div>
                         </form>
                     </div>
-                    {{-- Additional forms for other steps (hidden initially) --}}
+                    {{-- Expense form --}}
                     <div class="multi-step-journal income" style="display: none;">Income form here</div>
                     <div class="multi-step-journal assets" style="display: none;">Assets form here</div>
                     <div class="multi-step-journal liability" style="display: none;">Liability form here</div>
