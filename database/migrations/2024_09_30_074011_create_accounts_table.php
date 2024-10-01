@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('AccounntName');
+            $table->string('AccountName');
             $table->unsignedBigInteger(column: 'AccountType')->nullable();
             $table->foreign('AccountType')->references('id')->on('account_types')->nullOnDelete();
             // $table->string('Category');

@@ -103,8 +103,11 @@ class Controller extends BaseController
         try {
             if (Auth::check()) {
                 $at = AccountType::where('isVisible', true)->get();
-                $accounts = Accounts::where('isVisible', true)->get();
-                return view('pages.chart-of-account', compact('at', 'accounts'));
+                // $accounts = Accounts::where('isVisible', true)->get();
+                $account = Accounts::where('accounts.isVisible', true)->
+                select('accounts.AccountName', 'accounts.id', 'account_types.AccountType', 'account_types.Category')
+                ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')->get();
+                return view('pages.chart-of-account', compact('at', 'account'));
             } else {
             }
         } catch (\Throwable $th) {
@@ -145,8 +148,33 @@ class Controller extends BaseController
     }
 
 
-    public function NewAccount(Request $request) {
-        Log::info($request->all());
+    public function NewAccount(Request $request)
+    {
+        try {
+            if (Auth::check()) {
+                $request->validate([
+                    'AccountName' => 'required|string|unique:accounts,AccountName',
+                    // 'Category' => 'required|string|in:Asset,Liability,Equity,Expenses',
+                ]);
+                
+                Accounts::create([
+                    'AccountName' => $request['AccountName'],
+                    'AccountType' => $request['AccountType'],
+                    'dataUserEntry' => Auth::user()->id,
+                ]);
+
+                return response()->json(['success' => 'Data saved successfully']);
+            } else {
+                return response()->json(['error' => 'Unauthorized Access'], 403);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($e->validator->errors()->has('AccountName')) {
+                return response()->json(['error' => 'Account already exists'], 409);
+            }
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
+        }
     }
 }
 

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Accounts extends Model
 {
     use HasFactory;
-    protected $fillable = ['AccountName', 'AccountType', 'Category', 'dataEntryUser'];
+    protected $fillable = ['AccountName', 'AccountType', 'Category', 'dataUserEntry'];
 }

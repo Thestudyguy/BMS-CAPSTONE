@@ -87,6 +87,7 @@ $(document).ready(function(){
         });
 
         if(callFlag){
+            $('.loader-container').removeClass('visually-hidden');
             NewAccount(
                 'new-account',
                 AccObj,
@@ -96,11 +97,22 @@ $(document).ready(function(){
             )
 
             function CallSuccess(response){
-                console.log(response);
-                
+                localStorage.setItem('account', 'created');
+                location.reload();
             }
-            function CallFailed(error, status, jqXHR){
-                console.log(status);
+            function CallFailed(jqXHR, textStatus, errorThrown){
+                $('.loader-container').addClass('visually-hidden');
+                try {
+                    const response = JSON.parse(jqXHR.responseText);
+                    console.log('Parsed Response:', response);
+                    ToastError.fire({
+                        icon: 'warning',
+                        title: 'Conflict',
+                        text: response.error
+                    });
+                } catch (e) {
+                    console.log('Could not parse JSON response:', e);
+                }
                 
             }
         }
@@ -118,6 +130,7 @@ $(document).ready(function(){
         return;
     }
     if(account === 'created'){
+        localStorage.removeItem('account');
         Toast.fire({
             icon: 'success',
             title: 'New Account created!',

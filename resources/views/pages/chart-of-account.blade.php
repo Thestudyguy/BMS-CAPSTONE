@@ -32,7 +32,7 @@
                                 placeholder="search...">
                         </div>
                         <table class="table table-hover table-bordered table-striped coa-table" id="coa-table">
-                            <!-- <thead style="position: sticky;">
+                            <thead style="position: sticky;">
                                 <tr>
                                     <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Account
                                         Name</th>
@@ -43,9 +43,15 @@
                                     <th style="position: sticky; top: 0; background-color: white; z-index: 1; font-size: 14px;">Actions
                                     </th>
                                 </tr>
-                            </thead> -->
+                            </thead>
                             <tbody style="font-size: .8em;">
-
+                                        @foreach ($account as $accounts)
+                                            <tr id="{{$accounts->id}}">
+                                                <td>{{$accounts->AccountName}}</td>
+                                                <td>{{$accounts->AccountType}}</td>
+                                                <td>{{$accounts->Category}}</td>
+                                            </tr>
+                                        @endforeach
                             </tbody>
                         </table>
                     </div>
