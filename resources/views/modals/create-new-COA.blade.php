@@ -1,9 +1,9 @@
 <div class="modal fade" id="new-COA">
     <div class="modal-dialog modal-center">
         <div class="modal-content rounded-0">
-            <div class="loader-container visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
+            {{-- <div class="loader-container visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
                 <div class="loader"></div>
-            </div>
+            </div> --}}
             <div class="modal-header" style="background: #063D58; border-radius: 0px; color: whitesmoke;">
                 <h4 class="lead fw-bold">New Chart of Account</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

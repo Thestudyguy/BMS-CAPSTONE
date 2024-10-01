@@ -447,6 +447,12 @@ $(document).ready(function () {
     });
 
 
+    $('.service-category').on('click', function(){
+        var tabRef = $(this).attr('id');
+        
+    });
+
+
     var activeLink = localStorage.getItem('activeNavItem');
     if (activeLink) {
         $('.nav-item a[href="' + activeLink + '"]').addClass('active');

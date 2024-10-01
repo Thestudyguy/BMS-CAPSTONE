@@ -48,7 +48,7 @@
                             <div class="card">
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold my-1">{{ \Carbon\Carbon::parse($client->created_at)->format('F j, Y g:i A') }}</div>
-                                    <div class="fw-bold my-1">Created By: {{ $user ? $user->FirstName . ' ' . $user->LastName . ' - '. $user->role : 'Data entry user not found.' }}</div>
+                                    <div class="fw-bold my-1">Created By: {{ $user ? $user->role . ' ' . ' - '. $user->id : 'Data entry user not found.' }}</div>
                                 </div>
                             </div>
                         </div>

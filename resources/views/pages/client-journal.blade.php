@@ -7,7 +7,7 @@
         </div>
         <div class="row">
             <div class="col-sm-8">
-                <div class="card mb-4">
+                {{-- <div class="card mb-4">
                     <div class="card-header fw-bold" style="font-size: 1rem;">Charts of Accounts</div>
                     <div class="card-body">
                         <table class="table table-hover table-bordered table-striped">
@@ -32,7 +32,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="card">
                     <div class="card-header fw-bold" style="font-size: 1rem;">

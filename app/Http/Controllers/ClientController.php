@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Accounts;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\CompanyProfile;
 use App\Models\services;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -153,7 +154,7 @@ class ClientController extends Controller
                 ->select('image_path')
                 ->first();
             $repInfo = ClientRepresentative::where('CompanyRepresented', $request->id)->get();
-            $user = User::where('id', $dataEntryUserId)->select('FirstName', 'LastName', 'role')->first();
+            $user = User::where('id', $dataEntryUserId)->select('FirstName', 'LastName', 'role', 'id')->first();
     
             return view('pages.client-profile', compact('client', 'clientServices', 'clientProfile', 'repInfo', 'user'));
         } else {
@@ -175,7 +176,11 @@ class ClientController extends Controller
         if(Auth::check()){
             Log::info($request->id);
             $client = Clients::where('id', $request->id)->first();
-            return view('pages.client-journal-form', compact('client'));
+            $accounts = Accounts::where('accounts.isVisible', true)
+            ->select('accounts.AccountName as Account', 'account_types.AccountType as AT', 'account_types.Category', 'accounts.id')
+            ->join('account_types', 'accounts.AccountType', '=', 'account_types.id')
+            ->get();
+            return view('pages.client-journal-form', compact('client', 'accounts'));
         }else{
             dd('unauthorize access');
         }

@@ -50,6 +50,10 @@
                                                 <td>{{$accounts->AccountName}}</td>
                                                 <td>{{$accounts->AccountType}}</td>
                                                 <td>{{$accounts->Category}}</td>
+                                                <td>
+                                                    <span id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
+                                                    <span id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
+                                                </td>
                                             </tr>
                                         @endforeach
                             </tbody>
@@ -78,8 +82,8 @@
                                         <td>{{$ats->AccountType}}</td>
                                         <td>{{$ats->Category}}</td>
                                         <td>
-                                            <span class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
-                                            <span class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
+                                            <span id="{{$ats->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
+                                            <span id="{{$ats->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
                                         </td>
                                     </tr>
                                 @endforeach

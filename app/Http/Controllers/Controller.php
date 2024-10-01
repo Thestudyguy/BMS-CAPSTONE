@@ -88,9 +88,9 @@ class Controller extends BaseController
                     ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
                     ->select('clients.CompanyName', 'company_profiles.image_path')
                     ->get();
-
-
-                return view('pages.dashboard', compact('clientPaymentStatus'));
+                $client = Clients::where('isVisible', true)->get();
+                $clientCount = count($client);
+                return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount'));
             } catch (\Exception $exception) {
                 throw $exception;
             }

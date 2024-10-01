@@ -9,7 +9,7 @@
         <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
         <div class="info-box-content">
           <span class="info-box-text lead">Clients</span>
-          <span class="info-box-number">142</span>
+          <span class="info-box-number">{{$clientCount}}</span>
         </div>
       </div>
     </div>
