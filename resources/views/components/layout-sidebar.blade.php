@@ -25,6 +25,14 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{route('clients')}}" class="nav-link">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p class="text-sm">
+                            {{ __('Users') }}
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{route('admin-hub')}}" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p class="text-sm">

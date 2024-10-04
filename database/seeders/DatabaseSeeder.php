@@ -83,5 +83,70 @@ class DatabaseSeeder extends Seeder
         ];
 
         DB::table('account_types')->insert($accountTypes);
+
+        $accounts = [
+            // Current Assets
+            ['AccountName' => 'Cash on Hand/Bank', 'AccountType' => 1, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Accounts Receivable', 'AccountType' => 1, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Inventory', 'AccountType' => 1, 'isVisible' => true, 'dataUserEntry' => '1'],
+            
+            // Non-Current Assets
+            ['AccountName' => 'Property, Plants & Equipment', 'AccountType' => 3, 'isVisible' => true, 'dataUserEntry' => '1'],
+            
+            // Fixed Assets (same as Non-Current Assets in this case)
+            ['AccountName' => 'Property, Plants & Equipment', 'AccountType' => 2, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Current Liabilities
+            ['AccountName' => 'Accounts Payable', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Short-Term Loans', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Accrued Expenses', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Payroll Liabilities', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Taxes Payable', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Current Portion of Long-Term Debt', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Unearned Revenue', 'AccountType' => 4, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Long-Term Liabilities
+            ['AccountName' => 'Long-Term Debt', 'AccountType' => 5, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Bonds Payable', 'AccountType' => 5, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Deferred Tax Liabilities', 'AccountType' => 5, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Lease Obligations', 'AccountType' => 5, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Pension Obligations', 'AccountType' => 5, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Owner's Equity
+            ['AccountName' => 'Owner’s Capital', 'AccountType' => 6, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Owner’s Drawings', 'AccountType' => 6, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Stockholder's Equity
+            ['AccountName' => 'Common Stock', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Preferred Stock', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Retained Earnings', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Additional Paid-In Capital', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Treasury Stock', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Dividends', 'AccountType' => 7, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Operating Revenue
+            ['AccountName' => 'Construction of Other Civil Engineering Projects', 'AccountType' => 8, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Sales Revenue
+            ['AccountName' => 'Construction Supplies', 'AccountType' => 9, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Less Direct Cost
+            ['AccountName' => 'Supplies & Materials', 'AccountType' => 10, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Labor & Overhead', 'AccountType' => 10, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Gasoline & Oil', 'AccountType' => 10, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Repairs & Maintenance', 'AccountType' => 10, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Depreciation Exp.', 'AccountType' => 10, 'isVisible' => true, 'dataUserEntry' => '1'],
+
+            // Operating Expenses
+            ['AccountName' => 'Amortization', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Meals and Snack', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Miscellaneous', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Taxes and Licenses', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Transportation Expense', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Communication, Light & Water', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+            ['AccountName' => 'Office Supplies', 'AccountType' => 11, 'isVisible' => true, 'dataUserEntry' => '1'],
+        ];
+
+        DB::table('accounts')->insert($accounts);
     }
 }

@@ -54,6 +54,9 @@
                                         <div class="col-sm-6">
                                             <select name="expense" class="form-control" id="expense-category">
                                                 <option value="" selected hidden>Select Account</option>
+                                                @foreach ($accounts as $account)
+                                                        <option value="{{$account->id}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
+                                                @endforeach
                                             </select>
                                             <div class="row visually-hidden expense-form">
                                                 <div class="col-sm-6">
@@ -74,9 +77,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                            <table class="table table-hover table-bordered table-striped"></table>
-                                        </div>
+                                        <div class="col-sm-6 months-container"></div>
                                     </div>
                                 </div>
                             </div>
