@@ -76,8 +76,36 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-sm-12 months-container m-3">
+                                             </div>
                                         </div>
-                                        <div class="col-sm-6 months-container"></div>
+                                        <div class="col-sm-6">
+                                            <div class="saved-months-table mt-4 text-sm">
+                                                <table class="table">
+                                                    <tbody class="saved-months">
+                                                        <table class="table table-hover opacity-50  external-services">
+                                                                <tr class="external-service" data-widget="expandable-table" aria-expanded="false">
+                                                                    <td>
+                                                                        
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="expandable-body cheque-expandable-body bg-light">
+                                                                    <td>
+                                                                        <div class="p-0 text-center expandable-body-append-table">
+                                                                            <table class="table table-hover float-left">
+                                                                               <tr>
+                                                                                <td></td>
+                                                                               </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                           
+                                                        </table>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

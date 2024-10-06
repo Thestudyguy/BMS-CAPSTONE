@@ -14,65 +14,124 @@ $(document).ready(function() {
         position: 'bottom-end',
     });
 
+    let selectedMonths = [];
+    let selectedAccount = '';
 
-    $('#expense-category').on('change', function(){
+    $('#expense-category').on('change', function() {
+        selectedAccount = $('#expense-category').val();
         $('.expense-form').removeClass('visually-hidden');
         $('.months-container').empty();
         $('.save-expense').addClass('visually-hidden');
     });
 
-
     $('.start-date, .end-date').on('change', function() {
-    const startDate = $('.start-date').val();
-    const endDate = $('.end-date').val();
+        const startDate = $('.start-date').val();
+        const endDate = $('.end-date').val();
 
-    if (startDate && endDate) {
-    $('.save-expense').removeClass('visually-hidden');
-    const start = new Date(startDate);
-        const end = new Date(endDate);
-        const monthsContainer = $('.months-container');
-        const monthDifference = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-        if (monthDifference > 12) {
-            ToastError.fire({
-                icon: 'error',
-                title: 'The selected period exceeds 12 months.'
+        if (startDate && endDate) {
+            $('.save-expense').removeClass('visually-hidden');
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const monthsContainer = $('.months-container');
+            var monthInputs = `<div class="row">`;
+
+            const monthDifference = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            if (monthDifference > 12) {
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'The selected period exceeds 12 months.'
+                });
+                return;
+            }
+
+            const fiscalYearEnd = new Date(start);
+            fiscalYearEnd.setMonth(fiscalYearEnd.getMonth() + 12);
+
+            if (end > fiscalYearEnd) {
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'The selected period must not exceed the fiscal year based on the start date.'
+                });
+                return;
+            }
+
+            monthsContainer.empty();
+            monthInputs += ``;
+            let current = new Date(start);
+            console.log(current);
+
+            while (current <= end) {
+                const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
+                monthInputs += `<div class="col-sm-6 my-2">
+                    <div class="input-group">
+                    <input type="text" class="form-control month-input" name="${monthYear}" id="" placeholder='${monthYear}' value="">
+                    </div>
+                    </div>`;
+                current.setMonth(current.getMonth() + 1);
+            }
+            monthInputs += `
+            <div class="col-sm-6 my-2 text-right">
+                <button class="btn btn-primary save-months form-control">Save</button>
+            </div>`;
+            monthInputs += `</div>`;
+
+            monthsContainer.html(monthInputs);
+
+            $('.months-container').on('input', '.month-input', function() {
+                formatValueInput(this);
             });
-            return;
-        }
 
-        const fiscalYearEnd = new Date(start);
-        fiscalYearEnd.setMonth(fiscalYearEnd.getMonth() + 12);
-
-        if (end > fiscalYearEnd) {
-            ToastError.fire({
-                icon: 'error',
-                title: 'The selected period must not exceed the fiscal year based on the start date.'
-            });
-            return;
-        }
-
-        monthsContainer.empty();
-
-        let current = new Date(start);
-        while (current <= end) {
-            const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
-            monthsContainer.append(
-                `<div class="col-sm-12 my-2">
-                <div class="input-group">
-                <input type="text" class="form-control month-input" name="${monthYear}" id="" placeholder='${monthYear}'>
-                </div>
-                </div>`
-            );
-            current.setMonth(current.getMonth() + 1);
-        }
-        $('.months-container').on('input', '.month-input', function() {
-            formatValueInput(this);
-            console.log($(this).val());
+            $(document).on('click', '.save-months', function(e) {
+                e.preventDefault();
+                let selectedMonths = [];
+                let hasValue = false;
+                let incomeObj = {};
+                $('.month-input').each(function() {
+                    var monthName = $(this).attr('name');
+                    if ($(this).val().trim() !== '') {
+                        hasValue = true;
+                    }
+                    selectedMonths.push({ 
+                    monthName, 
+                    value: $(this).val(),
+                    account: selectedAccount,
+                    startDate: startDate,
+                    endDate: endDate
+                });
+                });
             
-        });
-    }
-})
+                if (!hasValue) {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Missing Fields',
+                        text: 'Please fill at least one field'
+                    });
+                } else {
+                    let incomeObj = {}
+                    incomeObj[selectedAccount] = {
+                        months: selectedMonths,
+                        startDate: startDate,
+                        endtDate: endDate,
+                    };
+                    console.log(incomeObj);
+                    $('.months-container').empty();
+                    $('#expense-category').val('');
+                    $('.end-date').val('');
+                    $('.start-date').val('');
+                }
+            });
+        }
+    });
 
+    // selectedMonths.push({ 
+    //     monthName, 
+    //     value: monthValue,
+    //     account: selectedAccount,
+    //     startDate: startDate,
+    //     endDate: endDate
+    // });
+
+    // Multi-step form navigation
     $('.next-btn').on('click', function() {
         if (currentStep < 6) {
             $('.multi-step-journal').hide();
@@ -102,13 +161,11 @@ $(document).ready(function() {
         $('.save-btn').hide();
     });
 
-    // Function to show the appropriate step
     function showStep(step) {
         $('.multi-step-journal').hide();
         $('.multi-step-journal').eq(step - 1).show();
     }
 
-    // Function to update step indicator
     function updateStepIndicator(step) {
         $('.step').removeClass('active');
         $('.indicator-line').removeClass('active');
@@ -120,21 +177,6 @@ $(document).ready(function() {
         });
     }
 
-    function validateStep(step) {
-        let valid = true;
-        if (step === 1) {
-            if ($('#expense-category').val() === "") {
-                valid = false;
-            }
-        }
-        return valid;
-    }
-
     showStep(currentStep);
     updateStepIndicator(currentStep);
 });
-
-
-
-
-
