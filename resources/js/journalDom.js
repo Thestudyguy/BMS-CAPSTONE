@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     let currentStep = 1;
 
     // Toast configurations
@@ -17,14 +17,14 @@ $(document).ready(function() {
     let selectedMonths = [];
     let selectedAccount = '';
 
-    $('#expense-category').on('change', function() {
+    $('#expense-category').on('change', function () {
         selectedAccount = $('#expense-category').val();
         $('.expense-form').removeClass('visually-hidden');
         $('.months-container').empty();
         $('.save-expense').addClass('visually-hidden');
     });
 
-    $('.start-date, .end-date').on('change', function() {
+    $('.start-date, .end-date').on('change', function () {
         const startDate = $('.start-date').val();
         const endDate = $('.end-date').val();
 
@@ -77,29 +77,29 @@ $(document).ready(function() {
 
             monthsContainer.html(monthInputs);
 
-            $('.months-container').on('input', '.month-input', function() {
+            $('.months-container').on('input', '.month-input', function () {
                 formatValueInput(this);
             });
-
-            $(document).on('click', '.save-months', function(e) {
+            
+            let incomeObj = {};
+            $(document).on('click', '.save-months', function (e) {
                 e.preventDefault();
                 let selectedMonths = [];
                 let hasValue = false;
-                let incomeObj = {};
-                $('.month-input').each(function() {
+                $('.month-input').each(function () {
                     var monthName = $(this).attr('name');
                     if ($(this).val().trim() !== '') {
                         hasValue = true;
                     }
-                    selectedMonths.push({ 
-                    monthName, 
-                    value: $(this).val(),
-                    account: selectedAccount,
-                    startDate: startDate,
-                    endDate: endDate
+                    selectedMonths.push({
+                        monthName,
+                        value: $(this).val(),
+                        account: selectedAccount,
+                        startDate: startDate,
+                        endDate: endDate
+                    });
                 });
-                });
-            
+
                 if (!hasValue) {
                     Toast.fire({
                         icon: 'warning',
@@ -107,12 +107,51 @@ $(document).ready(function() {
                         text: 'Please fill at least one field'
                     });
                 } else {
-                    let incomeObj = {}
                     incomeObj[selectedAccount] = {
                         months: selectedMonths,
                         startDate: startDate,
-                        endtDate: endDate,
+                        endDate: endDate,
                     };
+
+                    $.each(incomeObj, (account, element) => {
+                        var tableHTML = `<table class="table table-hover client-journal-accounts">`;
+                        var accountParts = account.split('_');
+                        tableHTML += `
+                            <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
+                                <td>
+                                    ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                                    <span class="text-sm fw-bold float-right remove-saved-account" id=${accountParts[0]}><i class="fas fa-times"></i></span>
+                                </td>
+                            </tr>
+                            <tr class="expandable-body bg-light client-journal-accounts">
+                                <td>
+                                    <div class="p-0 text-center">
+                                        <table class="table table-hover float-left">
+                                        <thead>
+                                         <tr>
+                                        <td>Month</td>
+                                        <td>amount</td>
+                                       </tr>
+                                        </thead>
+                        `;
+                        $.each(element.months, (index, month) => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${month.monthName}</td>
+                                    <td>${month.value}</td>
+                                </tr>
+                            `;
+                        });
+                        tableHTML += `
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tableHTML += `</table>`;
+                        $('#test-table-yawa').html(tableHTML);
+                    });
+                    
                     console.log(incomeObj);
                     $('.months-container').empty();
                     $('#expense-category').val('');
@@ -132,7 +171,13 @@ $(document).ready(function() {
     // });
 
     // Multi-step form navigation
-    $('.next-btn').on('click', function() {
+
+    $(document).on('click', '.remove-saved-account', function(e){
+        const accountId = $(this).attr('id');
+        console.log(accountId); // For debugging
+        delete incomeObj[accountId];
+    });
+    $('.next-btn').on('click', function () {
         if (currentStep < 6) {
             $('.multi-step-journal').hide();
             currentStep++;
@@ -150,7 +195,7 @@ $(document).ready(function() {
         }
     });
 
-    $('.prev-btn').on('click', function() {
+    $('.prev-btn').on('click', function () {
         if (currentStep > 1) {
             $('.multi-step-journal').hide();
             currentStep--;
@@ -169,7 +214,7 @@ $(document).ready(function() {
     function updateStepIndicator(step) {
         $('.step').removeClass('active');
         $('.indicator-line').removeClass('active');
-        $('.step').each(function(index) {
+        $('.step').each(function (index) {
             if (index < step) {
                 $(this).addClass('active');
                 $(this).next('.indicator-line').addClass('active');

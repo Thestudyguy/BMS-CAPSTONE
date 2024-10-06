@@ -55,7 +55,7 @@
                                             <select name="expense" class="form-control" id="expense-category">
                                                 <option value="" selected hidden>Select Account</option>
                                                 @foreach ($accounts as $account)
-                                                        <option value="{{$account->id}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
+                                                        <option value="{{$account->id}}_{{$account->Account}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
                                                 @endforeach
                                             </select>
                                             <div class="row visually-hidden expense-form">
@@ -80,29 +80,34 @@
                                              </div>
                                         </div>
                                         <div class="col-sm-6">
-                                            <div class="saved-months-table mt-4 text-sm">
-                                                <table class="table">
-                                                    <tbody class="saved-months">
-                                                        <table class="table table-hover opacity-50  external-services">
+                                            <div class="saved-months-table text-sm">
+                                                <table class="table" id="test-table-yawa">
+                                                    
+                                                    {{-- <tbody class="saved-months123"> --}}
+                                                        {{-- <table class="table table-hover">
                                                                 <tr class="external-service" data-widget="expandable-table" aria-expanded="false">
                                                                     <td>
-                                                                        
+                                                                        asd
                                                                     </td>
                                                                 </tr>
-                                                                <tr class="expandable-body cheque-expandable-body bg-light">
+                                                                <tr class="expandable-body bg-light">
                                                                     <td>
                                                                         <div class="p-0 text-center expandable-body-append-table">
                                                                             <table class="table table-hover float-left">
                                                                                <tr>
-                                                                                <td></td>
+                                                                                <td>asd</td>
+                                                                                <td>asd</td>
+                                                                               </tr>
+                                                                               <tr>
+                                                                                <td>asd</td>
+                                                                                <td>asd</td>
                                                                                </tr>
                                                                             </table>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
-                                                           
-                                                        </table>
-                                                    </tbody>
+                                                        </table> --}}
+                                                    {{-- </tbody> --}}
                                                 </table>
                                             </div>
                                         </div>
