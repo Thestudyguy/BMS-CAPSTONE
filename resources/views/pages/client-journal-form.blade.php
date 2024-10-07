@@ -81,7 +81,7 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="saved-months-table text-sm">
-                                                <table class="table" id="test-table-yawa">
+                                                <table class="table" id="saved-months">
                                                     
                                                     {{-- <tbody class="saved-months123"> --}}
                                                         {{-- <table class="table table-hover">

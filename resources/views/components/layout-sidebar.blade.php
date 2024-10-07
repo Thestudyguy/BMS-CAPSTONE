@@ -1,5 +1,6 @@
 <aside class="main-sidebar sidebar-info-primary elevation-4 fixed" style="position: fixed; background: #063D58">
     <a href="" class="brand-link" style="text-decoration: none; ">
+        <img  class="brand-image" src="{{ asset('images/Rams_logo.png') }}" alt="">
         <span class="brand-text" >{{ __('BMS') }}</span>
     </a>
     <div class="sidebar" style="background: #063D58">

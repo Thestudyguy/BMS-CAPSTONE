@@ -14,8 +14,9 @@ $(document).ready(function () {
         position: 'bottom-end',
     });
 
-    let selectedMonths = [];
+    // let selectedMonths = [];
     let selectedAccount = '';
+    let incomeObj = {};
 
     $('#expense-category').on('change', function () {
         selectedAccount = $('#expense-category').val();
@@ -27,7 +28,14 @@ $(document).ready(function () {
     $('.start-date, .end-date').on('change', function () {
         const startDate = $('.start-date').val();
         const endDate = $('.end-date').val();
-
+        if($('#expense-category').val() === ''){
+            Toast.fire({
+                icon: 'warning',
+                title: 'Missing account',
+                text: 'Please select an account'
+            });
+            return;
+        }
         if (startDate && endDate) {
             $('.save-expense').removeClass('visually-hidden');
             const start = new Date(startDate);
@@ -81,11 +89,23 @@ $(document).ready(function () {
                 formatValueInput(this);
             });
             
-            let incomeObj = {};
             $(document).on('click', '.save-months', function (e) {
                 e.preventDefault();
                 let selectedMonths = [];
                 let hasValue = false;
+                console.log('selected account', selectedAccount);
+                
+                if (incomeObj.hasOwnProperty(selectedAccount)) {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Account Already Added',
+                        text: 'You have already added this account.'
+                    });
+                    $('.end-date').val('');
+                    $('.start-date').val('');
+                    $('.months-container').empty();
+                    return;
+                }
                 $('.month-input').each(function () {
                     var monthName = $(this).attr('name');
                     if ($(this).val().trim() !== '') {
@@ -112,7 +132,7 @@ $(document).ready(function () {
                         startDate: startDate,
                         endDate: endDate,
                     };
-
+                    $('#saved-months').empty();
                     $.each(incomeObj, (account, element) => {
                         var tableHTML = `<table class="table table-hover client-journal-accounts">`;
                         var accountParts = account.split('_');
@@ -120,7 +140,7 @@ $(document).ready(function () {
                             <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                                 <td>
                                     ${accountParts[1]} - ${element.startDate} - ${element.endDate}
-                                    <span class="text-sm fw-bold float-right remove-saved-account" id=${accountParts[0]}><i class="fas fa-times"></i></span>
+                                    <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
                                 </td>
                             </tr>
                             <tr class="expandable-body bg-light client-journal-accounts">
@@ -149,7 +169,7 @@ $(document).ready(function () {
                             </tr>
                         `;
                         tableHTML += `</table>`;
-                        $('#test-table-yawa').html(tableHTML);
+                        $('#saved-months').append(tableHTML);
                     });
                     
                     console.log(incomeObj);
@@ -157,35 +177,83 @@ $(document).ready(function () {
                     $('#expense-category').val('');
                     $('.end-date').val('');
                     $('.start-date').val('');
+                    selectedAccount = '';
+                    hasValue = false;
                 }
             });
         }
     });
 
-    // selectedMonths.push({ 
-    //     monthName, 
-    //     value: monthValue,
-    //     account: selectedAccount,
-    //     startDate: startDate,
-    //     endDate: endDate
-    // });
-
-    // Multi-step form navigation
-
     $(document).on('click', '.remove-saved-account', function(e){
         const accountId = $(this).attr('id');
-        console.log(accountId); // For debugging
+    
         delete incomeObj[accountId];
+        console.log('Current incomeObj:', incomeObj);
+        
+        $('#saved-months').empty();
+        $.each(incomeObj, (account, element) => {
+            var tableHTML = `<table class="table table-hover client-journal-accounts">`;
+            var accountParts = account.split('_');
+            tableHTML += `
+                <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
+                    <td>
+                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
+                    </td>
+                </tr>
+                <tr class="expandable-body bg-light client-journal-accounts">
+                    <td>
+                        <div class="p-0 text-center">
+                            <table class="table table-hover float-left">
+                            <thead>
+                             <tr>
+                                <td>Month</td>
+                                <td>Amount</td>
+                             </tr>
+                            </thead>
+            `;
+            $.each(element.months, (index, month) => {
+                tableHTML += `
+                    <tr>
+                        <td>${month.monthName}</td>
+                        <td>${month.value}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += `
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableHTML += `</table>`;
+            $('#saved-months').append(tableHTML);
+        });
+        
     });
+    console.log(incomeObj);
+    
     $('.next-btn').on('click', function () {
+        console.log(incomeObj);
+        
+        if (currentStep === 1) {
+            if (Object.keys(incomeObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Please fill and save data for at least one month.'
+                });
+                return;
+            }
+        }
         if (currentStep < 6) {
             $('.multi-step-journal').hide();
             currentStep++;
             showStep(currentStep);
         }
-
+    
         updateStepIndicator(currentStep);
-
+    
         if (currentStep === 6) {
             $('.next-btn').hide();
             $('.save-btn').show();
@@ -193,24 +261,37 @@ $(document).ready(function () {
             $('.next-btn').show();
             $('.save-btn').hide();
         }
+    
+        if (currentStep === 1) {
+            $('.prev-btn').hide();
+        } else {
+            $('.prev-btn').show();
+        }
     });
-
+    
     $('.prev-btn').on('click', function () {
         if (currentStep > 1) {
             $('.multi-step-journal').hide();
             currentStep--;
             showStep(currentStep);
         }
+    
         updateStepIndicator(currentStep);
         $('.next-btn').show();
         $('.save-btn').hide();
+    
+        if (currentStep === 1) {
+            $('.prev-btn').hide();
+        } else {
+            $('.prev-btn').show();
+        }
     });
-
+    
     function showStep(step) {
         $('.multi-step-journal').hide();
         $('.multi-step-journal').eq(step - 1).show();
     }
-
+    
     function updateStepIndicator(step) {
         $('.step').removeClass('active');
         $('.indicator-line').removeClass('active');
@@ -221,7 +302,12 @@ $(document).ready(function () {
             }
         });
     }
-
+    
     showStep(currentStep);
     updateStepIndicator(currentStep);
+    
+    if (currentStep === 1) {
+        $('.prev-btn').hide();
+    }
+    
 });
