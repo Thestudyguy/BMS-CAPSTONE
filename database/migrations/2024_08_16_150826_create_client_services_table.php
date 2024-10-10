@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('getSize')->nullable();
             $table->string('getRealPath')->nullable();
             $table->string('dataEntryUser');
+            $table->string('isClientNotified')->default(false);
             $table->boolean('isVisible')->default(true);
             $table->timestamps();
         });

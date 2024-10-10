@@ -116,9 +116,86 @@
                             </div>
                         </form>
                     </div>
-                    {{-- Expense form --}}
-                    <div class="multi-step-journal income" style="display: none;">Income form here</div>
-                    <div class="multi-step-journal assets" style="display: none;">Assets form here</div>
+                    {{-- Income form --}}
+                    <div class="multi-step-journal income" style="display: none;">
+                        <form action="" class="income-form">
+                            <div class="card elevation-2 mt-5">
+                                <h6 class="h4 fw-bold p-3" style="color:#063D58;">Income</h6>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <select name="income" class="form-control" id="income-category">
+                                                <option value="" selected hidden>Select Account</option>
+                                                @foreach ($accounts as $account)
+                                                        <option value="{{$account->id}}_{{$account->Account}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="row visually-hidden income-form">
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">Start Date</span>
+                                                        </div>
+                                                        <input type="month" name="start-month" class="form-control start-date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">End Date</span>
+                                                        </div>
+                                                        <input type="month" name="end-month" class="form-control end-date">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 months-container m-3">
+                                             </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="saved-months-table text-sm">
+                                                <table class="table" id="saved-months">
+                                                    
+                                                    {{-- <tbody class="saved-months123"> --}}
+                                                        {{-- <table class="table table-hover">
+                                                                <tr class="external-service" data-widget="expandable-table" aria-expanded="false">
+                                                                    <td>
+                                                                        asd
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="expandable-body bg-light">
+                                                                    <td>
+                                                                        <div class="p-0 text-center expandable-body-append-table">
+                                                                            <table class="table table-hover float-left">
+                                                                               <tr>
+                                                                                <td>asd</td>
+                                                                                <td>asd</td>
+                                                                               </tr>
+                                                                               <tr>
+                                                                                <td>asd</td>
+                                                                                <td>asd</td>
+                                                                               </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                        </table> --}}
+                                                    {{-- </tbody> --}}
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>    
+                    
+                    </div>
+                    <div class="multi-step-journal assets" style="display: none;">
+                        <form action="">
+                            <div class="card">
+                                <div class="card-body"></div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="multi-step-journal liability" style="display: none;">Liability form here</div>
                     <div class="multi-step-journal equity" style="display: none;">Equity form here</div>
                     <div class="multi-step-journal summary" style="display: none;">Summary of all the steps</div>

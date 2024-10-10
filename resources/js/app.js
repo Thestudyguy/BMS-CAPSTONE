@@ -2,6 +2,7 @@ import './dom';
 import './add-client-services';
 import './journalDom';
 import './coa-dom';
+import './user';
 
 //global functions
 $(document).ready(function(){

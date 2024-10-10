@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('FirstName');
             $table->string('LastName');
             $table->string('UserName');
-            $table->string('email');
-            $table->string('role');
+            $table->string('Email');
+            $table->string('Role');
             $table->string('PIN')->unique();
             $table->string('password');
             $table->boolean('isVisible')->default(true);

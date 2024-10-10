@@ -69,7 +69,7 @@
     <div class="col-sm-8">
       <div class="card">
         <div class="card-header">
-        <h4 class="h6 fw-bold m-3">Transaction History</h4>
+        <h4 class="h6 fw-bold m-3">Recent Activity</h4>
         </div>
         <div class="card-body">
           <div class="chart">

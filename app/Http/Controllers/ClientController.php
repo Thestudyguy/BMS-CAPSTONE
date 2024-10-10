@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailClientServices;
 use App\Models\Accounts;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use Mail;
 class ClientController extends Controller
 {
     public function returnClientData()
@@ -130,6 +132,7 @@ class ClientController extends Controller
                         'dataEntryUser' => Auth::user()->id,
                         'isVisible' => true,
                     ]);
+                    $this->MailClientServices($clientId);
                 }
             } catch (\Throwable $th) {
                 Log::error($th);
@@ -172,6 +175,17 @@ class ClientController extends Controller
         }
     }
 
+    public function ClientBilling(Request $request){
+        if(Auth::check()){
+            Log::info($request->id);
+            $client = Clients::where('id', $request->id)->first();
+            $services = services::where('isVisible', true)->get();
+            return view('pages.billings', compact('client', 'services'));
+        }else{
+            dd('unauthorize access');
+        }
+    }
+
     public function ClientJournalForm(Request $request){
         if(Auth::check()){
             Log::info($request->id);
@@ -183,6 +197,23 @@ class ClientController extends Controller
             return view('pages.client-journal-form', compact('client', 'accounts'));
         }else{
             dd('unauthorize access');
+        }
+    }
+
+    private function MailClientServices($clientID){
+        try {
+            Log::info($clientID);
+        $services = ClientServices::where('Client',$clientID)->get();
+        $client = Clients::where('id', $clientID)->pluck('CompanyEmail')->first();
+        foreach ($services as $service) {
+            Log::info($service->ClientService);
+            if(!$service->isClientNotified){
+                Mail::to($client)->send(new MailClientServices($service->ClientService, testemail: 'asd'));
+                
+            }
+        }
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 }

@@ -17,7 +17,6 @@ $(document).ready(function () {
     // let selectedMonths = [];
     let selectedAccount = '';
     let incomeObj = {};
-
     $('#expense-category').on('change', function () {
         selectedAccount = $('#expense-category').val();
         $('.expense-form').removeClass('visually-hidden');
@@ -79,112 +78,107 @@ $(document).ready(function () {
             }
             monthInputs += `
             <div class="col-sm-6 my-2 text-right">
-                <button class="btn btn-primary save-months form-control">Save</button>
+                <button type='button' class="btn btn-primary save-months form-control">Save</button>
             </div>`;
             monthInputs += `</div>`;
 
             monthsContainer.html(monthInputs);
 
-            $('.months-container').on('input', '.month-input', function () {
-                formatValueInput(this);
+           
+        }
+        $('.months-container').on('input', '.month-input', function () {
+            formatValueInput(this);
+        });
+    
+        $(document).on('click', '.save-months', function (e) {
+            e.preventDefault();
+            let selectedMonths = [];
+            let hasValue = false;
+            console.log('selected account', selectedAccount);
+            if (incomeObj.hasOwnProperty(selectedAccount)) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Account Already Added',
+                    text: 'You have already added this account.'
+                });
+                $('.end-date').val('');
+                $('.start-date').val('');
+                $('.months-container').empty();
+                return false;
+            }
+        
+            $('.month-input').each(function () {
+                var monthName = $(this).attr('name');
+                console.log(`Month: ${monthName}, Value: ${$(this).val()}`);
+                if ($(this).val().trim() !== '') {
+                    hasValue = true;
+                }
+                selectedMonths.push({
+                    monthName,
+                    value: $(this).val(),
+                    account: selectedAccount,
+                    startDate: startDate,
+                    endDate: endDate
+                });
             });
             
-            $(document).on('click', '.save-months', function (e) {
-                e.preventDefault();
-                let selectedMonths = [];
-                let hasValue = false;
-                console.log('selected account', selectedAccount);
-                
-                if (incomeObj.hasOwnProperty(selectedAccount)) {
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'Account Already Added',
-                        text: 'You have already added this account.'
-                    });
-                    $('.end-date').val('');
-                    $('.start-date').val('');
-                    $('.months-container').empty();
-                    return;
-                }
-                $('.month-input').each(function () {
-                    var monthName = $(this).attr('name');
-                    if ($(this).val().trim() !== '') {
-                        hasValue = true;
-                    }
-                    selectedMonths.push({
-                        monthName,
-                        value: $(this).val(),
-                        account: selectedAccount,
-                        startDate: startDate,
-                        endDate: endDate
-                    });
+            incomeObj[selectedAccount] = {
+                months: selectedMonths,
+                startDate: startDate,
+                endDate: endDate,
+            };
+            $('#saved-months').empty();
+            $.each(incomeObj, (account, element) => {
+                var tableHTML = `<table class="table table-hover client-journal-accounts">`;
+                var accountParts = account.split('_');
+                tableHTML += `
+                    <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
+                        <td>
+                            ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                            <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
+                        </td>
+                    </tr>
+                    <tr class="expandable-body bg-light client-journal-accounts">
+                        <td>
+                            <div class="p-0 text-center">
+                                <table class="table table-hover float-left">
+                                <thead>
+                                 <tr>
+                                <td>Month</td>
+                                <td>Amount</td>
+                               </tr>
+                                </thead>
+                `;
+                $.each(element.months, (index, month) => {
+                    tableHTML += `
+                        <tr>
+                            <td>${month.monthName}</td>
+                            <td>${month.value}</td>
+                        </tr>
+                    `;
                 });
-
-                if (!hasValue) {
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'Please fill at least one field'
-                    });
-                } else {
-                    incomeObj[selectedAccount] = {
-                        months: selectedMonths,
-                        startDate: startDate,
-                        endDate: endDate,
-                    };
-                    $('#saved-months').empty();
-                    $.each(incomeObj, (account, element) => {
-                        var tableHTML = `<table class="table table-hover client-journal-accounts">`;
-                        var accountParts = account.split('_');
-                        tableHTML += `
-                            <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
-                                <td>
-                                    ${accountParts[1]} - ${element.startDate} - ${element.endDate}
-                                    <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
-                                </td>
-                            </tr>
-                            <tr class="expandable-body bg-light client-journal-accounts">
-                                <td>
-                                    <div class="p-0 text-center">
-                                        <table class="table table-hover float-left">
-                                        <thead>
-                                         <tr>
-                                        <td>Month</td>
-                                        <td>amount</td>
-                                       </tr>
-                                        </thead>
-                        `;
-                        $.each(element.months, (index, month) => {
-                            tableHTML += `
-                                <tr>
-                                    <td>${month.monthName}</td>
-                                    <td>${month.value}</td>
-                                </tr>
-                            `;
-                        });
-                        tableHTML += `
-                                        </table>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        tableHTML += `</table>`;
-                        $('#saved-months').append(tableHTML);
-                    });
-                    
-                    console.log(incomeObj);
-                    $('.months-container').empty();
-                    $('#expense-category').val('');
-                    $('.end-date').val('');
-                    $('.start-date').val('');
-                    selectedAccount = '';
-                    hasValue = false;
-                }
+                tableHTML += `
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tableHTML += `</table>`;
+                $('#saved-months').append(tableHTML);
             });
-        }
+            console.log(incomeObj);
+            $('.months-container').empty();
+            $('#expense-category').val('');
+            $('.end-date').val('');
+            $('.start-date').val('');
+            selectedAccount = '';
+            hasValue = true;
+        });
+        
     });
-
-    $(document).on('click', '.remove-saved-account', function(e){
+    
+    
+        $(document).on('click', '.remove-saved-account', function(e){
         const accountId = $(this).attr('id');
     
         delete incomeObj[accountId];
@@ -236,16 +230,16 @@ $(document).ready(function () {
     $('.next-btn').on('click', function () {
         console.log(incomeObj);
         
-        if (currentStep === 1) {
-            if (Object.keys(incomeObj).length === 0) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Data',
-                    text: 'Please fill and save data for at least one month.'
-                });
-                return;
-            }
-        }
+        // if (currentStep === 1) {
+        //     if (Object.keys(incomeObj).length === 0) {
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Missing Data',
+        //             text: 'Please fill and save data for at least one month.'
+        //         });
+        //         return;
+        //     }
+        // }
         if (currentStep < 6) {
             $('.multi-step-journal').hide();
             currentStep++;

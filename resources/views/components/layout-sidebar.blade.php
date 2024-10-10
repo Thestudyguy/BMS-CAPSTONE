@@ -26,7 +26,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('clients')}}" class="nav-link">
+                    <a href="{{route('users')}}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p class="text-sm">
                             {{ __('Users') }}
@@ -103,6 +103,14 @@
                         </p>
                     </a>
                 </li>
+                {{-- <li class="nav-item">
+                    <a href="{{route('billings')}}" class="nav-link">
+                        <i class="nav-icon fas fa-file"></i>
+                        <p class="text-sm">
+                            {{ __('Billings') }}
+                        </p>
+                    </a>
+                </li> --}}
             </ul>
         </nav>
     </div>

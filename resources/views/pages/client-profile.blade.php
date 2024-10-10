@@ -11,8 +11,8 @@
                             <div class="card elevation-0" style="background: transparent;">
                                 <div class="card-body">
                                     @if ($clientProfile && $clientProfile->image_path)
-                                        <img src="{{ asset('storage/' . $clientProfile->image_path) }}" 
-                                             alt="Company Profile Image" width="100">
+                                        <center><img src="{{ asset('storage/' . $clientProfile->image_path) }}" 
+                                            alt="Company Profile Image" width="100" style="border-radius: 50%; border: 5px solid #063D58;"></center>
                                     @else
                                         <img src="default-image-path.jpg" alt="Default Image">
                                     @endif
@@ -20,8 +20,11 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">CEO Information</h6>
+                           
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">CEO Information</div>
+                                </div>
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold">{{ $client->CEO }}</div>
                                     <div class="fw-bold my-1">{{ $client->CEODateOfBirth }}</div>
@@ -30,8 +33,11 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Representative Information</h6>
+                            {{-- <h6 class="h5 fw-bold">Representative Information</h6> --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">Representative Information</div>
+                                </div>
                                 <div class="card-body" style="color: #063D58;">
                                     @foreach ($repInfo as $repInfoData)
                                         <div class="fw-bold">{{ $repInfoData->RepresentativeName }}</div>
@@ -44,8 +50,11 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Created At</h6>
+                            {{-- <h6 class="h5 fw-bold">Created At</h6> --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">Created At</div>
+                                </div>
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold my-1">{{ \Carbon\Carbon::parse($client->created_at)->format('F j, Y g:i A') }}</div>
                                     <div class="fw-bold my-1">Created By: {{ $user ? $user->role . ' ' . ' - '. $user->id : 'Data entry user not found.' }}</div>
@@ -57,8 +66,11 @@
                 <div class="col-sm-8">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Services</h6>
+                            {{-- <h6 class="h5 fw-bold">Services</h6> --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">Services</div>
+                                </div>
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
                                     <table class="table-hover table-bordered table-striped">
                                         <thead>
@@ -101,8 +113,11 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Journal Entries</h6>
+                            {{-- <h6 class="h5 fw-bold">Journal Entries</h6> --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">Journal Entries</div>
+                                </div>
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
                                     <table class="table-hover table-bordered table-striped">
                                         <thead>
@@ -145,8 +160,11 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <h6 class="h5 fw-bold">Bookkeeping</h6>
+                            {{-- <h6 class="h5 fw-bold">Bookkeeping</h6> --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <div class="lead fw-bold text-light">Bookkeeping</div>
+                                </div>
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
                                     <table class="table-hover table-bordered table-striped">
                                         <thead>

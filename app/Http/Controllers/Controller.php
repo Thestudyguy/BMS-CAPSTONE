@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use \App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 class Controller extends BaseController
 {
@@ -174,6 +176,94 @@ class Controller extends BaseController
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Throwable $th) {
             return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
+        }
+    }
+    public function Users(){
+    try {
+        if(Auth::check()){
+            $users = User::where('isVisible', true)->get();
+            return view('pages.users', compact('users'));
+        }else{
+            dd('unauthorized access');
+        }
+    } catch (\Throwable $th) {
+        throw $th;
+    }
+
+    }
+
+    public function NewUser(Request $request){
+            try {
+        if(Auth::check()){
+            Log::info($request);
+             $request->validate([
+                'FirstName' => 'required|string|max:255',
+                'LastName'  => 'required|string|max:255',
+                'UserName'  => 'required|string|max:255|unique:users',
+                'Email'     => 'required|email|max:25|unique:users',
+                'Role'      => 'required|string|max:50',
+                'PIN'       => 'required|string|min:4|max:10|unique:users',
+                'password'  => 'required|string|confirmed|min:8|unique:users',
+            ]);
+                User::create([
+                    'FirstName' => $request['FirstName'],
+                    'LastName' => $request['LastName'],
+                    'UserName' => $request['FirstName'],
+                    'Email' => $request['FirstName'],
+                    'Role' => $request['FirstName'],
+                    'PIN' => $request['FirstName'],
+                    'password' => $request['FirstName'],
+                ]);
+                return response()->json(['response'=>'user saved succesfully']);
+        }else{
+            dd('unauthorized access');
+        }
+        
+    } catch (\Throwable $th) {
+        throw $th;
+    }
+    }
+
+    public function RemoveUser($id){
+                try {
+            if(Auth::check()){
+                User::where('id', $id)->update(['isVisible' => 0]);
+                return response()->json(['response' => 'User removed successfully']);
+            }else{
+                dd('Unauthorized Access');
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function UpdateUser(Request $request){
+        if (Auth::check()) {
+            try {
+                $request->validate([
+                    'FirstName' => 'required|string|max:255',
+                    'LastName'  => 'required|string|max:255',
+                    'UserName'  => 'required|string|max:255|unique:users,UserName,' . $request->id,
+                    'Email'     => 'required|email|max:25|unique:users,Email,' . $request->id,
+                    'Role'      => 'required|string|max:50',
+                    'PIN'       => 'required|string|min:4|max:10|unique:users,PIN,' . $request->id,//must save for future reference
+                ]);
+                
+                User::where('id', $request->id)->update([
+                    'FirstName' => $request->FirstName,
+                    'LastName' => $request->LastName,
+                    'UserName' => $request->UserName,
+                    'Email' => $request->Email,
+                    'Role' => $request->Role,
+                    'PIN' => $request->PIN,
+                ]);
+
+                return response()->json(['response' => 'User Updated Successfully']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            return response()->json(['error' => 'You are not authorized'], 403);
         }
     }
 }

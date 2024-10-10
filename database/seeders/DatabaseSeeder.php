@@ -22,18 +22,18 @@ class DatabaseSeeder extends Seeder
             'FirstName' => 'Edrian',
             'LastName' => 'Lagrosa',
             'UserName' => 'edrian',
-            'email' => 'edrian@gmail.com',
-            'role' => 'Admin',
+            'email' => 'edrian@gmail.com',  // lowercase 'email'
+            'role' => 'Admin',              // lowercase 'role'
             'PIN' => '101106',
             'password' => FacadesHash::make('admin')
         ]);
-
+        
         User::factory()->create([
             'FirstName' => 'Dave',
             'LastName' => 'Batista',
             'UserName' => 'Dave',
-            'email' => 'Dave@gmail.com',
-            'role' => 'Bookkeeper',
+            'email' => 'Dave@gmail.com',    // lowercase 'email'
+            'role' => 'Bookkeeper',         // lowercase 'role'
             'PIN' => '101105',
             'password' => FacadesHash::make('admin')
         ]);

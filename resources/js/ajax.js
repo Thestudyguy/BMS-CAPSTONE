@@ -225,3 +225,26 @@ export function NewAccount(url, account, header, CallSuccess, CallError) {
         }
     });
 }
+
+/** add new user
+ *
+ * @param {string} url
+ * @param {Object} user
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function NewUser(url, user, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: user,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}
