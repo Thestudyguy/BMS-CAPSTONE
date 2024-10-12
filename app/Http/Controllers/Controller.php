@@ -287,8 +287,8 @@ class Controller extends BaseController
     public function GetAccountTypes($id){
             try {
             if(Auth::check()){
-                $accountTypes = AccountType::where('isVisible', true)->where('id', $id)->get();
-                return response()->json(['account' => $accountTypes]);
+                $serviceTypes = ServicesSubTable::where('isVisible', true)->where('BelongsToService', $id)->get();
+                return response()->json(['account' => $serviceTypes]);
             }else{
 
             }

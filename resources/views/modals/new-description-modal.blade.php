@@ -11,14 +11,14 @@
                         <label for="account" class="fw-bold">Select Category</label>
                         <select name="account" class="form-control" id="account-category">
                             <option value="" selected hidden>Category</option>
-                            @foreach ($accounts as $account)
-                                <option value="{{$account->AccountType}}">{{$account->AccountName}}</option>
+                            @foreach ($services as $service)
+                                <option value="{{$service->id}}">{{$service->Service}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="account" class="fw-bold">Type</label>
-                        <select name="Type" class="form-control" id="type" disabled>
+                        <select name="Type" class="form-control" id="billing-account-type" disabled>
                             <option value="" selected hidden>select category first</option>
                         </select>
                     </div>
@@ -37,7 +37,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn save-account-type rounded-0" style="background: #063D58; border-radius: 0px; color: whitesmoke;">{{__('Save')}}</button>
+                <button type="submit" class="btn save-account-description rounded-0" style="background: #063D58; border-radius: 0px; color: whitesmoke;">{{__('Save')}}</button>
                 <button type="button" class="btn btn-secondary close-account-type-modal rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
             </div>
         </div>
