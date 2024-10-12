@@ -17,7 +17,19 @@
                             </div>
                             <div class="col-sm-12">
                                 <div class="row ram-creds">
+                                    @foreach ($systemProfile as $sp)
                                     <div class="col-sm-4">
+                                        <span class="text-dark"><i class="fas fa-phone"></i> {{$sp->PhoneNumber}} </span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <span class="text-dark"><i class="fas fa-envelope"></i>
+                                            {{$sp->Email}}</span> 
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <span class="text-dark"><i class="fas fa-map-marker"></i> {{$sp->Address}}</span>
+                                    </div>
+                                    @endforeach
+                                    {{-- <div class="col-sm-4">
                                         <span class="text-dark"><i class="fas fa-phone"></i> 09550072587 </span>
                                     </div>
                                     <div class="col-sm-4">
@@ -27,7 +39,7 @@
                                     <div class="col-sm-4">
                                         <span class="text-dark"><i class="fas fa-map-marker"></i> Purok Narra, Briz
                                             District, Magugpo East Tagum City</span>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>

@@ -266,6 +266,19 @@ class Controller extends BaseController
             return response()->json(['error' => 'You are not authorized'], 403);
         }
     }
+
+    public function Settings(){
+        try {
+        if(Auth::check()){
+            $users = User::where('isVisible', true)->get();
+            return view('pages.settings', compact('users'));
+        }else{
+
+        }
+    } catch (\Throwable $th) {
+        throw $th;
+    }
+    }
 }
 
 // try {

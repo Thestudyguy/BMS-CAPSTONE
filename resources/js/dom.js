@@ -12,15 +12,8 @@ var ToastError = Swal.mixin({
 $(document).ready(function () {
     //dom manipulations
 
-    $('#createNewSelect').on('change', function() {
-        const selectedValue = $(this).val();
-        if (selectedValue === 'Journal') {
-            const modalTarget = $(this).find('option:selected').data('bs-target');
-            const modal = new bootstrap.Modal($(modalTarget));
-            modal.show();
-        }
-    });
     
+
     $('.search-coa').on('keyup', function() {
         var value = $(this).val().toLowerCase();
         $('#coa-table tbody tr').filter(function() {
@@ -444,12 +437,6 @@ $(document).ready(function () {
         } else {
             $('#imagePreview').attr('src', '#').hide();
         }
-    });
-
-
-    $('.service-category').on('click', function(){
-        var tabRef = $(this).attr('id');
-        
     });
 
 

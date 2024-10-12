@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_infos', function (Blueprint $table) {
+        Schema::create('system_profiles', function (Blueprint $table) {
             $table->id();
+            $table->string('PhoneNumber');
+            $table->string('Email');
+            $table->string('Address');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_infos');
+        Schema::dropIfExists('system_profiles');
     }
 };

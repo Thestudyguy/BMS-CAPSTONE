@@ -36,4 +36,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('update-user', [Controller::class, 'UpdateUser']);
     Route::get('billings', function(){return view('pages.billings');})->name('billings');
     Route::get('mail-client-service', [MailerController::class, 'MailClientServices']);
+    Route::get('settings', [Controller::class, 'Settings'])->name('settings');
 });

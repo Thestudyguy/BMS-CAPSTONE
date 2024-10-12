@@ -10,6 +10,7 @@ use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\CompanyProfile;
 use App\Models\services;
+use App\Models\SystemProfile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -179,8 +180,9 @@ class ClientController extends Controller
         if(Auth::check()){
             Log::info($request->id);
             $client = Clients::where('id', $request->id)->first();
+            $systemProfile = SystemProfile::all();
             $services = services::where('isVisible', true)->get();
-            return view('pages.billings', compact('client', 'services'));
+            return view('pages.billings', compact('client', 'services', 'systemProfile'));
         }else{
             dd('unauthorize access');
         }

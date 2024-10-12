@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\ChartOfAccounts;
 use App\Models\Services;
 use App\Models\ServicesSubTable;
+use App\Models\SystemInfo;
+use App\Models\SystemProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,13 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+
+        SystemProfile::factory()->create([
+            'PhoneNumber' => '09550072587',
+            'Email' => 'rams.bookkeeping22@gmail.com',
+            'Address' => 'Purok Narra, Briz District, Magugpo East Tagum City'
+        ]);
+        
         User::factory()->create([
             'FirstName' => 'Edrian',
             'LastName' => 'Lagrosa',

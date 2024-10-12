@@ -3,7 +3,7 @@ import './add-client-services';
 import './journalDom';
 import './coa-dom';
 import './user';
-
+import './settings';
 //global functions
 $(document).ready(function(){
     window.formatValueInput = function (input) {

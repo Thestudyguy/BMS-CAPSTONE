@@ -304,3 +304,8 @@ font-weight: 700;
   .client-billing-info{
     font-family: "Poppins", sans-serif;
   }
+
+  .settings-user-table{
+    font-size: .8em;
+    font-family: "Poppins", sans-serif;
+  }
