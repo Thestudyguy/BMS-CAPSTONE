@@ -37,4 +37,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('billings', function(){return view('pages.billings');})->name('billings');
     Route::get('mail-client-service', [MailerController::class, 'MailClientServices']);
     Route::get('settings', [Controller::class, 'Settings'])->name('settings');
+    Route::post('get-account-types-{id}', [Controller::class, 'GetAccountTypes']);
 });

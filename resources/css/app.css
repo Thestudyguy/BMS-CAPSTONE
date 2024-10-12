@@ -309,3 +309,6 @@ font-weight: 700;
     font-size: .8em;
     font-family: "Poppins", sans-serif;
   }
+  .sys-profile-form input[type=text]{
+    font-size: .8em;
+  }

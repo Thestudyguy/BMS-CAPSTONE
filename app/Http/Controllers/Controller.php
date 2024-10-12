@@ -7,6 +7,7 @@ use App\Models\AccountType;
 use App\Models\Clients;
 use App\Models\services;
 use App\Models\ServicesSubTable;
+use App\Models\SystemProfile;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -271,13 +272,29 @@ class Controller extends BaseController
         try {
         if(Auth::check()){
             $users = User::where('isVisible', true)->get();
-            return view('pages.settings', compact('users'));
+            $sysProfile = SystemProfile::first();
+            $accounts = Accounts::where('isVisible', true)->get();
+            $services = services::where('isVisible', true)->get();
+            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services'));
         }else{
 
         }
     } catch (\Throwable $th) {
         throw $th;
     }
+    }
+
+    public function GetAccountTypes($id){
+            try {
+            if(Auth::check()){
+                $accountTypes = AccountType::where('isVisible', true)->where('id', $id)->get();
+                return response()->json(['account' => $accountTypes]);
+            }else{
+
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
 

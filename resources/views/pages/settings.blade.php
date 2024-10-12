@@ -12,16 +12,16 @@
                                 <div class="name fw-bold" style="color: #063D58; font-size: 1.5em;">BOOKKEEPING MANAGEMENT SYSTEM</div>
                                <form action="" class="sys-profile-form">
                                 <div class="phone">
-                                    <input class="form-control" type="text" name="PhoneNumber" id="phonenumber">
+                                    <input class="form-control" type="text" name="PhoneNumber" value="{{$sysProfile->PhoneNumber}}" id="phonenumber">
                                 </div>
                                 <div class="email">
-                                    <input class="form-control my-2" type="text" name="Email" id="email">
+                                    <input class="form-control my-2" type="text" value="{{$sysProfile->Email}}" name="Email" id="email">
                                 </div>
                                 <div class="address">
-                                    <input class="form-control" type="text" name="Address" id="address">
+                                    <input class="form-control" type="text" value="{{$sysProfile->Address}}" name="Address" id="address">
                                 </div>
                                </form>
-                               <button class="btn btn-primary text-light fw-bold float-right mt-2 visually-hidden">Save</button>
+                               <button class="btn text-light fw-bold float-right mt-2" style="background: #063D58; font-size: 14px;">Save</button>
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                     <tbody>
                                        @foreach ($users as $user)
                                            <tr id="{{$user->id}}">
-                                            <td>{{$user->LastName}}, {{$user->FirstName}} - {{$user->Role}}</td>
+                                            <td>{{$user->LastName}}, {{$user->FirstName}} - {{$user->role}}</td>
                                            <td>
                                             @if ($user->UserPrivilege)
                                             <span class="badge bg-warning fw-bold" title="disable user log in"><strong>Disable</strong></span>
@@ -59,7 +59,21 @@
                             </div>
                         </div>
                     </div>
+                   <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Descriptions</div>
+                            <div class="card-tools"><button class="btn btn-transparent fw-bold" data-bs-target='#new-description' data-bs-toggle='modal'><i class="fas fa-plus text-light"></i></button></div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover table-striped">
+
+                            </table>
+                        </div>
+                    </div>
+                   </div>
                 </div>
             </div>
+            @include('modals.new-description-modal')
     </div>
     @endsection
