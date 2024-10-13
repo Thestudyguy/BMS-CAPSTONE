@@ -27,12 +27,16 @@
                         <input type="text" name="Description" class="form-control" id="description">
                     </div>
                     <div class="form-group">
-                        <label for="TaxType" class="fw-bold">TaxType</label>
+                        <label for="TaxType" class="fw-bold">Tax Type</label>
                         <input type="text" name="TaxType" class="form-control" id="tax-type">
                     </div>
                     <div class="form-group">
                         <label for="FormType" class="fw-bold">Form Type</label>
                         <input type="text" name="FormType" class="form-control" id="form-type">
+                    </div>
+                    <div class="form-group">
+                        <label for="FormType" class="fw-bold">Price</label>
+                        <input type="text" name="Price" class="form-control" oninput="formatValueInput(this)" id="price">
                     </div>
                 </form>
             </div>

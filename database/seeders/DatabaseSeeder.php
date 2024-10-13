@@ -50,10 +50,10 @@ class DatabaseSeeder extends Seeder
         
 
         $services = [
-            ['Service' => 'Application for Business Registration', 'Price' => 1000, 'dataEntryUser' => '1'],
-            ['Service' => 'Business Permit Processing/Renewal', 'Price' => 1500, 'dataEntryUser' => '1'],
-            ['Service' => 'Bookkeeping', 'Price' => 500, 'dataEntryUser' => '1'],
-            ['Service' => 'Financial Statement', 'Price' => 2500, 'dataEntryUser' => '1'],
+            ['Service' => 'Application for Business Registration', 'Category' => 'External', 'Price' => 1000, 'dataEntryUser' => '1'],
+            ['Service' => 'Business Permit Processing/Renewal', 'Category' => 'External', 'Price' => 1500, 'dataEntryUser' => '1'],
+            ['Service' => 'Bookkeeping', 'Category' => 'External', 'Price' => 500, 'dataEntryUser' => '1'],
+            ['Service' => 'Financial Statement', 'Category' => 'External', 'Price' => 2500, 'dataEntryUser' => '1'],
         ];
 
         $serviceIds = [];

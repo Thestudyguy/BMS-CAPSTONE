@@ -79,6 +79,7 @@
                         </p>
                     </a>
                 </li>
+                @if (Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Accountant')
                 <li class="nav-item">
                     <a href="{{route('settings')}}" class="nav-link">
                         <i class="nav-icon fas fa-cog"></i>
@@ -87,6 +88,7 @@
                         </p>
                     </a>
                 </li>
+                @endif
                 <li class="nav-item">
                     <a href="" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>

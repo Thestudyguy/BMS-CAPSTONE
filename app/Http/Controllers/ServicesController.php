@@ -48,6 +48,7 @@ class ServicesController extends Controller
             try {
                 $validator = Validator::make($request->all(), [
                     'Service' => 'required|string|max:255',
+                    'Category' => 'required|string|max:255',
                     'Price' => 'required|min:0',
                 ]);
                 if ($validator->fails()) {
@@ -61,6 +62,7 @@ class ServicesController extends Controller
                 }
                 services::create([
                     'Service' => $request['Service'],
+                    'Category' => $request['Category'],
                     'Price' => $request['Price'],
                     'dataEntryUser' => Auth::user()->id
                 ]);

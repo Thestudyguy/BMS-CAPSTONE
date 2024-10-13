@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail as FacadesMail;
 use Mail;
 class ClientController extends Controller
 {
@@ -210,7 +211,7 @@ class ClientController extends Controller
         foreach ($services as $service) {
             Log::info($service->ClientService);
             if(!$service->isClientNotified){
-                Mail::to($client)->send(new MailClientServices($service->ClientService, testemail: 'asd'));
+                // FacadesMail::to($client)->send(new MailClientServices($service->ClientService, testemail: 'asd'));
                 
             }
         }

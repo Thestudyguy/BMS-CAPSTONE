@@ -38,4 +38,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('mail-client-service', [MailerController::class, 'MailClientServices']);
     Route::get('settings', [Controller::class, 'Settings'])->name('settings');
     Route::post('get-account-types-{id}', [Controller::class, 'GetAccountTypes']);
+    Route::post('new-account-description', [Controller::class, 'NewAccountDescription']);
 });

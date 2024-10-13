@@ -1,3 +1,4 @@
+import { NewAccountDescription } from "./ajax";
 $(document).ready(function(){
     var Toast = Swal.mixin({
         toast: true,
@@ -68,7 +69,48 @@ $(document).ready(function(){
         });
 
         if(callFlag){
-            
+            NewAccountDescription(
+                'new-account-description',
+                formObj,
+                { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                callSucccess,
+                callFailed
+            )
+
+            function callSucccess(response){
+                // console.log(response);
+                localStorage.setItem('account_description', 'created');
+                location.reload();
+                
+            }
+            function callFailed(error, status, jqXHR){
+                try {
+                    const response = JSON.parse(error.responseText);
+                    console.log('Parsed Response:', response);
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message
+                    });
+                } catch (e) {
+                    console.log('Could not parse JSON response:', e);
+                }
+                // ToastError.fire({
+                //     icon: 'error',
+                //     title: "Fatal Error!",
+                //     text: `Translated: ${error}`
+                // });
+                
+            }
         }
     });
+
+    var accountDescription = localStorage.getItem('account_description');
+    if(accountDescription === 'created'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Account Description Created!'
+        });
+        localStorage.removeItem('account_description');
+    }
 });

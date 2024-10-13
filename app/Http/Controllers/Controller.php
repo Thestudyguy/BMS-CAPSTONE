@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
 use App\Models\Clients;
@@ -275,9 +276,10 @@ class Controller extends BaseController
             $sysProfile = SystemProfile::first();
             $accounts = Accounts::where('isVisible', true)->get();
             $services = services::where('isVisible', true)->get();
-            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services'));
+            $ad = AccountDescription::where('isVisible', true)->get();
+            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad'));
         }else{
-
+            dd('Unauthorized Access');
         }
     } catch (\Throwable $th) {
         throw $th;
@@ -291,6 +293,35 @@ class Controller extends BaseController
                 return response()->json(['account' => $serviceTypes]);
             }else{
 
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function NewAccountDescription(Request $request){
+            try {
+            if(Auth::check()){
+                Log::info($request);
+                $request->validate([
+                    'Description' => 'required|string|max:255|unique:account_descriptions,Description',
+                    'TaxType' => 'required|string|max:255',
+                    'FormType' => 'required|string|max:255|unique:account_descriptions,FormType',
+                    'Price' => 'required|max:255',
+                ]);
+                $preparedPrice = floatval($request['Price']);
+                AccountDescription::create([
+                    'Description' => $request['Description'],
+                    'TaxType' => $request['TaxType'],
+                    'FormType' => $request['FormType'],
+                    'Price' => $preparedPrice,
+                    'Category' => $request['account'],
+                    'account' => $request['Type'],
+                    'dataUserEntry' => Auth::user()->id,
+                ]);
+                return response()->json(['account_description', 'created']);
+            }else{
+                dd('unauthorized access');
             }
         } catch (\Throwable $th) {
             throw $th;

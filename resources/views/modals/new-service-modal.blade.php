@@ -18,6 +18,14 @@
                     <label for="ServicePrice" class="form-label text-secondary fw-normal">Price</label>
                     <input type="text" oninput="formatValueInput(this)" class="form-control rounded-0" id="Price" name="Price" placeholder="Enter Price">
                 </div>
+                <div class="form-group">
+                  <label for="Category" class="form-label text-secondary fw-normal">Category</label>
+                  <select name="Category" class="form-control" id="categry">
+                      <option value="" selected hidden>Select Category</option>
+                      <option value="External">External</option>
+                      <option value="Internal">Internal</option>
+                  </select>
+              </div>
                 {{-- <div class="form-group mb-3">
                     <label for="description" class="form-label text-secondary fw-normal">Date of Birth</label>
                     <input type="date" class="form-control rounded-0" id="dateOfBirth" name="DateOfBirth" required>

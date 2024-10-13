@@ -1,7 +1,7 @@
 <div class="modal fade" id="remove-sub-service-modal">
     <div class="modal-dialog modal-center modal-lg">
       <div class="modal-content rounded-0">
-        <div class="modal-header">
+        <div class="modal-header" style="background: #063D58;">
           <h4 class="lead">New  Sub Service Service</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>

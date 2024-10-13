@@ -20,14 +20,14 @@
                                     <tr id="{{$service->id}}" class="external-service" data-widget="expandable-table" aria-expanded="false">
                                         <td>
                                             {{$service->Service}} <b>|</b> {{number_format($service->Price, 2)}}
-                                            <span class="float-right px-1 action-icons new-sub-service-icon visually-hidden text-sm" id="{{$service->id}}" data-bs-target='#sub-service-{{$service->id}}' data-bs-toggle="modal" title="create new sub service/requirement for {{$service->Service}}">
-                                                <i class="fas fa-plus"></i>
+                                            <span class="badge bg-warning text-sm float-right action-icons new-sub-service-icon visually-hidden text-sm" id="{{$service->id}}" data-bs-target='#sub-service-{{$service->id}}' data-bs-toggle="modal" title="create new sub service/requirement for {{$service->Service}}">
+                                                <i style="font-size: .8em;" class="fas fa-plus"></i>
                                             </span>
-                                            <span class="float-right px-1 action-icons edit-service-icon visually-hidden text-sm" id="{{$service->id}}" data-bs-target='#edit-service-modal-{{$service->id}}' data-bs-toggle="modal" title="edit {{$service->Service}}">
-                                                <i class="fas fa-pen"></i>
+                                            <span class="badge bg-warning text-sm mx-2 float-right action-icons edit-service-icon visually-hidden text-sm" id="{{$service->id}}" data-bs-target='#edit-service-modal-{{$service->id}}' data-bs-toggle="modal" title="edit {{$service->Service}}">
+                                                <i style="font-size: .8em;" class="fas fa-pen"></i>
                                             </span>
-                                            <span class="float-right text-sm remove-service-icon action-icons visually-hidden" id="{{$service->id}}" data-bs-target='#remove-service-modal-{{$service->id}}' data-bs-toggle="modal" title="remove {{$service->Service}}">
-                                                <i class="fas fa-trash"></i>
+                                            <span class="badge bg-warning text-sm float-right text-sm remove-service-icon action-icons visually-hidden" id="{{$service->id}}" data-bs-target='#remove-service-modal-{{$service->id}}' data-bs-toggle="modal" title="remove {{$service->Service}}">
+                                                <i style="font-size: .8em;" class="fas fa-trash"></i>
                                             </span>
                                         </td>
                                     </tr>

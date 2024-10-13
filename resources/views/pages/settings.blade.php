@@ -66,8 +66,23 @@
                             <div class="card-tools"><button class="btn btn-transparent fw-bold" data-bs-target='#new-description' data-bs-toggle='modal'><i class="fas fa-plus text-light"></i></button></div>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered table-hover table-striped">
-
+                            <table class="table table-bordered table-hover table-striped" style="font-size: .8em;">
+                                <thead>
+                                    <tr>
+                                        <td>Description</td>
+                                        <td>TaxType</td>
+                                        <td>FormType</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($ad as $ads)
+                                        <tr id="{{$ads->id}}">
+                                            <td>{{$ads->Description}}</td>
+                                            <td>{{$ads->TaxType}}</td>
+                                            <td>{{$ads->FormType}}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
                             </table>
                         </div>
                     </div>
