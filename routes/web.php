@@ -39,4 +39,6 @@ Route::middleware('authenticated')->group(function(){
     Route::get('settings', [Controller::class, 'Settings'])->name('settings');
     Route::post('get-account-types-{id}', [Controller::class, 'GetAccountTypes']);
     Route::post('new-account-description', [Controller::class, 'NewAccountDescription']);
+    Route::post('new-sub-service', [ServicesController::class, 'NewSubService']);
+    Route::post('retrieve-sub-service-data-{id}', [ServicesController::class, 'RetrieveSubService']);
 });

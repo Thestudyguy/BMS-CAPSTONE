@@ -40,7 +40,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($users as $user)
-                                    <tr id="{{$user->id}}">
+                                    <tr id="{{$user->id}}"data-category="{{$user->Role}}">
                                         <td>{{$user->FirstName}}</td>
                                         <td>{{$user->LastName}}</td>
                                         <td>{{$user->Email}}</td>

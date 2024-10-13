@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class ServicesSubTable extends Model
 {
     use HasFactory;
-    protected $fillable = ['ServiceRequirements', 'ServiceRequirementPrice'];
+    protected $fillable = ['ServiceRequirements', 'ServiceRequirementPrice', 'BelongsToService', 'dataEntryUser', 'isVisible'];
 }

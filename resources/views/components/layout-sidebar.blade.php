@@ -63,14 +63,14 @@
                     </ul> --}}
                 </li>
                
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="" class="nav-link">
                         <i class="nav-icon fas fa-solid fa-chart-pie"></i>
                         <p class="text-sm">
                             {{ __('Financial Summary') }}
                         </p>
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a href="" class="nav-link">
                         <i class="nav-icon fas fa-book"></i>
@@ -89,14 +89,14 @@
                     </a>
                 </li>
                 @endif
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>
                         <p class="text-sm">
                             {{ __('Archives') }}
                         </p>
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a href="{{route('chart-of-accounts')}}" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>

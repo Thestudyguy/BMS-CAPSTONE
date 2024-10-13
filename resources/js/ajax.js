@@ -79,7 +79,7 @@ export function EditService(url, updatedService, refID, header, CallSuccess, Cal
  * @param {function} success
  * @param {function} error
  */
-export function NewSubServicec(url, subService, header, CallSuccess, CallError) {
+export function NewSubService(url, subService, header, CallSuccess, CallError) {
     $.ajax({
         url: url,
         type: 'POST',
@@ -129,7 +129,7 @@ export function NewClientRecord(url, client, profile, header, CallSuccess, CallE
     });
 }
 
-/** create new requirement/sub service
+/** retrieve service requirement/sub service
  *
  * @param {string} url
  * @param {string} header

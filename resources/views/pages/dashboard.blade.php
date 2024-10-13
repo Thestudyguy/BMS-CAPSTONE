@@ -24,7 +24,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-12">
       <div class="info-box">
-        <span class="info-box-icon bg-warning"><i class="far fa-copy"></i></span>
+        <span class="info-box-icon bg-warning"><i class="far fa-copy text-light"></i></span>
         <div class="info-box-content">
           <span class="info-box-text">External Services Sales</span>
           <span class="info-box-number">13,648</span>

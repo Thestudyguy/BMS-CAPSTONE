@@ -207,14 +207,8 @@ class ClientController extends Controller
         try {
             Log::info($clientID);
         $services = ClientServices::where('Client',$clientID)->get();
-        $client = Clients::where('id', $clientID)->pluck('CompanyEmail')->first();
-        foreach ($services as $service) {
-            Log::info($service->ClientService);
-            if(!$service->isClientNotified){
-                // FacadesMail::to($client)->send(new MailClientServices($service->ClientService, testemail: 'asd'));
-                
-            }
-        }
+        $client = Clients::where('id', $clientID)->pluck('CompanyEmail', 'CEO')->first();
+        FacadesMail::to($client)->send(new MailClientServices($services, testemail: $client));
         } catch (\Throwable $th) {
             throw $th;
         }

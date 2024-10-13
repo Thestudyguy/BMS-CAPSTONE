@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\services;
 use App\Models\ServicesSubTable;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -134,13 +135,59 @@ class ServicesController extends Controller
                 'ServiceRequirements', 'ServiceRequirementPrice', 'id'
             )->get();
             return response()->json(['subServices' => $subServices]);
-            try {
-            } catch (\Throwable $th) {
-                throw $th;
-            }
+            // try {
+            // } catch (\Throwable $th) {
+            //     throw $th;
+            // }
         }else{
             return dd('You are not authorize');
         }
+    }
+
+    public function NewSubService(Request $request)
+    {
+        try {
+            if (Auth::check()) {
+                Log::info($request);
+                // $request->validate([
+                //     'ServiceRequirements' => 'required|string|max:255|unique:services_sub_tables,ServiceRequirements',
+                //     'ServicePrice' => 'required|min:0',
+                // ]);
+
+                $isSubServiceExists = ServicesSubTable::where('ServiceRequirements', $request['ServiceRequirements'])
+                                ->where('BelongsToService', $request['serviceID'])
+                                ->where('isVisible', true)
+                                ->exists();
+
+            if ($isSubServiceExists) {
+                return response()->json(['error' => 'Sub-service already exists for this service'], 409);
+            }
+            $preparedPrice = floatval($request['ServicePrice']);
+                ServicesSubTable::create([
+                    'ServiceRequirements' => $request['ServiceRequirements'],
+                    'ServiceRequirementPrice' => $preparedPrice,
+                    'BelongsToService' => $request['serviceID'],
+                    'dataEntryUser' => Auth::user()->id
+                ]);
+                return response()->json(['sub_service', 'created']);
+            }else{
+                return dd('You are not authorize');
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function RetrieveSubService($id){
+            if(Auth::check()){
+                Log::info($id);
+            try {
+                $subservice = ServicesSubTable::where('id', $id)->first();
+                return response()->json(['sub_service' => $subservice]);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }
+        return dd('You are not authorize');
     }
 }
 // if(Auth::check()){

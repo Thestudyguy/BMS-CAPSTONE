@@ -1,4 +1,4 @@
-import { NewService, RemoveService, EditService, NewSubServicec, NewClientRecord } from "./ajax";
+import { NewService, RemoveService, EditService, NewSubService, NewClientRecord } from "./ajax";
 var Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -45,15 +45,15 @@ $(document).ready(function () {
         }
     );
 
-    $(".external-services tr").hover(
-        function () {
-            $(this).find('.action-icons').removeClass('visually-hidden')
+    // $(".external-services tr").hover(
+    //     function () {
+    //         $(this).find('.action-icons').removeClass('visually-hidden')
 
-        },
-        function () {
-            $(this).find('.action-icons').addClass('visually-hidden')
-        }
-    );
+    //     },
+    //     function () {
+    //         $(this).find('.action-icons').addClass('visually-hidden')
+    //     }
+    // );
     $(".new-sub-service-icon").on('click', function(e){
         e.stopPropagation();
     });
@@ -66,13 +66,13 @@ $(document).ready(function () {
     $(".remove-service-icon").on('click', function(e){
         e.stopPropagation();
     });
-    $(document).on('mouseenter', '.sub-service', function() {
-        $(this).find('.sub-service-action-icons').attr('style', 'visibility: visible;');
-    });
+    // $(document).on('mouseenter', '.sub-service', function() {
+    //     $(this).find('.sub-service-action-icons').attr('style', 'visibility: visible;');
+    // });
 
-    $(document).on('mouseleave', '.sub-service', function() {
-        $(this).find('.sub-service-action-icons').attr('style', 'visibility: hidden;');
-    });
+    // $(document).on('mouseleave', '.sub-service', function() {
+    //     $(this).find('.sub-service-action-icons').attr('style', 'visibility: hidden;');
+    // });
 
     function handleServiceOperation(status) {
         localStorage.setItem('transaction-status', status);
@@ -115,11 +115,11 @@ $(document).ready(function () {
                         <tr class='sub-service' id='${element.id}'>
                             <td>${element.ServiceRequirements}</td>
                             <td>${formattedAmount}
-                            <span class="float-right text-sm sub-service-action-icons" style='visibility: hidden;'>
-                                <i class="fas fa-trash"></i>
+                            <span class="badge mx-2 bg-warning float-right text-sm sub-service-action-icons">
+                                <i class="fas fa-trash" style="font-size: .8em;"></i>
                             </span>
-                            <span class="float-right mx-2 text-sm sub-service-action-icons" style='visibility: hidden;'>
-                                <i class="fas fa-pen"></i>
+                            <span id='${element.id}' data-bs-target='#edit-sub-service-modal' data-bs-toggle='modal' class="badge bg-warning float-right text-sm sub-service-action-icons-edit">
+                                <i class="fas fa-pen" style="font-size: .8em;"></i>
                             </span>
                             </td>
                         </tr>
@@ -138,6 +138,31 @@ $(document).ready(function () {
             },
         });
 
+    });
+
+    $(document).on('click', '.sub-service-action-icons-edit', function(e){
+        $('.sub-service-loader').removeClass('visually-hidden');
+        var refID = $(this).attr('id');
+        $.ajax({
+            type: 'POST',
+            url: `retrieve-sub-service-data-${refID}`,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(response){
+            $('.sub-service-loader').addClass('visually-hidden');
+            console.log(response.sub_service);
+            $.each(response.sub_service, (index, data)=>{
+                console.log(data.ServiceRequirementPrice);
+                
+            });
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Something went wrong',
+                    text: `Translated: ${error}`
+                });
+            }
+        });
     });
 
     $('#new-service-form').on('submit', function(e){
@@ -266,22 +291,60 @@ $(document).ready(function () {
     
     $(".submit-new-sub-service").on('click', function(e){
         e.preventDefault();
-        var callFlag = false;
+        var callFlag = true;
+        var subServiceObj = {};
+        var serializedNewSubService = $('#new-sub-service').serializeArray();
+        console.log(serializedNewSubService);
+        
         $.each(serializedNewSubService, (index, element) => {
             if (element.value === '') {
-                $(`#new-sub-service [name='${element.name}']`).toggleClass('is-invalid');
+                $(`[name='ServicePrice']`).addClass('is-invalid');
+                $(`[name='ServiceRequirements']`).addClass('is-invalid');
                 Toast.fire({
                     icon: 'warning',
                     title: 'Missing Fields',
                     text: 'Please fill all fields'
                 });
-                callFlag = true;
+                callFlag = false;
                 return false;
             } else {
+                subServiceObj[element.name] = element.value;
+                $(`[name='ServicePrice']`).removeClass('is-invalid');
+                $(`[name='ServiceRequirements']`).removeClass('is-invalid');
             }
         });
         if (callFlag) {
-            return;
+            NewSubService(
+                'new-sub-service',
+                subServiceObj,
+                {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                callSuccess,
+                callFailed
+            )
+
+            function callSuccess(response){
+                console.log(response);
+                localStorage.setItem('sub_service', 'created');
+                location.reload();
+            }
+            function callFailed(xhr, status, errors) {  
+                console.log(xhr);
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    ToastError.fire({
+                        icon: 'warning',
+                        title: 'Oops Something went wrong!',
+                        text: `Translated: ${xhr.responseJSON.message}`,
+                    });
+                    console.log(xhr.responseJSON.errors);
+                }else{
+                    ToastError.fire({
+                        icon: 'warning',
+                        title: 'Oops Something went wrong!',
+                        text: `Translated: ${xhr.responseJSON.error}`,
+                    });
+                }
+            }
         }
     });
     
@@ -464,5 +527,12 @@ $(document).ready(function () {
             Toast.fire(messages[status]);
         }
     }
-
+    var subService = localStorage.getItem('sub_service');
+    if(subService === 'created'){
+        Toast.fire({
+            icon: 'success',
+            title: 'New Requirement added'
+        });
+        localStorage.removeItem('sub_service');
+    }
 });
