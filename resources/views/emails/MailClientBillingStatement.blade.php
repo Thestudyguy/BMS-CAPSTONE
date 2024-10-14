@@ -123,7 +123,7 @@
                 @endif
             </tbody>
         </table>
-        <div class="total">Sub Total: ₱<span>{{ number_format($totalPrice, 2) }}</span></div>
+        <div class="total">Overall Total: ₱<span>{{ number_format($totalPrice, 2) }}</span></div>
         <div class="footer">
             Prepared By: <strong>THERESA B. ELLOREN, LPT</strong><br>
             Collected By: <strong>REYMAR A. VILLEGAS</strong><br>

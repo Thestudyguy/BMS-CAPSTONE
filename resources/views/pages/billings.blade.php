@@ -104,7 +104,7 @@
                             <span class="fw-bold float-right sub-total-existed" style="font-size: 12px;">Sub Total: ₱<span class="test-total">{{ number_format($totalPrice, 2) }}</span></span> <!-- Display total price -->
                         </div>
                     </div>
-                    <div class="card">
+                    {{-- <div class="card">
                         <div class="card-header" style="background: #eff7fe; border-bottom: none;">
                             <span class="fw-bold text-sm text-dark">Additional Descriptions</span>
                             <span data-bs-target='#adbd' data-bs-toggle='modal' class="badge fw-bold" style="background: #063D58;">
@@ -131,7 +131,7 @@
                             </table>
                             <span class="fw-bold float-right" style="font-size: 12px;">Sub Total: ₱<span class="fw-bold total" id="additional-description-subtotal">0.00</span></span>
                         </div>
-                    </div>
+                    </div> --}}
                     {{-- <div class="card">
                         <div class="card-body" style="background: #eff7fe;">
                             <span class="fw-bold float-right" style="font-size: 16px;">Overall Total: ₱<span class="fw-bold overall-total">0.00</span></span>
