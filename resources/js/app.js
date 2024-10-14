@@ -4,6 +4,8 @@ import './journalDom';
 import './coa-dom';
 import './user';
 import './settings';
+import './client';
+import './billing';
 //global functions
 $(document).ready(function(){
     window.formatValueInput = function (input) {
@@ -13,7 +15,5 @@ $(document).ready(function(){
         var formatedNumber = input.value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         input.value = formatedNumber
     } 
-
-
     
 });

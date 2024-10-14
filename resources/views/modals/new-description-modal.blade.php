@@ -8,7 +8,7 @@
             <div class="modal-body position-relative">
                 <form action="" class="account-description-form">
                     <div class="form-group">
-                        <label for="account" class="fw-bold">Select Category</label>
+                        <label for="account" class="fw-bold">Select Service Category</label>
                         <select name="account" class="form-control" id="account-category">
                             <option value="" selected hidden>Category</option>
                             @foreach ($services as $service)
@@ -33,6 +33,14 @@
                     <div class="form-group">
                         <label for="FormType" class="fw-bold">Form Type</label>
                         <input type="text" name="FormType" class="form-control" id="form-type">
+                    </div>
+                    <div class="form-group">
+                        <label for="Category" class="fw-bold">Category</label>
+                        <select name="Category" id="category" class="form-control">
+                            <option value="" selected hidden>Select Category</option>
+                            <option value="Internal">Internal</option>
+                            <option value="External">External</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="FormType" class="fw-bold">Price</label>

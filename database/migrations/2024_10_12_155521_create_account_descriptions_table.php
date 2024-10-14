@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('account_descriptions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account')->nullable();
-            $table->foreign('account')->references('id')->on(table: 'account_types')->nullOnDelete();
+            $table->foreign('account')->references('id')->on(table: 'services_sub_tables')->nullOnDelete();
             $table->string('Category');
             $table->string('Description');
             $table->string('TaxType');

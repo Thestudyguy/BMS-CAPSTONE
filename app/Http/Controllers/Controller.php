@@ -277,7 +277,22 @@ class Controller extends BaseController
             $accounts = Accounts::where('isVisible', true)->get();
             $services = services::where('isVisible', true)->get();
             $ad = AccountDescription::where('isVisible', true)->get();
-            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad'));
+            $adac = AccountDescription::where('account_descriptions.isVisible', true)
+            ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
+            ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+            ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
+            ->select(
+                'account_descriptions.Category',
+                'account_descriptions.Description',
+                'account_descriptions.TaxType',
+                'account_descriptions.FormType',
+                'account_descriptions.Price',
+                'account_descriptions.Category as adCategory',
+                'services_sub_tables.ServiceRequirements',
+                'services.Category', 'services.Service'
+            )
+            ->get();
+            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac'));
         }else{
             dd('Unauthorized Access');
         }
@@ -308,14 +323,16 @@ class Controller extends BaseController
                     'TaxType' => 'required|string|max:255',
                     'FormType' => 'required|string|max:255|unique:account_descriptions,FormType',
                     'Price' => 'required|max:255',
+                    'Category' => 'required|max:255',
                 ]);
                 $preparedPrice = floatval($request['Price']);
+                Log::info($request['Type']);
                 AccountDescription::create([
                     'Description' => $request['Description'],
                     'TaxType' => $request['TaxType'],
                     'FormType' => $request['FormType'],
                     'Price' => $preparedPrice,
-                    'Category' => $request['account'],
+                    'Category' => $request['Category'],
                     'account' => $request['Type'],
                     'dataUserEntry' => Auth::user()->id,
                 ]);
@@ -338,3 +355,5 @@ class Controller extends BaseController
 // } catch (\Throwable $th) {
 //     throw $th;
 // }
+
+

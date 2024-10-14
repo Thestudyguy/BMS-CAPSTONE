@@ -12,26 +12,26 @@
             <form id="edit-sub-service-form">
                 <div class="form-group mb-3">
                     <label for="Service" class="form-label text-secondary fw-normal">Service</label>
-                    <input type="text" class="form-control rounded-0" id="Service" name="service" placeholder="Enter Service" required>
+                    <input type="text" class="form-control rounded-0" id="service-edit-field" name="service" placeholder="Enter Service">
                 </div>
             
                 <div class="form-group mb-3">
                     <label for="Service Price" class="form-label text-secondary fw-normal">Service Price</label>
-                    <input type="text" class="form-control rounded-0" id="ServicePrice" name="serviceprice" placeholder="Enter price" required>
+                    <input type="text" oninput="formatValueInput(this)" class="form-control rounded-0" id="serviceprice-edit-field" name="serviceprice" placeholder="Enter price">
                 </div>
             
                 {{-- <div class="form-group mb-3">
                     <label for="description" class="form-label text-secondary fw-normal">Date of Birth</label>
                     <input type="date" class="form-control rounded-0" id="dateOfBirth" name="DateOfBirth" required>
                 </div> --}}
-                <input type="hidden" name="" id="sub-service-edit-id">
+                <input type="hidden" name="sub-service-id" id="sub-service-edit-id">
             
             </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success rounded-0" id="submit-new-service">{{__('Save')}}</button>
-                <button type="button" class="btn btn-secondary rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
-            </div>
         </form>
+            <div class="modal-footer">
+                <button type="button" class="btn text-light fw-bold rounded-0" id="edit-sub-service" style="background: #063D58;">{{__('Save')}}</button>
+                <button type="button" class="btn btn-secondary text-light fw-bold rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
+            </div>
       </div>
     </div>
   </div>  

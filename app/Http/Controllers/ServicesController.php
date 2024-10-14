@@ -162,7 +162,8 @@ class ServicesController extends Controller
             if ($isSubServiceExists) {
                 return response()->json(['error' => 'Sub-service already exists for this service'], 409);
             }
-            $preparedPrice = floatval($request['ServicePrice']);
+            $preparedPrice = floatval(preg_replace('/[^\d.]/', '', $request['ServicePrice']));
+            Log::info($preparedPrice);
                 ServicesSubTable::create([
                     'ServiceRequirements' => $request['ServiceRequirements'],
                     'ServiceRequirementPrice' => $preparedPrice,
@@ -189,6 +190,29 @@ class ServicesController extends Controller
         }
         return dd('You are not authorize');
     }
+
+    public function EditSubService(Request $request)
+{
+    try {
+        if (Auth::check()) {
+            Log::info($request);
+            $request->validate([
+                'service' => 'required|string|max:255|unique:services_sub_tables,ServiceRequirements,' . $request['sub-service-id'],
+                'serviceprice' => 'required|min:0',
+            ]);
+            $preparedPrice = floatval($request['serviceprice']);
+            ServicesSubTable::where('id', $request['sub-service-id'])
+                ->update(['ServiceRequirements' => $request['service'], 'ServiceRequirementPrice' => $preparedPrice]);
+
+            return response()->json(['sub_service' => 'updated']);
+        } else {
+            return response()->json(['error' => 'You are not authorized'], 403);
+        }
+    } catch (\Throwable $th) {
+        return response()->json(['error' => 'An error occurred'], 500);
+    }
+}
+
 }
 // if(Auth::check()){
 //     try {

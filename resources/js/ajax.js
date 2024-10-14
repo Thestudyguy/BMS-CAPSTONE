@@ -272,3 +272,27 @@ export function NewAccountDescription(url, description, header, CallSuccess, Cal
         }
     });
 }
+
+
+/** edit sub service
+ *
+ * @param {string} url
+ * @param {Object} subService
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function EditSubService(url, subService, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: subService,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}

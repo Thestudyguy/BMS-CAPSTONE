@@ -69,14 +69,20 @@
                             <table class="table table-bordered table-hover table-striped" style="font-size: .8em;">
                                 <thead>
                                     <tr>
-                                        <td>Description</td>
-                                        <td>TaxType</td>
-                                        <td>FormType</td>
+                                        <td class="fw-bold">Under Service</td>
+                                        <td class="fw-bold">Account Type</td>
+                                        <td class="fw-bold">Category</td>
+                                        <td class="fw-bold">Description</td>
+                                        <td class="fw-bold">TaxType</td>
+                                        <td class="fw-bold">FormType</td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($ad as $ads)
+                                    @foreach ($adac as $ads)
                                         <tr id="{{$ads->id}}">
+                                            <td>{{$ads->Service}}</td>
+                                            <td>{{$ads->ServiceRequirements}}</td>
+                                            <td>{{$ads->adCategory}}</td>
                                             <td>{{$ads->Description}}</td>
                                             <td>{{$ads->TaxType}}</td>
                                             <td>{{$ads->FormType}}</td>

@@ -15,6 +15,8 @@ class AccountDescription extends Model
         'FormType',
         'Price',
         'isVisible',
+        'account',
+        'Category',
         'dataUserEntry',
     ];
 }

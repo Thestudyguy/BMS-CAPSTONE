@@ -101,33 +101,47 @@
                                                     <td class="fw-bold">Original File Name</td>
                                                     <td class="fw-bold">MIME Type</td>
                                                     <td class="fw-bold">File Size</td>
+                                                    <td class="fw-bold">Status</td>
                                                     {{-- <td class="fw-bold">File Path</td> --}}
                                                     <td class="fw-bold">Action</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($clientServices as $service)
+                                                @if ($clientServices->isEmpty())
+                                                <tr>
+                                                    <td colspan="7" class="text-center">No services available for this client.</td>
+                                                </tr>
+                                            @else
+                                                @foreach($clientServices as $service)
                                                     <tr>
                                                         <td>{{ $service->ClientService }}</td>
                                                         <td>{{ $service->ClientServiceProgress }}</td>
                                                         <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
                                                         <td>{{ $service->getClientMimeType ?: 'No file provided' }}</td>
                                                         <td>{{ $service->getSize ?: 'No file provided' }}</td>
-                                                        {{-- <td>{{ $service->getRealPath ?: 'No file provided' }}</td> --}}
+                                                        <td>
+                                                            <span class="badge bg-warning" data-bs-target="#update-client-service-{{$service->id}}" data-bs-toggle="modal">
+                                                                <strong>{{ $service->ClientServiceProgress }}</strong>
+                                                            </span>
+                                                        </td>
                                                         <td>
                                                             @if ($service->getClientOriginalName)
-                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;"><i class="fas fa-cloud-download-alt"></i></span>
-                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;"><i class="fas fa-trash"></i></span>
+                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;">
+                                                                    <i class="fas fa-cloud-download-alt"></i>
+                                                                </span>
+                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </span>
                                                             @else
                                                                 <span class="text-muted">No Action</span>
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="7" class="text-center">No services available for this client.</td>
-                                                    </tr>
-                                                @endforelse
+                                                    @include('modals.update-client-service-progress')
+                                                @endforeach
+                                            @endif
+
+
                                             </tbody>
                                         </table>
                                     </center>

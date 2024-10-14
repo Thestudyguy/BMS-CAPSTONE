@@ -1,4 +1,4 @@
-import { NewService, RemoveService, EditService, NewSubService, NewClientRecord } from "./ajax";
+import { NewService, RemoveService, EditService, NewSubService, NewClientRecord, EditSubService } from "./ajax";
 var Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -149,11 +149,10 @@ $(document).ready(function () {
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function(response){
             $('.sub-service-loader').addClass('visually-hidden');
-            console.log(response.sub_service);
-            $.each(response.sub_service, (index, data)=>{
-                console.log(data.ServiceRequirementPrice);
-                
-            });
+            console.log(response.sub_service.ServiceRequirementPrice);
+                $('#service-edit-field').val(response.sub_service.ServiceRequirements);
+                $('#serviceprice-edit-field').val(response.sub_service.ServiceRequirementPrice);
+                $('#sub-service-edit-id').val(response.sub_service.id);
             },
             error: function(error, status, jqXHR){
                 ToastError.fire({
@@ -163,6 +162,62 @@ $(document).ready(function () {
                 });
             }
         });
+    });
+
+    $('#edit-sub-service').on('click', function(e){
+        e.preventDefault();
+        var subServiceEditForm = $('#edit-sub-service-form').serializeArray();
+        var callFlag = true;
+        var editedSubServiceObj = {};
+        $.each(subServiceEditForm, (index, inputs)=>{
+            if(inputs.value === ''){
+                callFlag = false;
+                $(`[name='${inputs.name}']`).addClass('is-invalid');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'Please fill all fields'
+                });
+            }else{
+                $(`[name='${inputs.name}']`).removeClass('is-invalid');
+                editedSubServiceObj[inputs.name] = inputs.value;
+            }
+        }); 
+
+        if(callFlag){
+            EditSubService(
+                'edit-sub-service',
+                editedSubServiceObj,
+                {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                callSuccess,
+                callFailed
+            )
+        function callSuccess(response){
+            console.log(response);
+            localStorage.setItem('sub_service', 'updated');
+            location.reload();
+        }
+        function callFailed(error, status, jqXHR){
+            var errorResponse = JSON.parse(error.responseText);
+            var errorMessage = errorResponse.error;
+
+            if(errorMessage === 'Service already exists'){
+                $('.conflict-warning').removeClass('visually-hidden');
+                $(`#new-service-form [name='Service']`).addClass('is-invalid');
+                $('.conflict-text').text('Service already exists');
+                return;
+            }
+            else{
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Fatal Error',
+                    text: `Translated: ${errorMessage}`
+                });
+                $('.conflict-warning').addClass('visually-hidden');
+                $(`#new-service-form [name='Service']`).removeClass('is-invalid');
+            }
+        }
+        }
     });
 
     $('#new-service-form').on('submit', function(e){
@@ -289,64 +344,67 @@ $(document).ready(function () {
         }
     });
     
-    $(".submit-new-sub-service").on('click', function(e){
+    $(".submit-new-sub-service").on('click', function(e) {
         e.preventDefault();
         var callFlag = true;
         var subServiceObj = {};
-        var serializedNewSubService = $('#new-sub-service').serializeArray();
+        var id = $(this).attr('id');
+        var serializedNewSubService = $(`#new-sub-service-${id}`).serializeArray();
         console.log(serializedNewSubService);
-        
+        // return;
         $.each(serializedNewSubService, (index, element) => {
             if (element.value === '') {
-                $(`[name='ServicePrice']`).addClass('is-invalid');
-                $(`[name='ServiceRequirements']`).addClass('is-invalid');
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Fields',
-                    text: 'Please fill all fields'
-                });
+                $(`[name='${element.name}']`).addClass('is-invalid');
                 callFlag = false;
-                return false;
             } else {
                 subServiceObj[element.name] = element.value;
-                $(`[name='ServicePrice']`).removeClass('is-invalid');
-                $(`[name='ServiceRequirements']`).removeClass('is-invalid');
+                $(`[name='${element.name}']`).removeClass('is-invalid');
             }
         });
-        if (callFlag) {
-            NewSubService(
-                'new-sub-service',
-                subServiceObj,
-                {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                callSuccess,
-                callFailed
-            )
-
-            function callSuccess(response){
-                console.log(response);
-                localStorage.setItem('sub_service', 'created');
-                location.reload();
-            }
-            function callFailed(xhr, status, errors) {  
-                console.log(xhr);
-                
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    ToastError.fire({
-                        icon: 'warning',
-                        title: 'Oops Something went wrong!',
-                        text: `Translated: ${xhr.responseJSON.message}`,
-                    });
-                    console.log(xhr.responseJSON.errors);
-                }else{
-                    ToastError.fire({
-                        icon: 'warning',
-                        title: 'Oops Something went wrong!',
-                        text: `Translated: ${xhr.responseJSON.error}`,
-                    });
-                }
+    
+        if (!callFlag) {
+            Toast.fire({
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Please fill all fields'
+            });
+            return;
+        }
+    
+        NewSubService(
+            'new-sub-service',
+            subServiceObj,
+            { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            callSuccess,
+            callFailed
+        );
+    
+        function callSuccess(response) {
+            console.log(response);
+            localStorage.setItem('sub_service', 'created');
+            location.reload();
+        }
+    
+        function callFailed(xhr, status, errors) {  
+            console.log(xhr);
+    
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                ToastError.fire({
+                    icon: 'warning',
+                    title: 'Oops Something went wrong!',
+                    text: `Translated: ${xhr.responseJSON.message}`,
+                });
+                console.log(xhr.responseJSON.errors);
+            } else {
+                ToastError.fire({
+                    icon: 'warning',
+                    title: 'Oops Something went wrong!',
+                    text: `Translated: ${xhr.responseJSON.error}`,
+                });
             }
         }
     });
+    
     
     var clientObj = {};   
     var profilePath = '';     
@@ -532,6 +590,13 @@ $(document).ready(function () {
         Toast.fire({
             icon: 'success',
             title: 'New Requirement added'
+        });
+        localStorage.removeItem('sub_service');
+    }
+    if(subService === 'updated'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Service Updated!'
         });
         localStorage.removeItem('sub_service');
     }
