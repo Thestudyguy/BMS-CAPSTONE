@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
+use App\Models\ClientBilling;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail as FacadesMail;
 use Mail;
+use Illuminate\Support\Str;
 class ClientController extends Controller
 {
     public function returnClientData()
@@ -107,6 +109,17 @@ class ClientController extends Controller
             try {
                 $clientId = $request->input('client_id');
                 foreach ($request['services'] as $services) {
+                    $serviceName = $services['serviceName'];
+
+                    $isServiceExisting = ClientServices::where('isVisible', true)
+                    ->where('Client', $clientId)
+                    ->where('ClientService', $serviceName)
+                    ->first();
+
+                    if($isServiceExisting){
+                        return response()->json(['Conflict' => "Service '{$serviceName}' already exists for this client."], 409);
+                    }
+
                     $file = $services['serviceFile'] ?? null;
 
                     $fileName = 'none';
@@ -126,6 +139,8 @@ class ClientController extends Controller
                         Price: {$services['servicePrice']} \n
                         File: $fileName
                     }");
+
+                    
 
                     ClientServices::create([
                         'Client' => $clientId,
@@ -186,7 +201,19 @@ class ClientController extends Controller
     public function ClientBilling(Request $request)
     {
         if (Auth::check()) {
+            // $uniqueId = Str::random(6);
             $clientId = $request->id;
+            function generateAlphanumericId($length = 6)
+        {
+            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            $uniqueId = '';
+            for ($i = 0; $i < $length; $i++) {
+                $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+            }
+            return $uniqueId;
+        }
+
+        $uniqueId = generateAlphanumericId();
             $ads = AccountDescription::where('account_descriptions.isVisible', true)
             ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
             ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
@@ -257,13 +284,23 @@ class ClientController extends Controller
                 }
             }
 
-            return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads'));
+            return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {
             dd('unauthorized access');
         }
     }
 
-
+    public function ClientBillingLists(Request $request)
+    {
+        if (Auth::check()) {
+            $client = Clients::where('id', $request['id'])->first();
+            $uniqueId = Str::uuid()->toString();
+            $billings = ClientBilling::where('client_id', $request['id'])->get();
+            return view('pages.client-billing-lists', compact('client', 'uniqueId', 'billings'));
+        } else {
+            dd('unauthorized access');
+        }
+    }
 
     public function ClientJournalForm(Request $request)
     {

@@ -97,6 +97,7 @@
                         </p>
                     </a>
                 </li> --}}
+                @if (Auth::check() && Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Bookkeeping')
                 <li class="nav-item">
                     <a href="{{route('chart-of-accounts')}}" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>
@@ -105,6 +106,7 @@
                         </p>
                     </a>
                 </li>
+                @endif
                 {{-- <li class="nav-item">
                     <a href="{{route('billings')}}" class="nav-link">
                         <i class="nav-icon fas fa-file"></i>

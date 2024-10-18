@@ -210,11 +210,11 @@ class Controller extends BaseController
                 User::create([
                     'FirstName' => $request['FirstName'],
                     'LastName' => $request['LastName'],
-                    'UserName' => $request['FirstName'],
-                    'Email' => $request['FirstName'],
-                    'Role' => $request['FirstName'],
-                    'PIN' => $request['FirstName'],
-                    'password' => $request['FirstName'],
+                    'UserName' => $request['UserName'],
+                    'Email' => $request['Email'],
+                    'Role' => $request['Role'],
+                    'PIN' => $request['PIN'],
+                    'password' => $request['password'],
                 ]);
                 return response()->json(['response'=>'user saved succesfully']);
         }else{

@@ -1,6 +1,9 @@
 @extends('layout')
 @section('content')
-<div class="container-fluid client-form p-5">
+<div class="container-fluid client-form p-5 add-client-service-form">
+    <div class="add-client-service-loader visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
+        <div class="loader"></div>
+    </div>
     <div class="container p-5 w-100">
       <h4 class="h6 fw-bold lead">Add Service <b>|</b> {{$client->CompanyName}}</h4>
       <div class="row">
@@ -8,8 +11,14 @@
         <div class="col-sm-6">
             <div class="row">
                 <div class="col-sm-12">
+                    {{-- <button class="btn fw-bold my-2" style="background: rgb(6, 61, 88); color: whitesmoke;">Select raw services</button> --}}
                     <div class="card elevation-1">
-                        <h4 class="h6 fw-bold p-4">Services</h4>
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h4 class="h6 fw-bold text-light mt-3">Services</h4>
+                            </div>
+                        </div>
+                        {{-- <h4 class="h6 fw-bold p-4">Services</h4> --}}
                         <div class="card-body d-flex flex-column">
                             <ul style="list-style: none;">
                                 @foreach ($services as $service)
@@ -22,7 +31,11 @@
                 
                 <div class="col-sm-12 sub-services">
                     <div class="card elevation-1">
-                        <h4 class="h6 fw-bold p-4">Sub Services</h4>
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h4 class="h6 fw-bold text-light mt-3">Sub Services</h4>
+                            </div>
+                        </div>
                         <div class="card-body">
                            <center> <div class="loader visually-hidden"></div></center>
                            {{-- sub services here --}}
@@ -36,7 +49,12 @@
         </div>
         <div class="col-sm-6">
             <div class="card elevation-1">
-                <h4 class="h6 fw-bold p-4">Service Details</h4>
+                <div class="card-header">
+                    <div class="card-title">
+                        <h4 class="h6 fw-bold text-light mt-3">Services Details</h4>
+                    </div>
+                </div>
+                {{-- <h4 class="h6 fw-bold p-4">Service Details</h4> --}}
                 <div class="card-body">
                    <div class="service-input">
                    </div>

@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid p-5 mt-5">
         <div class="container">
-            <button class="btn text-light fw-bold m-3" style="background: #063D58;">Billing Statements</button>
+            {{-- <button class="btn text-light fw-bold m-3" style="background: #063D58;">Billing Statements</button> --}}
             <div class="card border border-dark rounded-1">
                 <div class="row g-0">
                     <div class="col-sm-4">
@@ -42,7 +42,7 @@
                             <div class="row">
                                 <div class="col-sm-4">Due Date: <input type="date" class="form-control w-50" name="due-date" id="dd"></div>
                                 <div class="col-sm-4">Date: {{$currentDate}}</div>
-                                <div class="col-sm-4">Billing ID: #000-001</div>
+                                <div class="col-sm-4">Billing ID: #{{$uniqueId}}</div>
                             </div>
                         </div>
                     </div>
@@ -188,7 +188,7 @@
             </div>
             <div class="action-billing-buttons">
                 <button class="btn fw-bold float-right text-light mb-5" style="background: #063D58;" id="{{$client->id}}">Submit</button>
-                <button class="btn fw-bold float-right text-light mb-5 mx-2 mail-client-bs" style="background: #063D58;" id="{{$client->id}}">Send</button>
+                {{-- <button class="btn fw-bold float-right text-light mb-5 mx-2 mail-client-bs" style="background: #063D58;" id="{{$client->id}}">Send</button> --}}
             </div>
             @include('modals.additional-billing-description-modal')
         </div>

@@ -20,7 +20,9 @@ $(document).ready(function() {
         var serviceID = $(this).attr('id');
         var serviceValue = $(this).val().split('-');
         var serviceName = serviceValue[0];
+        
         var servicePrice = parseFloat(serviceValue[1]);
+        servicesData = [];
         
         $('.sub-services-append').html('');
         $('.service-input').html('');
@@ -44,6 +46,7 @@ $(document).ready(function() {
             servicePrice: servicePrice,
             serviceFile: null
         });
+        console.log(servicesData);
     });
 
     function displaySubServices(response) {
@@ -74,8 +77,8 @@ $(document).ready(function() {
         var isSubServiceAlreadySelected = $(this).attr('id');
         var subServiceName = subService[0];
         var subServicePrice = parseFloat(subService[1]);
-
         if ($(this).is(':checked')) {
+            
             $('.client-service-input').append(
                 `<tr id='row-${isSubServiceAlreadySelected}'>
                     <td>${subServiceName}</td>
@@ -93,13 +96,16 @@ $(document).ready(function() {
                 serviceFile: null
             });
         } else {
+            const removeSubService = servicesData.indexOf(subServiceName);
+            console.log(subServiceName ,'unchecked');
             $(`#row-${isSubServiceAlreadySelected}`).remove();
             totalAmount -= subServicePrice;
             totalServices--;
-            servicesData = servicesData.filter(service => service.subServiceName !== subServiceName);
+            // servicesData = servicesData.filter(service => service.subServiceName !== subServiceName);
+            servicesData.splice(removeSubService, 1);
         }
-
-        updateTotals();
+            console.log(servicesData);
+            updateTotals();
     });
 
     function updateTotals() {
@@ -108,6 +114,7 @@ $(document).ready(function() {
     }
 
     function generateFileInput(serviceName, servicePrice, excludeFileInput) {
+        const sanitizedServiceRef = serviceName.replace(/\s+/g, '_');
         $('.service-input').append(`
             <div class="row">
                 <div class="col-sm-12">
@@ -125,6 +132,7 @@ $(document).ready(function() {
                                     <td>${serviceName}</td>
                                     <td>${servicePrice.toLocaleString()}</td>
                                     <td>${excludeFileInput ? 'No file required' : `<input type="file" class="clientDocument" name="clientDocument" accept='file/*'>`}</td>
+                                    <td><span class="badge fw-bold text-light bg-danger rounded-1 remove-parent-service" id=${sanitizedServiceRef}><i class="fas fa-trash"></i></span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -146,7 +154,23 @@ $(document).on('change', '.clientDocument', function() {
         return service;
     });
 });
+
+$(document).on('click', '.remove-parent-service', function(){
+    var parentService = $(this).attr('id');
+    var preparedServiceRef = parentService.replace(/_/g, ' ');
+    // console.log(preparedServiceRef);
+    
+    var serviceToRemove = servicesData.findIndex(service => service.serviceName == preparedServiceRef);
+    if(serviceToRemove > -1){
+        servicesData.splice(serviceToRemove, 1);
+    }
+    $(this).closest('tr').remove();
+    // $(`#row-${parentService}`).remove();
+    console.log(servicesData);
+    
+});
 function submitServices() {
+    $('.add-client-service-loader').removeClass('visually-hidden');
     var clientID = $('.hidden-client-id').attr('id'); 
     var formData = new FormData();
     formData.append('client_id', clientID);
@@ -172,19 +196,26 @@ function submitServices() {
     );
 
     function redirectUser(response) {
+        $('.add-client-service-loader').addClass('visually-hidden');
         console.log(response);
         window.location.href = 'clients';
         localStorage.setItem('services', true);
     }
 
-    function callFailed(error, status, jqXHR) {
-        console.log(error);
-        ToastError.fire({
-            icon: 'error',
-            title: 'Fatal Error',
-            text: `Translated: ${error}`
-        });
-    }
+    function callFailed(jqXHR, textStatus, errorThrown) {
+        $('.add-client-service-loader').addClass('visually-hidden');
+            try {
+                const response = JSON.parse(jqXHR.responseText);
+                console.log('Parsed Response:', response);
+                ToastError.fire({
+                    icon: 'warning',
+                    title: 'Conflict',
+                    text: response.Conflict
+                });
+            } catch (e) {
+                console.log('Could not parse JSON response:', e);
+            }
+        }
 }
 
 

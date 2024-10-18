@@ -322,7 +322,7 @@ font-weight: 700;
     font-weight: 600;
 }
 
-.client-billing-services, .additional-desc-table{
+.client-billing-services, .additional-desc-table, .client-billing-table{
     font-family: "Poppins", sans-serif;
     font-size: .8em;
 }
