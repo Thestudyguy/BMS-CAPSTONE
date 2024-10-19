@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    // Initialize SweetAlert toast settings
+    var servicesToBilling = window.servicesData;
+    var adsToBilling = window.ads;
     var Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -9,11 +10,9 @@ $(document).ready(function () {
     var preSubtotal = $('.test-total').text();
     console.log(preSubtotal);
     $('.overall-total').text(preSubtotal);
-    // Click event for the plus icon
     $('.add-description').on('click', function () {
         var row = $(this).closest('tr');
 
-        // Get data from the row's data attributes
         var service = row.data('service');
         var requirements = row.data('requirements');
         var category = row.data('category');
@@ -22,7 +21,6 @@ $(document).ready(function () {
         var formType = row.data('formtype');
         var price = row.data('price');
 
-        // Check if the row is already added in the selected descriptions table
         var existingRow = $('#selected-descriptions-table tbody tr[data-service="' + service + '"][data-requirements="' + requirements + '"]');
 
         if (existingRow.length === 0) {
@@ -52,7 +50,7 @@ $(document).ready(function () {
                 </tr>`;
 
             $('#selected-descriptions-table tbody').append(newRow);
-            $(this).hide(); // Hide the add button after adding
+            $(this).hide(); 
 
             calculateTotals();
         } else {
@@ -82,7 +80,6 @@ $(document).ready(function () {
     function calculateTotals() {
         let subtotal = 0;
 
-        // Calculate subtotal for additional descriptions
         $('#selected-descriptions-table tbody tr').each(function () {
             const price = parseFloat($(this).data('price'));
             if (!isNaN(price)) {
@@ -90,20 +87,17 @@ $(document).ready(function () {
             }
         });
 
-        // Update additional descriptions subtotal
         $('#additional-description-subtotal').text(subtotal.toFixed(2));
 
-        // Get the total price from the main billing services
         let totalPrice = 0;
         $('.client-billing-services tbody tr').each(function () {
-            const priceText = $(this).find('td:nth-child(4)').text().trim(); // Assuming the price is in the 4th column
-            const price = parseFloat(priceText.replace(/₱/g, '').replace(/,/g, '')); // Remove currency symbol and commas
+            const priceText = $(this).find('td:nth-child(4)').text().trim();
+            const price = parseFloat(priceText.replace(/₱/g, '').replace(/,/g, ''));
             if (!isNaN(price)) {
                 totalPrice += price;
             }
         });
 
-        // Calculate overall total
         const overallTotal = totalPrice + subtotal;
         $('.overall-total').text(overallTotal.toFixed(2));
     }
@@ -115,7 +109,6 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: `mail-client-bs-${refID}`,
-            // data: refID,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response){
                 console.log(response);
@@ -126,5 +119,10 @@ $(document).ready(function () {
                 
             },
         });
+    });
+
+    $('.remove-service-from-billing').on('click', function(){
+        console.log($(this).attr('id'));
+        $(this).closest('tr').remove();
     });
 });

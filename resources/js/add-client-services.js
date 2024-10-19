@@ -96,13 +96,15 @@ $(document).ready(function() {
                 serviceFile: null
             });
         } else {
-            const removeSubService = servicesData.indexOf(subServiceName);
+            const removeSubServiceIndex = servicesData.findIndex(service => service.serviceName === subServiceName);
             console.log(subServiceName ,'unchecked');
             $(`#row-${isSubServiceAlreadySelected}`).remove();
             totalAmount -= subServicePrice;
             totalServices--;
             // servicesData = servicesData.filter(service => service.subServiceName !== subServiceName);
-            servicesData.splice(removeSubService, 1);
+            if (removeSubServiceIndex !== -1) {
+                servicesData.splice(removeSubServiceIndex, 1);
+            }
         }
             console.log(servicesData);
             updateTotals();

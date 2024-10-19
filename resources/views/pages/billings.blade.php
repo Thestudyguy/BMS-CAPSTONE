@@ -55,19 +55,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $totalPrice = 0; @endphp <!-- Initialize total price -->
+                                    @php $totalPrice = 0; @endphp
                                     @if(isset($result[$clientId]['Service']) && count($result[$clientId]['Service']) > 0)
                                         @foreach($result[$clientId]['Service'] as $serviceName => $serviceData)
                                             <tr>
                                                 <td><strong>{{ $serviceName }}</strong></td>
-                                                <td colspan="3"></td>
+                                                <td colspan="4"></td>
+                                                <td colspan="1"><span class="badge fw-bold text-danger remove-service-from-billing" id="{{$serviceName}}"><i class="fas fa-times"></i></span></td>
                                             </tr>
                                             @if(count($serviceData['sub_service']) > 0)
                                                 @foreach($serviceData['sub_service'] as $subServiceName => $subServiceData)
                                                     <tr>
                                                         <td></td>
                                                         <td><strong>{{ $subServiceName }}</strong></td>
-                                                        <td colspan="2"></td>
+                                                        <td colspan="3"></td>
+                                                        <td colspan="1"><span class="badge fw-bold text-danger remove-service-from-billing" id="{{$subServiceName}}"><i class="fas fa-times"></i></span></td>
                                                     </tr>
                                                     @if(count($subServiceData['account_descriptions']) > 0)
                                                         @foreach($subServiceData['account_descriptions'] as $accountDescription)
@@ -76,15 +78,16 @@
                                                                 <td></td>
                                                                 <td>{{ $accountDescription['Category'] }} - {{ $accountDescription['Description'] }}</td>
                                                                 <td>{{ $accountDescription['Price'] }}</td>
+                                                                <td><span class="badge fw-bold text-danger remove-service-from-billing" id="{{$accountDescription['Description']}}"><i class="fas fa-times"></i></span></td>
                                                             </tr>
-                                                            @php $totalPrice += $accountDescription['Price']; @endphp <!-- Add price to total -->
+                                                            @php $totalPrice += $accountDescription['Price']; @endphp
                                                         @endforeach
-                                                    @else
+                                                    {{-- @else
                                                         <tr>
                                                             <td></td>
                                                             <td></td>
-                                                            <td colspan="2">No account descriptions available.</td>
-                                                        </tr>
+                                                            <td colspan="3">No account descriptions available.</td>
+                                                        </tr> --}}
                                                     @endif
                                                 @endforeach
                                             @else
@@ -191,5 +194,10 @@
                 {{-- <button class="btn fw-bold float-right text-light mb-5 mx-2 mail-client-bs" style="background: #063D58;" id="{{$client->id}}">Send</button> --}}
             </div>
             @include('modals.additional-billing-description-modal')
+    <script>
+        window.servicesData = @json($result);
+        window.ads = @json($ads);
+    </script>
+    <script src="{{ asset('js/billing.js') }}"></script>
         </div>
     @endsection

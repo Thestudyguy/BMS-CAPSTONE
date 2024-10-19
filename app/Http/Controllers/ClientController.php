@@ -200,20 +200,20 @@ class ClientController extends Controller
 
     public function ClientBilling(Request $request)
     {
-        if (Auth::check()) {
-            // $uniqueId = Str::random(6);
-            $clientId = $request->id;
-            function generateAlphanumericId($length = 6)
-        {
-            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            $uniqueId = '';
-            for ($i = 0; $i < $length; $i++) {
-                $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+            if (Auth::check()) {
+                // $uniqueId = Str::random(6);
+                $clientId = $request->id;
+                function generateAlphanumericId($length = 6)
+            {
+                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                $uniqueId = '';
+                for ($i = 0; $i < $length; $i++) {
+                    $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+                }
+                return $uniqueId;
             }
-            return $uniqueId;
-        }
 
-        $uniqueId = generateAlphanumericId();
+            $uniqueId = generateAlphanumericId();
             $ads = AccountDescription::where('account_descriptions.isVisible', true)
             ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
             ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
@@ -224,6 +224,7 @@ class ClientController extends Controller
                 'account_descriptions.TaxType',
                 'account_descriptions.FormType',
                 'account_descriptions.Price',
+                'account_descriptions.id',
                 'account_descriptions.Category as adCategory',
                 'services_sub_tables.ServiceRequirements',
                 'services.Category', 'services.Service'
@@ -283,7 +284,7 @@ class ClientController extends Controller
                     }
                 }
             }
-
+            response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
             return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {
             dd('unauthorized access');

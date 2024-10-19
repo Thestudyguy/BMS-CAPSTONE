@@ -5,7 +5,10 @@
                 <div class="loader"></div>
             </div>
             <div class="modal-header rounded-0" style="background: #063D58;">
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-title fw-bold text-light">
+                    Additional Account Descriptions
+                </div>
+                <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <table class="table table-bordered table-hover table-striped" style="font-size: .8em;">
@@ -41,7 +44,7 @@
                     </tbody>
                 </table>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary text-light fw-bold rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
+                    <button type="button" class="btn btn-secondary text-light fw-bold rounded-0" data-bs-dismiss="modal">{{__('Close')}}</button>
                 </div>
             </div>
         </div>
