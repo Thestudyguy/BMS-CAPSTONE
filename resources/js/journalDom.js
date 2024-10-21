@@ -225,7 +225,6 @@ $(document).ready(function () {
         });
         
     });
-    console.log(incomeObj);
     
     $('.next-btn').on('click', function () {
         console.log(incomeObj);

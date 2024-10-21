@@ -47,7 +47,7 @@ $(document).ready(function(){
                 location.reload();
             }
             function CallFailed(jqXHR, textStatus, errorThrown) {
-        $('.loader-container').addClass('visually-hidden');
+            $('.loader-container').addClass('visually-hidden');
                 try {
                     const response = JSON.parse(jqXHR.responseText);
                     console.log('Parsed Response:', response);

@@ -47,7 +47,7 @@
                                     <span class="badge bg-warning text-dark fw-bold" id="{{$client->id}}" onclick="window.location.href='{{ route('add-services', ['id' => $client->id]) }}'">Add Service</span>
                                     {{-- <span class="badge bg-warning text-dark fw-bold">Generate FS</span> --}}
                                     {{-- <span class="badge bg-warning text-dark fw-bold">Generate FP</span> --}}
-                                    <span class="badge bg-warning text-dark fw-bold"id="{{$client->id}}" onclick="window.location.href='{{ route('client-billing', ['id' => $client->id]) }}'">Billings</span>
+                                    <span class="badge bg-warning text-dark fw-bold" id="{{$client->id}}" onclick="window.location.href='{{ route('client-billing', ['id' => $client->id]) }}'">Billings</span>
                                     <span class="badge bg-warning text-dark fw-bold" id="{{$client->id}}" onclick="window.location.href='{{ route('client-journal', ['id' => $client->id]) }}'">Journal</span>
                                     <span class="badge bg-warning text-dark fw-bold" id="{{$client->id}}" onclick="window.location.href='{{ route('client-profile', ['id' => $client->id]) }}'">Vew Client Profile</span>
                                   </td>

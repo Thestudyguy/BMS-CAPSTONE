@@ -227,7 +227,7 @@ class ClientController extends Controller
                 'account_descriptions.id',
                 'account_descriptions.Category as adCategory',
                 'services_sub_tables.ServiceRequirements',
-                'services.Category', 'services.Service'
+                'services.Category', 'services.Service', 'services.Price', 'services.id as ParentServiceID'
             )
             ->get();
             $currentDate = date('Y-m-d');
@@ -240,7 +240,7 @@ class ClientController extends Controller
                 ->where('cs_parent.isVisible', true)
                 ->select(
                     'cs_parent.ClientService as ParentService',
-                    's.id as ServiceID',
+                    's.id as ServiceID', 's.Price as ParentServicePrice',
                     'cs_parent.id as ParentServiceID'
                 )
                 ->get();
@@ -248,8 +248,12 @@ class ClientController extends Controller
             $result = [];
 
             foreach ($clientServicesData as $service) {
-                $result[$clientId]['Service'][$service->ParentService] = [
-                    'sub_service' => [],
+                // $result[$clientId]['Service'][$service->ParentService] = [
+                //     'sub_service' => [],
+                // ];
+                $result[$clientId]['Service'][$service->ParentService]['parent_service_id'][$service->ParentServiceID] = [
+                    // 'sub_service' => [],
+                    'parentServicePrice' => $service->ParentServicePrice
                 ];
             
                 $subServices = DB::table('client_services as cs_sub')
@@ -258,15 +262,16 @@ class ClientController extends Controller
                     ->where('ss.BelongsToService', $service->ServiceID)
                     ->where('cs_sub.isVisible', true)
                     ->select(
-                        'ss.ServiceRequirements',
+                        'ss.ServiceRequirements', 'ss.ServiceRequirementPrice',
                         'ss.id as SubServiceID',
                         'cs_sub.ClientService as SubServiceName'
                     )
                     ->get();
 
                 foreach ($subServices as $subService) {
-                    $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements] = [
-                        'account_descriptions' => [],
+                    $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID] = [
+                        'sub_service_price' => $subService->ServiceRequirementPrice,
+                        // 'account_descriptions' => [],
                     ];
 
                     $accountDescriptions = AccountDescription::where('account', $subService->SubServiceID)
@@ -274,16 +279,18 @@ class ClientController extends Controller
                         ->get();
 
                     foreach ($accountDescriptions as $accountDescription) {
-                        $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['account_descriptions'][] = [
+                        $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID]['account_descriptions'][] = [
                             'Category' => $accountDescription->Category,
                             'Description' => $accountDescription->Description,
                             'TaxType' => $accountDescription->TaxType,
                             'FormType' => $accountDescription->FormType,
                             'Price' => $accountDescription->Price,
+                            'adID' => $accountDescription->id,
                         ];
                     }
                 }
             }
+            Log::info(json_encode($result, JSON_PRETTY_PRINT));
             response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
             return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {
