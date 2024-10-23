@@ -44,4 +44,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('retrieve-sub-service-data-{id}', [ServicesController::class, 'RetrieveSubService']);
     Route::post('edit-sub-service', [ServicesController::class, 'EditSubService']);
     Route::post('mail-client-bs-{id}', [MailerController::class, 'MailClientBillingStatement']);
+    Route::post('mail-client-billing', [MailerController::class, 'MailClientBilling']);
 });

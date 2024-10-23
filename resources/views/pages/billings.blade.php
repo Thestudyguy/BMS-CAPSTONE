@@ -40,8 +40,8 @@
                         <div class="col-sm-12">
                             <div class="row">
                                 <div class="col-sm-4">Due Date: <input type="date" class="form-control w-50" name="due-date" id="dd"></div>
-                                <div class="col-sm-4">Date: {{$currentDate}}</div>
-                                <div class="col-sm-4">Billing ID: #{{$uniqueId}}</div>
+                                <div class="col-sm-4">Date: <span class="date">{{$currentDate}}</span></div>
+                                <div class="col-sm-4" style="font-size: .9em;">Billing ID: <div id="span" class="billing-id">{{$uniqueId}}</div></div>
                             </div>
                         </div>
                     </div>
@@ -64,27 +64,27 @@
                                     <td colspan="5" class="fw-bold">{{$serviceName}}</td>
                                     @foreach ($serviceData['parent_service_id'] as $ParentServiceID => $ParentData)
                                     <td colspan="3"></td>
-                                    <td colspan="1">{{number_format($ParentData['parentServicePrice'], 2)}}</td>
+                                    <td colspan="1"  class="price">{{number_format($ParentData['parentServicePrice'], 2)}}</td>
                                      @php $totalPrintedPrice += $ParentData['parentServicePrice']; @endphp
-                                    <td colspan="1"><span class="float-right badge fw-bold text-danger remove-parent-service-billing-action" id="{{$ParentServiceID}}"><i class="fas fa-times"></i></span></td>
+                                    <td colspan="1"><span class="float-right badge fw-bold text-danger remove-parent-service-billing-action" id="{{$serviceName}}_{{$ParentServiceID}}"><i class="fas fa-times"></i></span></td>
                                         @if (!empty($serviceData['sub_service']))
                                         @foreach ($serviceData['sub_service'] as $subService => $subServiceData)
                                         <tr>
                                             <td colspan="5"></td>
                                             <td colspan="3">{{$subService}}</td>
                                             @foreach ($subServiceData['sub_service_id'] as $sub_service_id  => $ssData)
-                                            <td colspan="1">{{number_format($ssData['sub_service_price'], 2)}}</td>
+                                            <td colspan="1" class="price">{{number_format($ssData['sub_service_price'], 2)}}</td>
                                             @php $totalPrintedPrice += $ssData['sub_service_price']; @endphp
-                                            <td colspan="1"><span class="badge fw-bold text-danger remove-sub-service-billing-action" id="{{$sub_service_id}}"><i class="fas fa-times"></i></span></td>
+                                            <td colspan="1"><span class="badge fw-bold text-danger remove-sub-service-billing-action" id="{{$subService}}_{{$sub_service_id}}"><i class="fas fa-times"></i></span></td>
                                         @if (!empty($ssData['account_descriptions']))
                                         
                                         @foreach ($ssData['account_descriptions'] as $ad)
                                             <tr  style="font-size: .9em;">
                                                 <td colspan="5"></td>
                                                 <td colspan="2">{{ $ad['Description'] }}</td>
-                                                <td colspan="2">{{ number_format($ad['Price'], 2) }}</td>
+                                                <td colspan="2" class="price">{{ number_format($ad['Price'], 2) }}</td>
                                                 @php $totalPrintedPrice += $ad['Price']; @endphp
-                                                <td colspan="1"><span class="badge text-danger fw-bold remove-account-description-billing-action" id="{{$ad['adID']}}"><i class="fas fa-times"></i></span></td></td>
+                                                <td colspan="1"><span class="badge text-danger fw-bold remove-account-description-billing-action" id="{{ $ad['Description'] }}_{{$ad['adID']}}"><i class="fas fa-times"></i></span></td></td>
                                             </tr>
                                         @endforeach
                                     </tr>
@@ -116,7 +116,7 @@
                         @endif
                                </tbody>
                             </table>
-                               <span class="float-right total-printed-price fw-bold text-dark" style="font-size: .8em;">Total: {{number_format($totalPrintedPrice, 2)}}</span>
+                               <span class="float-right fw-bold text-dark" style="font-size: .8em;">Total: ₱<span class="total-printed-price">{{number_format($totalPrintedPrice, 2)}}</span></span>
                         </div>
                     </div>
                     <div class="card">
@@ -140,7 +140,7 @@
                                         <td>Action</td>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="append-ad">
                                 </tbody>
                             </table>
                             <span class="fw-bold float-right" style="font-size: 12px;">Sub Total: ₱<span class="fw-bold total" id="additional-description-subtotal">0.00</span></span>

@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                         @foreach ($ads as $ad)
-                        <tr id="{{$ad->id}}" data-service="{{$ad->Service}}" data-requirements="{{$ad->ServiceRequirements}}" data-category="{{$ad->adCategory}}" data-description="{{$ad->Description}}" data-taxtype="{{$ad->TaxType}}" data-formtype="{{$ad->FormType}}" data-price="{{ $ad->Price }}">
+                        <tr id="{{$ad->id}}" data-id='{{$ad->Description}}_{{$ad->id}}' data-service="{{$ad->Service}}" data-requirements="{{$ad->ServiceRequirements}}" data-category="{{$ad->adCategory}}" data-description="{{$ad->Description}}" data-taxtype="{{$ad->TaxType}}" data-formtype="{{$ad->FormType}}" data-price="{{ $ad->Price }}">
                             <td>{{$ad->Service}}</td>
                             <td>{{$ad->ServiceRequirements}}</td>
                             <td>{{$ad->adCategory}}</td>

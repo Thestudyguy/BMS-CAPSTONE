@@ -27,6 +27,27 @@ class MailerController extends Controller
         }
     }
 
+    public function MailCLientBilling(Request $request){
+        if(Auth::check()){
+            try {
+                $accounts = $request['accountDescriptions'];
+                $subServices = $request['subServiceObj'];
+                $services = $request['serviceObj'];
+                foreach ($services as $service => $serviceData) {
+                    foreach ($serviceData as $services) {
+                        foreach ($services as $service) {
+                            Log::info($service);
+                        }
+                    }
+               }
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
     public function MailClientBillingStatement($id){
         if (Auth::check()) {
             $clientId = $id;

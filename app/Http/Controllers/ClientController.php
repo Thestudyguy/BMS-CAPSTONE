@@ -290,7 +290,7 @@ class ClientController extends Controller
                     }
                 }
             }
-            Log::info(json_encode($result, JSON_PRETTY_PRINT));
+            // Log::info(json_encode($ads, JSON_PRETTY_PRINT));
             response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
             return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {

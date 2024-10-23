@@ -296,3 +296,27 @@ export function EditSubService(url, subService, header, CallSuccess, CallError) 
         }
     });
 }
+
+
+/** notify client(billing)
+ *
+ * @param {string} url
+ * @param {Object} billingData
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function MailClientBilling(url, billingData, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: billingData,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}
