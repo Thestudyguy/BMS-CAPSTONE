@@ -344,6 +344,24 @@ class Controller extends BaseController
             throw $th;
         }
     }
+
+    public function ReturnAccounts($id){
+        if(Auth::check()){
+            try {
+                //$preparedAccount[0] -> category
+                //$preparedAccount[1] -> id
+                $preparedAccount = explode('_', $id);
+                if($preparedAccount[0] === 'asset'){
+                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
+                    return response()->json(['assets' => $assetsAT]);
+                }
+            } catch (\Exception $exception) {
+                throw $exception;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
 }
 
 // try {

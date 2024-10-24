@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
+use App\Models\AccountType;
 use App\Models\ClientBilling;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
@@ -319,7 +320,11 @@ class ClientController extends Controller
                 ->select('accounts.AccountName as Account', 'account_types.AccountType as AT', 'account_types.Category', 'accounts.id')
                 ->join('account_types', 'accounts.AccountType', '=', 'account_types.id')
                 ->get();
-            return view('pages.client-journal-form', compact('client', 'accounts'));
+            $ats = AccountType::where('isVisible', true)->where('Category', 'Asset')->get();
+            $lts = AccountType::where('isVisible', true)->where('Category', 'Liability')->get();
+            $oets = AccountType::where('isVisible', true)->where('Category', 'Equity')->get();
+            $ets = AccountType::where('isVisible', true)->where('Category', 'Expenses')->get();
+            return view('pages.client-journal-form', compact('client', 'accounts', 'ats'));
         } else {
             dd('unauthorize access');
         }

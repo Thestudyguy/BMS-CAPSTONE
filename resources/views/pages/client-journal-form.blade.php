@@ -136,7 +136,7 @@
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">Start Date</span>
                                                         </div>
-                                                        <input type="month" name="start-month" class="form-control start-date">
+                                                        <input type="month" name="start-month" class="form-control income-start-date">
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
@@ -144,42 +144,16 @@
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">End Date</span>
                                                         </div>
-                                                        <input type="month" name="end-month" class="form-control end-date">
+                                                        <input type="month" name="end-month" class="form-control income-end-date">
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12 months-container m-3">
+                                            <div class="col-sm-12 income-months-container m-3">
                                              </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="saved-months-table text-sm">
-                                                <table class="table" id="saved-months">
-                                                    
-                                                    {{-- <tbody class="saved-months123"> --}}
-                                                        {{-- <table class="table table-hover">
-                                                                <tr class="external-service" data-widget="expandable-table" aria-expanded="false">
-                                                                    <td>
-                                                                        asd
-                                                                    </td>
-                                                                </tr>
-                                                                <tr class="expandable-body bg-light">
-                                                                    <td>
-                                                                        <div class="p-0 text-center expandable-body-append-table">
-                                                                            <table class="table table-hover float-left">
-                                                                               <tr>
-                                                                                <td>asd</td>
-                                                                                <td>asd</td>
-                                                                               </tr>
-                                                                               <tr>
-                                                                                <td>asd</td>
-                                                                                <td>asd</td>
-                                                                               </tr>
-                                                                            </table>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                        </table> --}}
-                                                    {{-- </tbody> --}}
+                                                <table class="table" id="saved-income-months">
                                                 </table>
                                             </div>
                                         </div>
@@ -187,16 +161,34 @@
                                 </div>
                             </div>
                         </form>    
-                    
                     </div>
                     <div class="multi-step-journal assets" style="display: none;">
-                        <form action="">
-                            <div class="card">
-                                <div class="card-body"></div>
+                            <div class="card border">
+                                <h6 class="h4 fw-bold p-3" style="color:#063D58;">Asset</h6>
+                                <form action="" class="journal-asset-form">
+                                <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                        <select class="form-control" name="asset-account" id="asset_account">
+                                            <option value="" selected hidden>Select asset type</option>
+                                            @foreach ($ats as $at)
+                                                <option value="asset_{{$at->id}}">{{$at->AccountType}}</option>
+                                            @endforeach
+                                        </select>
+                                        <select name="asset-account-name" id="asset_account_name" class="form-control my-3">
+                                            <option value="" selected hidden>Select an asset type first</option>
+                                        </select>
+                                        <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                        {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
+                                        {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
+                                        {{-- <div class="row w-100">
+                                        </div> --}}
+                                    </div>
+                                </form>
+                                {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
                             </div>
-                        </form>
                     </div>
-                    <div class="multi-step-journal liability" style="display: none;">Liability form here</div>
+                    <div class="multi-step-journal liability" style="display: none;">
+                        //liability
+                    </div>
                     <div class="multi-step-journal equity" style="display: none;">Equity form here</div>
                     <div class="multi-step-journal summary" style="display: none;">Summary of all the steps</div>
 
