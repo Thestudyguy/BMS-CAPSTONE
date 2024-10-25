@@ -20,6 +20,8 @@ $(document).ready(function () {
     let selectedIncomeAccount = '';
     let incomeObj = {};
     let assetObj = {};
+    let liabilityObj = {};
+    let oeObj = {};
     $('#expense-category').on('change', function () {
         selectedAccount = $('#expense-category').val();
         $('.expense-form').removeClass('visually-hidden');
@@ -489,6 +491,60 @@ $(document).ready(function () {
             }
         });
     });
+    //liability
+    $(document).on('change', '#liability_account', function(){
+        let at = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: `get-account-types-${at}`,
+            // data: at,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                let atElement = '';   
+                $.each(response, (index, lts)=>{
+                    $.each(lts, (index, ltsData)=>{
+                        // console.log(atsData.AccountName);
+                        atElement += `
+                            <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
+                        `;
+                    });                    
+                });
+                
+                // atElement += '</select>'; not recommended
+                $('#liability_account_name').html(atElement);
+            },
+            error: function(error, stat, jqXHR){
+                console.error(error);
+            }
+        });
+    });
+    //oe
+    $(document).on('change', '#oe_account', function(){
+        let at = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: `get-account-types-${at}`,
+            // data: at,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                let atElement = '';   
+                $.each(response, (index, lts)=>{
+                    $.each(lts, (index, ltsData)=>{
+                        // console.log(atsData.AccountName);
+                        atElement += `
+                            <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
+                        `;
+                    });                    
+                });
+                
+                // atElement += '</select>'; not recommended
+                $('#oe_account_name').html(atElement);
+            },
+            error: function(error, stat, jqXHR){
+                console.error(error);
+            }
+        });
+    });
     // let assetFlag = true;
     // $('.save-asset-info').click(function(e){
     //     assetFlag = true;
@@ -511,9 +567,9 @@ $(document).ready(function () {
         
     // });
     let assetFlag = true;
+    let liabilityFlag = true;
+    let oeFlag = true;
     $('.next-btn').on('click', function () {
-        console.log(assetObj);
-        
         // if (currentStep === 1) {
         //     if (Object.keys(expensesObj).length === 0) {
         //         Toast.fire({
@@ -536,31 +592,73 @@ $(document).ready(function () {
         //     }
         // }
 
-         if (currentStep === 3) {
-            let assetForm = $('.journal-asset-form').serializeArray();
-            $.each(assetForm, (index, assetData)=>{
-                if(assetData.value === ''){
-                    assetFlag = false;
-                    $(`.journal-asset-form [name='${assetData.name}']`).addClass('is-invalid');
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'Please fill all fields'
-                    });
-                    return false;
-                }
-                $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
-                assetObj[assetData.name] = assetData.value;
-            });  
-            if(!assetFlag){
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Fields',
-                    text: 'Please fill all fields'
-                });
-                return;
-            }
-        }
+        // if (currentStep === 3) {
+        //     assetFlag = true;
+        //     let assetForm = $('.journal-asset-form').serializeArray();
+    
+        //     $.each(assetForm, (index, assetData) => {
+        //         if (assetData.value.trim() === '') {
+        //             assetFlag = false;
+        //             $(`.journal-asset-form [name='${assetData.name}']`).addClass('is-invalid');
+        //         } else {
+        //             $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
+        //             assetObj[assetData.name] = assetData.value;
+        //         }
+        //     });
+    
+        //     if (!assetFlag) {
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Missing Fields',
+        //             text: 'Please fill all fields'
+        //         });
+        //         return;
+        //     }
+        // }
+        // if (currentStep === 4) {
+        //     liabilityFlag = true;
+        //     let liabilityForm = $('.journal-liability-form').serializeArray();
+    
+        //     $.each(liabilityForm, (index, liabilityData) => {
+        //         if (liabilityData.value.trim() === '') {
+        //             liabilityFlag = false;
+        //             $(`.journal-liability-form [name='${liabilityData.name}']`).addClass('is-invalid');
+        //         } else {
+        //             $(`.journal-liability-form [name='${liabilityData.name}']`).removeClass('is-invalid');
+        //             liabilityObj[liabilityData.name] = liabilityData.value;
+        //         }
+        //     });
+        //     if (!liabilityFlag) {
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Missing Fields',
+        //             text: 'Please fill all fields'
+        //         });
+        //         return;
+        //     }
+        // }
+        // if (currentStep === 5) {
+        //     oeFlag = true;
+        //     let oeForm = $('.journal-oe-form').serializeArray();
+    
+        //     $.each(oeForm, (index, oeform) => {
+        //         if (oeform.value.trim() === '') {
+        //             oeFlag = false;
+        //             $(`.journal-oe-form [name='${oeform.name}']`).addClass('is-invalid');
+        //         } else {
+        //             $(`.journal-oe-form [name='${oeform.name}']`).removeClass('is-invalid');
+        //             oeObj[oeform.name] = oeform.value;
+        //         }
+        //     });
+        //     if (!oeFlag) {
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Missing Fields',
+        //             text: 'Please fill all fields'
+        //         });
+        //         return;
+        //     }
+        // }
         if (currentStep < 6) {
             $('.multi-step-journal').hide();
             currentStep++;

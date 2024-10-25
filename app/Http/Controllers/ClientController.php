@@ -324,7 +324,7 @@ class ClientController extends Controller
             $lts = AccountType::where('isVisible', true)->where('Category', 'Liability')->get();
             $oets = AccountType::where('isVisible', true)->where('Category', 'Equity')->get();
             $ets = AccountType::where('isVisible', true)->where('Category', 'Expenses')->get();
-            return view('pages.client-journal-form', compact('client', 'accounts', 'ats'));
+            return view('pages.client-journal-form', compact('client', 'accounts', 'ats', 'lts', 'oets', 'ets'));
         } else {
             dd('unauthorize access');
         }
