@@ -573,11 +573,6 @@ $(document).ready(function () {
             // $('#append-expenses-choy').empty();
             $.each(expensesObj, (index, month) => {
                 var totalExpense = 0;
-                console.log(index);
-                console.log(month);
-                
-                // totalExpense += parseFloat(month.value.replace(/,/g, ''));
-                // console.log(totalExpense);
                 var expenses = `
                     <span class="revenue-accounts float-left">${month.index}</span>
                     <span class="revenue-amount float-right">${month.value}</span>
