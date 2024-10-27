@@ -51,10 +51,11 @@
                                                 <td>{{$accounts->AccountType}}</td>
                                                 <td>{{$accounts->Category}}</td>
                                                 <td>
-                                                    <span id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
+                                                    <span data-bs-target="#edit-coa-modal-{{$accounts->id}}" data-bs-toggle="modal" id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
                                                     <span id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
                                                 </td>
                                             </tr>
+                                            @include('modals.edit-coa-modal')
                                         @endforeach
                             </tbody>
                         </table>

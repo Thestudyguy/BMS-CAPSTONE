@@ -70,7 +70,6 @@ $(document).ready(function () {
             monthsContainer.empty();
             monthInputs += ``;
             let current = new Date(start);
-            console.log(current);
 
             while (current <= end) {
                 const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -102,7 +101,6 @@ $(document).ready(function () {
         e.preventDefault();
         let selectedMonths = [];
         let hasValue = true;
-        console.log('selected account', selectedAccount);
         if (expensesObj.hasOwnProperty(selectedAccount)) {
             Toast.fire({
                 icon: 'warning',
@@ -118,7 +116,6 @@ $(document).ready(function () {
         $('.month-input').each(function () {
             var monthName = $(this).attr('name');
             var monthVal = $(this).val();
-            console.log(`Month: ${monthName}, Value: ${$(this).val()}`);
             if (monthVal !== '') {
                 hasValue = false;
                 $(`[name='${$(this).attr('name')}']`).addClass('is-invalid');
@@ -188,7 +185,6 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-months').append(tableHTML);
         });
-        console.log(expensesObj);
         $('.months-container').empty();
         $('#expense-category').val('');
         $('.end-date').val('');
@@ -202,7 +198,6 @@ $(document).ready(function () {
         const accountId = $(this).attr('id');
     
         delete expensesObj[accountId];
-        console.log('Current expensesObj:', expensesObj);
         
         $('#saved-months').empty();
         $.each(expensesObj, (account, element) => {
@@ -296,7 +291,6 @@ $(document).ready(function () {
             monthsContainer.empty();
             monthInputs += ``;
             let current = new Date(start);
-            console.log(current);
 
             while (current <= end) {
                 const monthYear = current.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -321,6 +315,7 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '.save-expense-months', function(e){
+        
         e.preventDefault();
         let selectedMonths = [];
         let hasValue = true;
@@ -406,7 +401,6 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-income-months').append(tableHTML);
         });
-        console.log(incomeObj);
         $('.income-months-container').empty();
         $('#income-category').val('');
         $('.income-end-date').val('');
@@ -419,7 +413,6 @@ $(document).ready(function () {
         const accountId = $(this).attr('id');
     
         delete incomeObj[accountId];
-        console.log('Current incomeObj:', incomeObj);
         
         $('#saved-income-months').empty();
         $.each(incomeObj, (account, element) => {
@@ -476,7 +469,6 @@ $(document).ready(function () {
                 let atElement = '';   
                 $.each(response, (index, ats)=>{
                     $.each(ats, (index, atsData)=>{
-                        console.log(atsData.AccountName);
                         atElement += `
                             <option value="${atsData.AccountName}_${atsData.id}">${atsData.AccountName}</option>
                         `;
@@ -503,7 +495,6 @@ $(document).ready(function () {
                 let atElement = '';   
                 $.each(response, (index, lts)=>{
                     $.each(lts, (index, ltsData)=>{
-                        // console.log(atsData.AccountName);
                         atElement += `
                             <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
                         `;
@@ -530,7 +521,6 @@ $(document).ready(function () {
                 let atElement = '';   
                 $.each(response, (index, lts)=>{
                     $.each(lts, (index, ltsData)=>{
-                        // console.log(atsData.AccountName);
                         atElement += `
                             <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
                         `;
@@ -570,17 +560,32 @@ $(document).ready(function () {
     let liabilityFlag = true;
     let oeFlag = true;
     $('.next-btn').on('click', function () {
-        // if (currentStep === 1) {
-        //     if (Object.keys(expensesObj).length === 0) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Missing Data',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
-        // }
-
+        
+        if (currentStep === 1) {
+            if (Object.keys(expensesObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
+            // $('#append-expenses-choy').empty();
+            $.each(expensesObj, (index, month) => {
+                var totalExpense = 0;
+                console.log(index);
+                console.log(month);
+                
+                // totalExpense += parseFloat(month.value.replace(/,/g, ''));
+                // console.log(totalExpense);
+                var expenses = `
+                    <span class="revenue-accounts float-left">${month.index}</span>
+                    <span class="revenue-amount float-right">${month.value}</span>
+                    <br>
+                `;
+                $('#append-expenses-choy').append(expenses);
+            });
+        }
         // if (currentStep === 2) {
         //     if (Object.keys(incomeObj).length === 0) {
         //         Toast.fire({
@@ -595,7 +600,6 @@ $(document).ready(function () {
         // if (currentStep === 3) {
         //     assetFlag = true;
         //     let assetForm = $('.journal-asset-form').serializeArray();
-    
         //     $.each(assetForm, (index, assetData) => {
         //         if (assetData.value.trim() === '') {
         //             assetFlag = false;

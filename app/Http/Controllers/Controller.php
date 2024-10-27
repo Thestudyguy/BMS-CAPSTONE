@@ -109,7 +109,7 @@ class Controller extends BaseController
                 $at = AccountType::where('isVisible', true)->get();
                 // $accounts = Accounts::where('isVisible', true)->get();
                 $account = Accounts::where('accounts.isVisible', true)->
-                select('accounts.AccountName', 'accounts.id', 'account_types.AccountType', 'account_types.Category')
+                select('accounts.AccountName', 'accounts.id', 'account_types.AccountType', 'account_types.Category', 'account_types.id as ATid')
                 ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')->get();
                 return view('pages.chart-of-account', compact('at', 'account'));
             } else {
@@ -355,6 +355,28 @@ class Controller extends BaseController
                     return response()->json(['assets' => $assetsAT]);
             } catch (\Exception $exception) {
                 throw $exception;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+    public function EditCOA(Request $request){
+        if(Auth::check()){
+            try {
+                $existingAccount = Accounts::where('AccountName', $request['AccountName'])
+                ->where('id', '!=', $request['id'])
+                ->first();
+
+                if ($existingAccount) {
+                return response()->json(['message' => 'Account name already exists.'], 400);
+                }
+                Accounts::where('id', $request['id'])->update([
+                    'AccountName' => $request['AccountName'],
+                    'AccountType' => $request['AccountType']
+                ]);
+                return response()->json(['account' => 'Account updated successfully'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
             }
         }else{
             dd('unauthorized access');

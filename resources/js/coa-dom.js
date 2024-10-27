@@ -119,6 +119,53 @@ $(document).ready(function(){
        
     });
 
+    $('.edit-coa').click(function(e){
+        e.preventDefault();
+        var coaRef = $(this).attr('id');
+        var updatedCoaForm = $(`#edit-coa-form-${coaRef}`).serializeArray();
+        var callFlag = true;
+        var updatedCoaOj = {};
+        $.each(updatedCoaForm, (index, input)=>{
+            if(input.value === ''){
+                $(`.edit-coa-form-${coaRef} [name='${input.name}']`).addClass('is-invalild');
+                callFlag = false;
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Field!',
+                    text: 'Please fill all fields',
+                });
+                return;
+            }
+            $(`.edit-coa-form-${coaRef} [name='${input.name}']`).removeClass('is-invalild');
+            updatedCoaOj[input.name] = input.value;
+        });
+        if(callFlag){
+            $.ajax({
+                type: 'POST',
+                url: 'edit-coa',
+                data: updatedCoaOj,
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                success: function(response){
+                    localStorage.setItem('account', 'updated');
+                    location.reload();
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    try {
+                        const response = JSON.parse(jqXHR.responseText);
+                        console.log('Parsed Response:', response);
+                        ToastError.fire({
+                            icon: 'warning',
+                            title: 'Conflict',
+                            text: response.message
+                        });
+                    } catch (e) {
+                        console.log('Could not parse JSON response:', e);
+                    }
+                }
+            });
+        }
+    });
+
     var accountType = localStorage.getItem('account-type');
     var account = localStorage.getItem('account');
     if(accountType === 'created'){
@@ -134,6 +181,15 @@ $(document).ready(function(){
         Toast.fire({
             icon: 'success',
             title: 'New Account created!',
+        });
+        localStorage.removeItem('account-type');
+        return;
+    }
+    if(account === 'updated'){
+        localStorage.removeItem('account');
+        Toast.fire({
+            icon: 'success',
+            title: 'Account updated!',
         });
         localStorage.removeItem('account-type');
         return;

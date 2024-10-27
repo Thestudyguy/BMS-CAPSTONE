@@ -166,7 +166,11 @@
                             <div class="card border">
                                 <h6 class="h4 fw-bold p-3" style="color:#063D58;">Asset</h6>
                                 <form action="" class="journal-asset-form">
-                                <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                    <div class="revenue-container p-3">
+                                        <label for="Revenue">Revenue</label>
+                                    <input type="text" name="Revenue" id="revenue" class="form-control" placeholder="Enter revenue">
+                                    </div>
+                                    <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                                         <select class="form-control" name="asset-account" id="asset_account">
                                             <option value="" selected hidden>Select asset type</option>
                                             @foreach ($ats as $at)
@@ -234,13 +238,175 @@
                             {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
                         </div>
                     </div>
-                    <div class="multi-step-journal summary" style="display: none;">Summary of all the steps</div>
+                    <div class="multi-step-journal summary" style="display: none; font-family: Poppins;">
+                        {{-- <div class="row">
+                            <div class="col-sm-6 border">
+                                <div class="row">
+                                    <div class="col border">
+                                        <div class="card fo-card rounded-0">
+                                            <center><h4 class="h4 fw-bold text-dark">Financial Operation</h4></center>
+                                            <center><h5 class="h5 fw-bold text-dark">{{$client->CompanyName}}</h5></center>
+                                            <center><h6 class="h6 text-dark">{{$client->CompanyAddress }}</h6></center>
+                                            <div class="row">
+                                                <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the year Ended <span class="float-right">2024</span></div>
+                                                <div class="col-sm-12"></div>
+                                                <div class="col-sm-12">
+                                                    <div class="row">
+                                                        <span class="float-left fw-bold mt-5">Revenues</span>
+                                                        <div class="col-sm-12 ml-3">
+                                                            <span class="revenue-accounts float-left">Rev Account</span>
+                                                            <span class="revenue-amount float-right">Rev Amount</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="row">
+                                                        <span class="float-left fw-bold">Less:Direct Cost</span>
+                                                        <div class="col-sm-12 ml-3">
+                                                            <span class="expenses-accounts float-left">Expenses Account</span>
+                                                            <span class="expenses-amount float-right">Rev Amount</span><br>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="expenses-total float-left fw-bold">Total Direct Cost</span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="expenses-total float-left fw-bold">Total Gross Income from Engineering Services Cost</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <span class="float-left fw-bold">Total Gross Income</span>
+                                                    <span class="float-right fw-bold">Amount</span>
+                                                </div>
+                                                <br>
+                                                <div class="col-sm-12">
+                                                    <div class="row">
+                                                        <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
+                                                        <div class="col-sm-12 ml-3">
+                                                            <span class="expenses-accounts float-left">Expenses Account</span>
+                                                            <span class="revenue-amount float-right">Expenses Amount</span>
+                                                        </div>
+                                                        <div class="col-sm-12 fw-bold">Total Operating Expense</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <span class="net-income fw-bold float-left">Net Income</span>
+                                                    <span class="net-amount fw-bold float-right">20,000,000</span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <span class="float-left fw-bold">Certified True & Correct</span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="float-left fw-bold" style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="float-left">Proprietor</span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="float-left">TIN: 291-273-180-000</span>
+                    
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 border">
+                                Statement of Financial Position
+                            </div>
+                        </div> --}}
+                    </div>
 
                     <div class="multi-step-action-buttons float-right">
                         <button class="btn btn-secondary prev-btn" style="font-weight: bold;">Previous</button>
                         <button class="btn next-btn" style="background: #063D58; font-weight: bold; color: whitesmoke;">Next</button>
                         <button class="btn btn-primary save-btn" style="display:none;">Save</button>
                     </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6 border">
+                    <div class="row">
+                        <div class="col border">
+                            <div class="card fo-card rounded-0">
+                                <center><h4 class="h4 fw-bold text-dark">Financial Operation</h4></center>
+                                <center><h5 class="h5 fw-bold text-dark">{{$client->CompanyName}}</h5></center>
+                                <center><h6 class="h6 text-dark">{{$client->CompanyAddress }}</h6></center>
+                                <div class="row">
+                                    <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the year Ended <span class="float-right">2024</span></div>
+                                    <div class="col-sm-12"></div>
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <span class="float-left fw-bold mt-5">Revenues</span>
+                                            <div class="col-sm-12 ml-3 text-dark" id="append-expenses-choy">
+                                                asd
+                                                {{-- <span class="revenue-accounts float-left">Rev Account</span>
+                                                <span class="revenue-amount float-right">Rev Amount</span> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <span class="float-left fw-bold">Less:Direct Cost</span>
+                                            <div class="col-sm-12 ml-3">
+                                                <span class="expenses-accounts float-left">Expenses Account</span>
+                                                <span class="expenses-amount float-right">Rev Amount</span><br>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="expenses-total float-left fw-bold">Total Direct Cost</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="expenses-total float-left fw-bold">Total Gross Income from Engineering Services Cost</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <span class="float-left fw-bold">Total Gross Income</span>
+                                        <span class="float-right fw-bold">Amount</span>
+                                    </div>
+                                    <br>
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
+                                            <div class="col-sm-12 ml-3">
+                                                <span class="expenses-accounts float-left">Expenses Account</span>
+                                                <span class="revenue-amount float-right">Expenses Amount</span>
+                                            </div>
+                                            <div class="col-sm-12 fw-bold">Total Operating Expense</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <span class="net-income fw-bold float-left">Net Income</span>
+                                        <span class="net-amount fw-bold float-right">20,000,000</span>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="float-left fw-bold">Certified True & Correct</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="float-left fw-bold" style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="float-left">Proprietor</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="float-left">TIN: 291-273-180-000</span>
+        
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 border">
+                    Statement of Financial Position
                 </div>
             </div>
         </div>
