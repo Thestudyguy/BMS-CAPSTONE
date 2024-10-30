@@ -13,7 +13,7 @@ $(document).ready(function () {
         toast: false,
         position: 'bottom-end',
     });
-    
+
     // let selectedMonths = [];
     let selectedAccount = '';
     let expensesObj = {};
@@ -32,7 +32,7 @@ $(document).ready(function () {
     $('.start-date, .end-date').on('change', function () {
         const startDate = $('.start-date').val();
         const endDate = $('.end-date').val();
-        if($('#expense-category').val() === ''){
+        if ($('#expense-category').val() === '') {
             Toast.fire({
                 icon: 'warning',
                 title: 'Missing account',
@@ -88,14 +88,14 @@ $(document).ready(function () {
 
             monthsContainer.html(monthInputs);
 
-           
+
         }
         $('.months-container').on('input', '.month-input', function () {
             formatValueInput(this);
         });
-        
-    
-        
+
+
+
     });
     $(document).on('click', '.save-months', function (e) {
         e.preventDefault();
@@ -112,7 +112,7 @@ $(document).ready(function () {
             $('.months-container').empty();
             return false;
         }
-    
+
         $('.month-input').each(function () {
             var monthName = $(this).attr('name');
             var monthVal = $(this).val();
@@ -120,17 +120,17 @@ $(document).ready(function () {
                 hasValue = false;
                 $(`[name='${$(this).attr('name')}']`).addClass('is-invalid');
                 selectedMonths.push({
-                            monthName,
-                            value: $(this).val(),
-                            account: selectedAccount,
-                            startDate: $('.start-date').val(),
-                            endDate: $('.end-date').val()
-                        });
+                    monthName,
+                    value: $(this).val(),
+                    account: selectedAccount,
+                    startDate: $('.start-date').val(),
+                    endDate: $('.end-date').val()
+                });
             }
         });
-        
-        if(hasValue){
-            $('.month-input').each(function(){
+
+        if (hasValue) {
+            $('.month-input').each(function () {
                 $(`[name='${$(this).attr('name')}']`).addClass('is-invalid');
             });
             Toast.fire({
@@ -192,13 +192,13 @@ $(document).ready(function () {
         selectedAccount = '';
         hasValue = true;
     });
-    
-    
-        $(document).on('click', '.remove-saved-account', function(e){
+
+
+    $(document).on('click', '.remove-saved-account', function (e) {
         const accountId = $(this).attr('id');
-    
+
         delete expensesObj[accountId];
-        
+
         $('#saved-months').empty();
         $.each(expensesObj, (account, element) => {
             var tableHTML = `<table class="table table-hover client-journal-accounts">`;
@@ -238,23 +238,23 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-months').append(tableHTML);
         });
-        
+
     });
 
 
     //income
-    $('#income-category').on('change', function(){
+    $('#income-category').on('change', function () {
         $('.income-form').removeClass('visually-hidden');
         selectedIncomeAccount = $('#income-category').val();
         $('.income-months-container').empty();
         // $('.save-expense').addClass('visually-hidden');
     });
 
-    $('.income-start-date, .income-end-date').on('change', function(){
+    $('.income-start-date, .income-end-date').on('change', function () {
         const startDate = $('.income-start-date').val();
         const endDate = $('.income-end-date').val();
 
-        if($('#income-category').val() === ''){
+        if ($('#income-category').val() === '') {
             Toast.fire({
                 icon: 'warning',
                 title: 'Missing account',
@@ -262,7 +262,7 @@ $(document).ready(function () {
             });
             return;
         }
-        if(startDate && endDate){
+        if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             const monthsContainer = $('.income-months-container');
@@ -314,12 +314,12 @@ $(document).ready(function () {
         });
     });
 
-    $(document).on('click', '.save-expense-months', function(e){
-        
+    $(document).on('click', '.save-expense-months', function (e) {
+
         e.preventDefault();
         let selectedMonths = [];
         let hasValue = true;
-        if(incomeObj.hasOwnProperty(selectedIncomeAccount)){
+        if (incomeObj.hasOwnProperty(selectedIncomeAccount)) {
             Toast.fire({
                 icon: 'warning',
                 title: 'Account Already Added',
@@ -331,10 +331,10 @@ $(document).ready(function () {
             return;
         }
 
-        $('.income-month-input').each(function(){
+        $('.income-month-input').each(function () {
             var incomeMonthName = $(this).attr('name');
             var incomeMonthVal = $(this).val();
-            if(incomeMonthVal !== ''){
+            if (incomeMonthVal !== '') {
                 hasValue = false;
                 $(`[name='${$(this).attr('name')}']`).addClass('is-invalid');
                 selectedMonths.push({
@@ -346,8 +346,8 @@ $(document).ready(function () {
                 });
             }
         });
-        if(hasValue){
-            $('.income-month-input').each(function(){
+        if (hasValue) {
+            $('.income-month-input').each(function () {
                 $(`[name='${$(this).attr('name')}']`).addClass('is-invalid');
             });
             Toast.fire({
@@ -409,11 +409,11 @@ $(document).ready(function () {
         hasValue = true;
     });
 
-    $(document).on('click', '.remove-saved-account', function(e){
+    $(document).on('click', '.remove-saved-account', function (e) {
         const accountId = $(this).attr('id');
-    
+
         delete incomeObj[accountId];
-        
+
         $('#saved-income-months').empty();
         $.each(incomeObj, (account, element) => {
             var tableHTML = `<table class="table table-hover client-journal-accounts">`;
@@ -453,84 +453,84 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-income-months').append(tableHTML);
         });
-        
+
     });
     //income
 
     //asset 
-    $(document).on('change', '#asset_account', function(){
+    $(document).on('change', '#asset_account', function () {
         let at = $(this).val();
         $.ajax({
             type: 'POST',
             url: `get-account-types-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
-            success: function(response){
-                let atElement = '';   
-                $.each(response, (index, ats)=>{
-                    $.each(ats, (index, atsData)=>{
+            success: function (response) {
+                let atElement = '';
+                $.each(response, (index, ats) => {
+                    $.each(ats, (index, atsData) => {
                         atElement += `
                             <option value="${atsData.AccountName}_${atsData.id}">${atsData.AccountName}</option>
                         `;
-                    });                    
+                    });
                 });
-                
+
                 // atElement += '</select>'; not recommended
                 $('#asset_account_name').html(atElement);
             },
-            error: function(error, stat, jqXHR){
+            error: function (error, stat, jqXHR) {
                 console.error(error);
             }
         });
     });
     //liability
-    $(document).on('change', '#liability_account', function(){
+    $(document).on('change', '#liability_account', function () {
         let at = $(this).val();
         $.ajax({
             type: 'POST',
             url: `get-account-types-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
-            success: function(response){
-                let atElement = '';   
-                $.each(response, (index, lts)=>{
-                    $.each(lts, (index, ltsData)=>{
+            success: function (response) {
+                let atElement = '';
+                $.each(response, (index, lts) => {
+                    $.each(lts, (index, ltsData) => {
                         atElement += `
                             <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
                         `;
-                    });                    
+                    });
                 });
-                
+
                 // atElement += '</select>'; not recommended
                 $('#liability_account_name').html(atElement);
             },
-            error: function(error, stat, jqXHR){
+            error: function (error, stat, jqXHR) {
                 console.error(error);
             }
         });
     });
     //oe
-    $(document).on('change', '#oe_account', function(){
+    $(document).on('change', '#oe_account', function () {
         let at = $(this).val();
         $.ajax({
             type: 'POST',
             url: `get-account-types-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
-            success: function(response){
-                let atElement = '';   
-                $.each(response, (index, lts)=>{
-                    $.each(lts, (index, ltsData)=>{
+            success: function (response) {
+                let atElement = '';
+                $.each(response, (index, lts) => {
+                    $.each(lts, (index, ltsData) => {
                         atElement += `
                             <option value="${ltsData.AccountName}_${ltsData.id}">${ltsData.AccountName}</option>
                         `;
-                    });                    
+                    });
                 });
-                
+
                 // atElement += '</select>'; not recommended
                 $('#oe_account_name').html(atElement);
             },
-            error: function(error, stat, jqXHR){
+            error: function (error, stat, jqXHR) {
                 console.error(error);
             }
         });
@@ -554,14 +554,71 @@ $(document).ready(function () {
     //         $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
     //         assetObj[assetData.name] = assetData.value;
     //     });        
-        
+
     // });
     let assetFlag = true;
     let liabilityFlag = true;
     let oeFlag = true;
+    var incometotal = 0;
+    var expensetotal = 0;
+    var oetotal = 0;
     $('.next-btn').on('click', function () {
-        
+
         if (currentStep === 1) {
+            if (Object.keys(incomeObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
+
+            $('#append-expenses-choy').empty();
+            incometotal = 0;
+            var expensesHtml = '';
+
+            $.each(incomeObj, function (accountName, accountData) {
+                var account = accountName.split('_');
+                var accountTotal = 0;
+
+                $.each(accountData.months, function (index, month) {
+                    var preparedValue = month.value.replace(/[^0-9]/g, '');
+                    var valToFloat = parseFloat(preparedValue);
+                    accountTotal += valToFloat;
+                });
+                var formattedAccountTotal = accountTotal.toLocaleString();
+                incometotal += accountTotal;
+                expensesHtml += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${account[1]}</div>
+                        <div class="col-sm-6 text-right">${formattedAccountTotal}</div>
+                    </div>`;
+            });
+
+            var formattedTotal = incometotal.toLocaleString();
+            $('#append-expenses-choy').append(expensesHtml);
+
+            var totalExpensesHtml = `
+                <div class="row mt-3">
+                    <div class="col-sm-6 text-left"><strong>Total:</strong></div>
+                    <div class="col-sm-6 text-right"><strong>${formattedTotal}</strong></div>
+                </div>`;
+
+            $('.append-expense-total').html(totalExpensesHtml);
+        }
+
+
+        if (currentStep === 2) {
+            $('.append-ldc').empty();
+            $('.expenses-total').text('');
+            $('.append-oe').empty('');
+            $('.oe-total').text('');
+            var expenseHTML = '';
+            var operatingExpenseHTML = '';
+            expensetotal = 0;
+            oetotal = 0;
+        
             if (Object.keys(expensesObj).length === 0) {
                 Toast.fire({
                     icon: 'warning',
@@ -570,27 +627,84 @@ $(document).ready(function () {
                 });
                 return;
             }
-            // $('#append-expenses-choy').empty();
-            $.each(expensesObj, (index, month) => {
-                var totalExpense = 0;
-                var expenses = `
-                    <span class="revenue-accounts float-left">${month.index}</span>
-                    <span class="revenue-amount float-right">${month.value}</span>
-                    <br>
-                `;
-                $('#append-expenses-choy').append(expenses);
+        
+            var hasLessDirectCost = false;
+            var hasOperatingExpenses = false;
+        
+            $.each(expensesObj, (index, incomeData) => {
+                var expenseAccount = index.split('_');
+                var expenseType = expenseAccount[2];
+        
+                if (expenseType === 'Less Direct Cost') {
+                    hasLessDirectCost = true;
+                } else if (expenseType === 'Operating Expenses') {
+                    hasOperatingExpenses = true;
+                }
             });
+        
+            if (!hasLessDirectCost || !hasOperatingExpenses) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Both "Less Direct Cost" and "Operating Expenses" entries are required.'
+                });
+                return;
+            }
+        
+            $.each(expensesObj, (index, incomeData) => {
+                var expenseAccount = index.split('_');
+                var expenseType = expenseAccount[2];
+                var expenseAccTotal = 0;
+                var operatingTotal = 0;
+                if (expenseType === 'Less Direct Cost') {
+                    $.each(incomeData.months, (index, expenseData) => {
+                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var valToFloat = parseFloat(preparedValue);
+                        expenseAccTotal += valToFloat;
+                    });
+        
+                    var formatExpAccTotal = expenseAccTotal.toLocaleString();
+                    expensetotal += expenseAccTotal;
+        
+                    expenseHTML += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
+                        <div class="col-sm-6 text-right">${formatExpAccTotal}</div>
+                    </div>
+                    `;
+                }else if(expenseType === 'Operating Expenses'){
+                    $.each(incomeData.months, (index, expenseData) => {
+                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var valToFloat = parseFloat(preparedValue);
+                        operatingTotal += valToFloat;
+                    });
+        
+                    var formatOperatingTotal = operatingTotal.toLocaleString();
+                    oetotal += operatingTotal;
+        
+                    operatingExpenseHTML += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
+                        <div class="col-sm-6 text-right">${formatOperatingTotal}</div>
+                    </div>
+                    `;
+                }
+            });
+        
+            var totalGTI = incometotal - expensetotal;
+            var totalGI = totalGTI - oetotal;
+            $('.gries-total').text(totalGTI.toLocaleString());
+            $('.tgi').text(totalGTI.toLocaleString());
+            $('.expenses-total').text(expensetotal.toLocaleString());
+            $('.append-ldc').append(expenseHTML);
+            $('.append-oe').append(operatingExpenseHTML);
+            $('.oe-total').text(oetotal.toLocaleString());
+            $('.net-amount').text(totalGI.toLocaleString());
+
         }
-        // if (currentStep === 2) {
-        //     if (Object.keys(incomeObj).length === 0) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Missing Data',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
-        // }
+        
+        
+
 
         // if (currentStep === 3) {
         //     assetFlag = true;
@@ -604,7 +718,7 @@ $(document).ready(function () {
         //             assetObj[assetData.name] = assetData.value;
         //         }
         //     });
-    
+
         //     if (!assetFlag) {
         //         Toast.fire({
         //             icon: 'warning',
@@ -617,7 +731,7 @@ $(document).ready(function () {
         // if (currentStep === 4) {
         //     liabilityFlag = true;
         //     let liabilityForm = $('.journal-liability-form').serializeArray();
-    
+
         //     $.each(liabilityForm, (index, liabilityData) => {
         //         if (liabilityData.value.trim() === '') {
         //             liabilityFlag = false;
@@ -639,7 +753,7 @@ $(document).ready(function () {
         // if (currentStep === 5) {
         //     oeFlag = true;
         //     let oeForm = $('.journal-oe-form').serializeArray();
-    
+
         //     $.each(oeForm, (index, oeform) => {
         //         if (oeform.value.trim() === '') {
         //             oeFlag = false;
@@ -663,9 +777,9 @@ $(document).ready(function () {
             currentStep++;
             showStep(currentStep);
         }
-    
+
         updateStepIndicator(currentStep);
-    
+
         if (currentStep === 6) {
             $('.next-btn').hide();
             $('.save-btn').show();
@@ -673,37 +787,37 @@ $(document).ready(function () {
             $('.next-btn').show();
             $('.save-btn').hide();
         }
-    
+
         if (currentStep === 1) {
             $('.prev-btn').hide();
         } else {
             $('.prev-btn').show();
         }
     });
-    
+
     $('.prev-btn').on('click', function () {
         if (currentStep > 1) {
             $('.multi-step-journal').hide();
             currentStep--;
             showStep(currentStep);
         }
-    
+
         updateStepIndicator(currentStep);
         $('.next-btn').show();
         $('.save-btn').hide();
-    
+
         if (currentStep === 1) {
             $('.prev-btn').hide();
         } else {
             $('.prev-btn').show();
         }
     });
-    
+
     function showStep(step) {
         $('.multi-step-journal').hide();
         $('.multi-step-journal').eq(step - 1).show();
     }
-    
+
     function updateStepIndicator(step) {
         $('.step').removeClass('active');
         $('.indicator-line').removeClass('active');
@@ -714,12 +828,12 @@ $(document).ready(function () {
             }
         });
     }
-    
+
     showStep(currentStep);
     updateStepIndicator(currentStep);
-    
+
     if (currentStep === 1) {
         $('.prev-btn').hide();
     }
-    
+
 });

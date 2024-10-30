@@ -6,20 +6,20 @@
             <div class="card">
                 <div class="card-body">
                     <h6 class="h4 fw-bold">Add New Journal</h6>
-                    <span class="text-md fw-bold" style="color: #063D58;">Client: {{$client->CEO}}</span><br>
-                    <span class="text-md fw-bold" style="color: #063D58;">Company: {{$client->CompanyName}}</span>
+                    <span class="text-md fw-bold" style="color: #063D58;">Client: {{ $client->CEO }}</span><br>
+                    <span class="text-md fw-bold" style="color: #063D58;">Company: {{ $client->CompanyName }}</span>
                     <hr>
 
                     <div class="step-indicator-container text-center mb-4">
                         <section class="step-indicator">
                             <div class="step step1 active">
                                 <div class="step-icon">1</div>
-                                <p>Expense</p>
+                                <p>Income</p>
                             </div>
                             <div class="indicator-line active"></div>
                             <div class="step step2">
                                 <div class="step-icon">2</div>
-                                <p>Income</p>
+                                <p>Expense</p>
                             </div>
                             <div class="indicator-line"></div>
                             <div class="step step3">
@@ -45,7 +45,57 @@
                     </div>
 
                     {{-- Expense Form --}}
-                    <div class="multi-step-journal expense">
+                    <div class="multi-step-journal income">
+                        <form action="" class="income-form">
+                            <div class="card elevation-2 mt-5">
+                                <h6 class="h4 fw-bold p-3" style="color:#063D58;">Income</h6>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <select name="income" class="form-control" id="income-category">
+                                                <option value="" selected hidden>Select Account</option>
+                                                @foreach ($accounts as $account)
+                                                    <option value="{{ $account->id }}_{{ $account->Account }}">
+                                                        {{ $account->Account }} - ({{ $account->AT }},
+                                                        {{ $account->Category }})</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="row visually-hidden income-form">
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">Start Date</span>
+                                                        </div>
+                                                        <input type="month" name="start-month"
+                                                            class="form-control income-start-date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">End Date</span>
+                                                        </div>
+                                                        <input type="month" name="end-month"
+                                                            class="form-control income-end-date">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 income-months-container m-3">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="saved-months-table text-sm">
+                                                <table class="table" id="saved-income-months">
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {{-- Income form --}}
+                    <div class="multi-step-journal expense" style="display: none;">
                         <form action="" class="expense-form">
                             <div class="card elevation-2 mt-5">
                                 <h6 class="h4 fw-bold p-3" style="color:#063D58;">Expense</h6>
@@ -55,8 +105,13 @@
                                             <select name="expense" class="form-control" id="expense-category">
                                                 <option value="" selected hidden>Select Account</option>
                                                 @foreach ($accounts as $account)
-                                                        <option value="{{$account->id}}_{{$account->Account}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
-                                                @endforeach
+                                                @if (trim(strtolower($account->AT)) === 'less direct cost' || trim(strtolower($account->AT)) === 'operating expenses')
+                                                    <option value="{{ $account->id }}_{{ $account->Account }}_{{ $account->AT }}">
+                                                        {{ $account->Account }} - ({{ $account->AT }}, {{ $account->Category }})
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                                
                                             </select>
                                             <div class="row visually-hidden expense-form">
                                                 <div class="col-sm-6">
@@ -64,7 +119,8 @@
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">Start Date</span>
                                                         </div>
-                                                        <input type="month" name="start-month" class="form-control start-date">
+                                                        <input type="month" name="start-month"
+                                                            class="form-control start-date">
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
@@ -72,19 +128,20 @@
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">End Date</span>
                                                         </div>
-                                                        <input type="month" name="end-month" class="form-control end-date">
+                                                        <input type="month" name="end-month"
+                                                            class="form-control end-date">
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-sm-12 months-container m-3">
-                                             </div>
+                                            </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="saved-months-table text-sm">
                                                 <table class="table" id="saved-months">
-                                                    
+
                                                     {{-- <tbody class="saved-months123"> --}}
-                                                        {{-- <table class="table table-hover">
+                                                    {{-- <table class="table table-hover">
                                                                 <tr class="external-service" data-widget="expandable-table" aria-expanded="false">
                                                                     <td>
                                                                         asd
@@ -115,96 +172,57 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    {{-- Income form --}}
-                    <div class="multi-step-journal income" style="display: none;">
-                        <form action="" class="income-form">
-                            <div class="card elevation-2 mt-5">
-                                <h6 class="h4 fw-bold p-3" style="color:#063D58;">Income</h6>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <select name="income" class="form-control" id="income-category">
-                                                <option value="" selected hidden>Select Account</option>
-                                                @foreach ($accounts as $account)
-                                                        <option value="{{$account->id}}_{{$account->Account}}">{{$account->Account}} - ({{$account->AT}}, {{$account->Category}})</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="row visually-hidden income-form">
-                                                <div class="col-sm-6">
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">Start Date</span>
-                                                        </div>
-                                                        <input type="month" name="start-month" class="form-control income-start-date">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">End Date</span>
-                                                        </div>
-                                                        <input type="month" name="end-month" class="form-control income-end-date">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 income-months-container m-3">
-                                             </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="saved-months-table text-sm">
-                                                <table class="table" id="saved-income-months">
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>    
+                        {{--      --}}
                     </div>
                     <div class="multi-step-journal assets" style="display: none;">
-                            <div class="card border">
-                                <h6 class="h4 fw-bold p-3" style="color:#063D58;">Asset</h6>
-                                <form action="" class="journal-asset-form">
-                                    <div class="revenue-container p-3">
-                                        <label for="Revenue">Revenue</label>
-                                    <input type="text" name="Revenue" id="revenue" class="form-control" placeholder="Enter revenue">
-                                    </div>
-                                    <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                        <select class="form-control" name="asset-account" id="asset_account">
-                                            <option value="" selected hidden>Select asset type</option>
-                                            @foreach ($ats as $at)
-                                                <option value="asset_{{$at->id}}">{{$at->AccountType}}</option>
-                                            @endforeach
-                                        </select>
-                                        <select name="asset-account-name" id="asset_account_name" class="form-control my-3">
-                                            <option value="" selected hidden>Select an asset type first</option>
-                                        </select>
-                                        <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
-                                        {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
-                                        {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
-                                        {{-- <div class="row w-100">
+                        <div class="card border">
+                            <h6 class="h4 fw-bold p-3" style="color:#063D58;">Asset</h6>
+                            <form action="" class="journal-asset-form">
+                                <div class="revenue-container p-3">
+                                    <label for="Revenue">Revenue</label>
+                                    <input type="text" name="Revenue" id="revenue" class="form-control"
+                                        placeholder="Enter revenue">
+                                </div>
+                                <div class="card-body"
+                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                    <select class="form-control" name="asset-account" id="asset_account">
+                                        <option value="" selected hidden>Select asset type</option>
+                                        @foreach ($ats as $at)
+                                            <option value="asset_{{ $at->id }}">{{ $at->AccountType }}</option>
+                                        @endforeach
+                                    </select>
+                                    <select name="asset-account-name" id="asset_account_name" class="form-control my-3">
+                                        <option value="" selected hidden>Select an asset type first</option>
+                                    </select>
+                                    <input type="text" name="asset-amount" class="form-control"
+                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                    {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
+                                    {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
+                                    {{-- <div class="row w-100">
                                         </div> --}}
-                                    </div>
-                                </form>
-                                {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
-                            </div>
+                                </div>
+                            </form>
+                            {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
+                        </div>
                     </div>
                     <div class="multi-step-journal liability" style="display: none;">
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Liability</h6>
                             <form action="" class="journal-liability-form">
-                            <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="card-body"
+                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                                     <select class="form-control" name="liability-account" id="liability_account">
                                         <option value="" selected hidden>Select asset type</option>
                                         @foreach ($lts as $lt)
-                                            <option value="liability_{{$lt->id}}">{{$lt->AccountType}}</option>
+                                            <option value="liability_{{ $lt->id }}">{{ $lt->AccountType }}</option>
                                         @endforeach
                                     </select>
-                                    <select name="liability-account-name" id="liability_account_name" class="form-control my-3">
+                                    <select name="liability-account-name" id="liability_account_name"
+                                        class="form-control my-3">
                                         <option value="" selected hidden>Select a liability type first</option>
                                     </select>
-                                    <input type="text" name="liability-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                    <input type="text" name="liability-amount" class="form-control"
+                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
                                     {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
                                     {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
                                     {{-- <div class="row w-100">
@@ -218,17 +236,19 @@
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Owner's Equity</h6>
                             <form action="" class="journal-oe-form">
-                            <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="card-body"
+                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                                     <select class="form-control" name="oe-account" id="oe_account">
                                         <option value="" selected hidden>Select asset type</option>
                                         @foreach ($oets as $oet)
-                                            <option value="oe_{{$oet->id}}">{{$oet->AccountType}}</option>
+                                            <option value="oe_{{ $oet->id }}">{{ $oet->AccountType }}</option>
                                         @endforeach
                                     </select>
                                     <select name="oe-account-name" id="oe_account_name" class="form-control my-3">
                                         <option value="" selected hidden>Select a owner's equity type first</option>
                                     </select>
-                                    <input type="text" name="oe-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                    <input type="text" name="oe-amount" class="form-control"
+                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
                                     {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
                                     {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
                                     {{-- <div class="row w-100">
@@ -323,7 +343,8 @@
 
                     <div class="multi-step-action-buttons float-right">
                         <button class="btn btn-secondary prev-btn" style="font-weight: bold;">Previous</button>
-                        <button class="btn next-btn" style="background: #063D58; font-weight: bold; color: whitesmoke;">Next</button>
+                        <button class="btn next-btn"
+                            style="background: #063D58; font-weight: bold; color: whitesmoke;">Next</button>
                         <button class="btn btn-primary save-btn" style="display:none;">Save</button>
                     </div>
                 </div>
@@ -333,50 +354,66 @@
                     <div class="row">
                         <div class="col border">
                             <div class="card fo-card rounded-0">
-                                <center><h4 class="h4 fw-bold text-dark">Financial Operation</h4></center>
-                                <center><h5 class="h5 fw-bold text-dark">{{$client->CompanyName}}</h5></center>
-                                <center><h6 class="h6 text-dark">{{$client->CompanyAddress }}</h6></center>
+                                <center>
+                                    <h4 class="h4 fw-bold text-dark">Financial Operation</h4>
+                                </center>
+                                <center>
+                                    <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
+                                </center>
+                                <center>
+                                    <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
+                                </center>
                                 <div class="row">
-                                    <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the year Ended <span class="float-right">2024</span></div>
+                                    <div class="col-sm-12"
+                                        style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the
+                                        year Ended <span class="float-right">2024</span></div>
                                     <div class="col-sm-12"></div>
                                     <div class="col-sm-12">
                                         <div class="row">
                                             <span class="float-left fw-bold mt-5">Revenues</span>
                                             <div class="col-sm-12 ml-3 text-dark" id="append-expenses-choy">
-                                                asd
                                                 {{-- <span class="revenue-accounts float-left">Rev Account</span>
                                                 <span class="revenue-amount float-right">Rev Amount</span> --}}
+                                            </div>
+                                            <div class="col-sm-12 ml-3 append-expense-total">
+                                                {{-- <span class="revenue-accounts float-left">Total</span>
+                                                <span class="revenue-amount float-right">00.00</span> --}}
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="row">
                                             <span class="float-left fw-bold">Less:Direct Cost</span>
+                                            <div class="col-sm-12 ml-3 append-ldc">
+                                               {{-- append less direct costs here --}}
+                                            </div>
                                             <div class="col-sm-12 ml-3">
-                                                <span class="expenses-accounts float-left">Expenses Account</span>
-                                                <span class="expenses-amount float-right">Rev Amount</span><br>
+                                                <span class="float-left fw-bold">Total Direct Cost</span>
+                                                <span class="expenses-total float-right"></span>
                                             </div>
-                                            <div class="col-sm-12">
-                                                <span class="expenses-total float-left fw-bold">Total Direct Cost</span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="expenses-total float-left fw-bold">Total Gross Income from Engineering Services Cost</span>
+                                            <div class="col-sm-12 m-3 mt-0 pt-0">
+                                                <span class="float-left fw-bold">Total Gross Income from
+                                                    Engineering Services Cost</span>
+                                                    <span class="gries-total float-right fw-bold"></span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <span class="float-left fw-bold">Total Gross Income</span>
-                                        <span class="float-right fw-bold">Amount</span>
+                                        <span class="float-right fw-bold tgi"></span>
                                     </div>
                                     <br>
                                     <div class="col-sm-12">
                                         <div class="row">
                                             <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
-                                            <div class="col-sm-12 ml-3">
-                                                <span class="expenses-accounts float-left">Expenses Account</span>
-                                                <span class="revenue-amount float-right">Expenses Amount</span>
+                                            <div class="col-sm-12 ml-3 append-oe">
+                                                {{-- <span class="expenses-accounts float-left">Expenses Account</span>
+                                                <span class="revenue-amount float-right">Expenses Amount</span> --}}
                                             </div>
-                                            <div class="col-sm-12 fw-bold">Total Operating Expense</div>
+                                            <div class="col-sm-12 fw-bold">
+                                                <span class="float-left fw-bold">Total Operating Expense</span>
+                                                <span class="float-right fw-bold oe-total"></span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
@@ -389,14 +426,15 @@
                                                 <span class="float-left fw-bold">Certified True & Correct</span>
                                             </div>
                                             <div class="col-sm-12">
-                                                <span class="float-left fw-bold" style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
+                                                <span class="float-left fw-bold"
+                                                    style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
                                             </div>
                                             <div class="col-sm-12">
                                                 <span class="float-left">Proprietor</span>
                                             </div>
                                             <div class="col-sm-12">
                                                 <span class="float-left">TIN: 291-273-180-000</span>
-        
+
                                             </div>
                                         </div>
                                     </div>
