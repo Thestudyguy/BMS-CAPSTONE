@@ -178,28 +178,35 @@
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Asset</h6>
                             <form action="" class="journal-asset-form">
-                                <div class="revenue-container p-3">
-                                    <label for="Revenue">Revenue</label>
-                                    <input type="text" name="Revenue" id="revenue" class="form-control"
-                                        placeholder="Enter revenue">
-                                </div>
-                                <div class="card-body"
-                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <select class="form-control" name="asset-account" id="asset_account">
+                                <div class="card-body">{{-- style="display: flex; flex-direction: column; justify-content: center; align-items: center;" --}}
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <select class="form-control" name="assetType" id="asset_account">
                                         <option value="" selected hidden>Select asset type</option>
                                         @foreach ($ats as $at)
                                             <option value="asset_{{ $at->id }}">{{ $at->AccountType }}</option>
                                         @endforeach
                                     </select>
-                                    <select name="asset-account-name" id="asset_account_name" class="form-control my-3">
+                                    <select name="assetAccount" id="asset_account_name" class="form-control my-3">
                                         <option value="" selected hidden>Select an asset type first</option>
                                     </select>
-                                    <input type="text" name="asset-amount" class="form-control"
+                                    <input type="text" name="assetAmount" class="form-control"
                                         placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
-                                    {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
-                                    {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
-                                    {{-- <div class="row w-100">
-                                        </div> --}}
+                                    <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table class="table table-hover">
+                                                <thead">
+                                                    <tr>
+                                                        <td style="font-size: 0.8em;">Asset Type</td>
+                                                        <td style="font-size: 0.8em;">Asset Account</td>
+                                                        <td style="font-size: 0.8em;">Amount</td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="append-asset-accounts"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                             {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
@@ -444,7 +451,86 @@
                     </div>
                 </div>
                 <div class="col-sm-6 border">
-                    Statement of Financial Position
+                   <div class="row">
+                    <div class="col border">
+                        <div class="card fp-card rounded-0">
+                                <center>
+                                    <h4 class="h4 fw-bold text-dark">Financial Position</h4>
+                                </center>
+                                <center>
+                                    <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
+                                </center>
+                                <center>
+                                    <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
+                                </center>
+                                <div class="row">
+                                    <div class="col-sm-12"style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">
+                                        <span class="float-left text-sm">For the years ended november</span>
+                                    </div>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="col-sm-12">
+                                        {{-- <span class="fw-bold text-md float-left">Current Assets</span>
+                                        <span class="fw-bold text-md float-left">Total Current Assets</span> --}}
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left">Current Assets</span>
+                                                <div class="col-sm-12 ml-3 append-ca"></div>
+                                            </div>
+                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
+                                                <span class="fw-bold text-md float-left ml-3">Total Current Assets</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 m-3"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left">Non-Current Assets</span><br>
+                                                <div class="col-sm-12 ml-3 append-nca"></div>
+                                            </div>
+                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
+                                                <span class="fw-bold text-md float-left ml-3">Total Non-Current Assets</span>
+                                                <span class="fw-bold text-md float-right tnca-amount"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 m-3"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left">Fixed Assets</span>
+                                                <div class="col-sm-12 ml-3 append-fa"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 m-3"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;"s>
+                                                <span class="fw-bold text-md float-left">Total Assets</span>
+                                                <span class="fw-normal text-sm float-right total-assets"></span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left">Current Liabilities</span>
+                                                <div class="col-sm-12 ml-3 append-cl"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 m-3"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
+                                                <div class="col-sm-12 ml-3 append-oenw"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 m-3"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-bold text-md float-left">Total Liabilities & Capital</span>
+                                                <span class="fw-normal text-md float-right tlc"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                   </div>
                 </div>
             </div>
         </div>
