@@ -462,6 +462,8 @@ $(document).ready(function () {
     //asset 
     $(document).on('change', '#asset_account', function () {
         let at = $(this).val();
+        console.log(at);
+        
         $.ajax({
             type: 'POST',
             url: `get-account-types-${at}`,
@@ -540,82 +542,105 @@ $(document).ready(function () {
     
 
 $('.save-asset-info').on('click', function(e) {
-    e.preventDefault(); // Prevent the default form submission
+    e.preventDefault();
 
-    var hasErrors = false; // Flag for validation
-    var assetForm = $('.journal-asset-form').serializeArray(); // Get form data
-    var accountType = ''; // Variable to hold the selected asset type
-    var assetAccount = ''; // Variable to hold the selected asset account
-    var assetAmount = ''; // Variable to hold the asset amount
+    var hasErrors = false;
+    var assetForm = $('.journal-asset-form').serializeArray();
+    var accountType = '';
+    var assetAccount = '';
+    var assetAmount = ''; 
 
-    // Clear previous validation classes
     $('.journal-asset-form input, .journal-asset-form select').removeClass('is-invalid');
 
-    // Validate inputs and extract values
     $.each(assetForm, function(index, data) {
         if (data.value === '') {
             $(`.journal-asset-form [name='${data.name}']`).addClass('is-invalid');
-            hasErrors = true; // Set error flag if any input is invalid
+            hasErrors = true;
         }
         if (data.name === 'assetType') {
-            accountType = data.value; // Capture the asset type
+            accountType = data.value;
         } else if (data.name === 'assetAccount') {
-            assetAccount = data.value; // Capture the asset account
+            assetAccount = data.value;
         } else if (data.name === 'assetAmount') {
-            assetAmount = data.value; // Capture the asset amount
+            assetAmount = data.value;
         }
     });
 
-    // If there are validation errors, show a warning and exit
     if (hasErrors) {
-        alert('Please fill all fields'); // Replace with your Toast implementation
-        return; // Stop further processing
+        Toast.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill all fields',
+        });
+        return;
     }
 
-    // Create the asset structure
     if (!assetObj[accountType]) {
-        // Initialize if the asset type doesn't exist
         assetObj[accountType] = {
             accounts: []
         };
     }
+    var accountExists = assetObj[accountType].accounts.some(function(account) {
+        return account.assetAccount === assetAccount;
+    });
 
-    // Add the account details
+    if (accountExists) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Conflict',
+            text: 'This asset account already exists for the selected asset type.',
+        });
+        return;
+    }
+
     assetObj[accountType].accounts.push({
         assetAccount: assetAccount,
         amount: assetAmount
     });
 
-    // Debugging: Log the asset object
-    console.log("Asset Object:", assetObj);
+    displayAssetAccounts();
+    $('.journal-asset-form')[0].reset();
+});
 
-    // Prepare HTML for displaying the assets
+$(document).on('click', '.remove-asset', function(){
+    var assetAccount = $(this).data('account');
+    var accountType = $(this).data('type');
+
+    console.log(assetObj);
+    
+    if (assetObj[accountType]) {
+        assetObj[accountType].accounts = assetObj[accountType].accounts.filter(function(account) {
+            return account.assetAccount !== assetAccount;
+        });
+
+        if (assetObj[accountType].accounts.length === 0) {
+            delete assetObj[accountType];
+        }
+    }
+    displayAssetAccounts();
+});
+
+function displayAssetAccounts() {
     var assetDisplay = '';
     $.each(assetObj, function(key, value) {
         $.each(value.accounts, function(i, account) {
             assetDisplay += `
                 <tr>
-                    <td style="font-size: 0.8em;">${key}</td>
-                    <td style="font-size: 0.8em;">${account.assetAccount}</td>
+                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.assetAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
+                    <td style="font-size: 0.8em;">
+                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.assetAccount}" data-type="${key}">
+                            <div class="fas fa-times"></div>
+                        </span>
+                    </td>
                 </tr>
             `;
         });
     });
 
-    // Inject the generated HTML into the DOM
     $('.append-asset-accounts').html(assetDisplay);
-    
-    // Clear the form fields after saving
-    $('.journal-asset-form')[0].reset(); // Reset form
-    $('#asset_account_name').html('<option value="" selected hidden>Select an asset type first</option>'); // Reset asset account dropdown
-
-    // Debugging: Log the final HTML
-    console.log("Final Asset Display HTML:", assetDisplay);
-});
-
-
-
+}
     // let assetFlag = true;
     // $('.save-asset-info').click(function(e){
     //     assetFlag = true;
@@ -645,166 +670,154 @@ $('.save-asset-info').on('click', function(e) {
     var oetotal = 0;
     $('.next-btn').on('click', function () {
 
-        // if (currentStep === 1) {
-        //     if (Object.keys(incomeObj).length === 0) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Missing Data',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
+        if (currentStep === 1) {
+            if (Object.keys(incomeObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
 
-        //     $('#append-expenses-choy').empty();
-        //     incometotal = 0;
-        //     var expensesHtml = '';
+            $('#append-expenses-choy').empty();
+            incometotal = 0;
+            var expensesHtml = '';
 
-        //     $.each(incomeObj, function (accountName, accountData) {
-        //         var account = accountName.split('_');
-        //         var accountTotal = 0;
+            $.each(incomeObj, function (accountName, accountData) {
+                var account = accountName.split('_');
+                var accountTotal = 0;
 
-        //         $.each(accountData.months, function (index, month) {
-        //             var preparedValue = month.value.replace(/[^0-9]/g, '');
-        //             var valToFloat = parseFloat(preparedValue);
-        //             accountTotal += valToFloat;
-        //         });
-        //         var formattedAccountTotal = accountTotal.toLocaleString();
-        //         incometotal += accountTotal;
-        //         expensesHtml += `
-        //             <div class="row">
-        //                 <div class="col-sm-6 text-left">${account[1]}</div>
-        //                 <div class="col-sm-6 text-right">${formattedAccountTotal}</div>
-        //             </div>`;
-        //     });
+                $.each(accountData.months, function (index, month) {
+                    var preparedValue = month.value.replace(/[^0-9]/g, '');
+                    var valToFloat = parseFloat(preparedValue);
+                    accountTotal += valToFloat;
+                });
+                var formattedAccountTotal = accountTotal.toLocaleString();
+                incometotal += accountTotal;
+                expensesHtml += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${account[1]}</div>
+                        <div class="col-sm-6 text-right">${formattedAccountTotal}</div>
+                    </div>`;
+            });
 
-        //     var formattedTotal = incometotal.toLocaleString();
-        //     $('#append-expenses-choy').append(expensesHtml);
+            var formattedTotal = incometotal.toLocaleString();
+            $('#append-expenses-choy').append(expensesHtml);
 
-        //     var totalExpensesHtml = `
-        //         <div class="row mt-3">
-        //             <div class="col-sm-6 text-left"><strong>Total:</strong></div>
-        //             <div class="col-sm-6 text-right"><strong>${formattedTotal}</strong></div>
-        //         </div>`;
+            var totalExpensesHtml = `
+                <div class="row mt-3">
+                    <div class="col-sm-6 text-left"><strong>Total:</strong></div>
+                    <div class="col-sm-6 text-right"><strong>${formattedTotal}</strong></div>
+                </div>`;
 
-        //     $('.append-expense-total').html(totalExpensesHtml);
-        // }
+            $('.append-expense-total').html(totalExpensesHtml);
+        }
 
 
-        // if (currentStep === 2) {
-        //     $('.append-ldc').empty();
-        //     $('.expenses-total').text('');
-        //     $('.append-oe').empty('');
-        //     $('.oe-total').text('');
-        //     var expenseHTML = '';
-        //     var operatingExpenseHTML = '';
-        //     expensetotal = 0;
-        //     oetotal = 0;
+        if (currentStep === 2) {
+            $('.append-ldc').empty();
+            $('.expenses-total').text('');
+            $('.append-oe').empty('');
+            $('.oe-total').text('');
+            var expenseHTML = '';
+            var operatingExpenseHTML = '';
+            expensetotal = 0;
+            oetotal = 0;
         
-        //     if (Object.keys(expensesObj).length === 0) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Missing Data',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
+            if (Object.keys(expensesObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
         
-        //     var hasLessDirectCost = false;
-        //     var hasOperatingExpenses = false;
+            var hasLessDirectCost = false;
+            var hasOperatingExpenses = false;
         
-        //     $.each(expensesObj, (index, incomeData) => {
-        //         var expenseAccount = index.split('_');
-        //         var expenseType = expenseAccount[2];
+            $.each(expensesObj, (index, incomeData) => {
+                var expenseAccount = index.split('_');
+                var expenseType = expenseAccount[2];
         
-        //         if (expenseType === 'Less Direct Cost') {
-        //             hasLessDirectCost = true;
-        //         } else if (expenseType === 'Operating Expenses') {
-        //             hasOperatingExpenses = true;
-        //         }
-        //     });
+                if (expenseType === 'Less Direct Cost') {
+                    hasLessDirectCost = true;
+                } else if (expenseType === 'Operating Expenses') {
+                    hasOperatingExpenses = true;
+                }
+            });
         
-        //     if (!hasLessDirectCost || !hasOperatingExpenses) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Missing Data',
-        //             text: 'Both "Less Direct Cost" and "Operating Expenses" entries are required.'
-        //         });
-        //         return;
-        //     }
+            if (!hasLessDirectCost || !hasOperatingExpenses) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Data',
+                    text: 'Both "Less Direct Cost" and "Operating Expenses" entries are required.'
+                });
+                return;
+            }
         
-        //     $.each(expensesObj, (index, incomeData) => {
-        //         var expenseAccount = index.split('_');
-        //         var expenseType = expenseAccount[2];
-        //         var expenseAccTotal = 0;
-        //         var operatingTotal = 0;
-        //         if (expenseType === 'Less Direct Cost') {
-        //             $.each(incomeData.months, (index, expenseData) => {
-        //                 var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
-        //                 var valToFloat = parseFloat(preparedValue);
-        //                 expenseAccTotal += valToFloat;
-        //             });
+            $.each(expensesObj, (index, incomeData) => {
+                var expenseAccount = index.split('_');
+                var expenseType = expenseAccount[2];
+                var expenseAccTotal = 0;
+                var operatingTotal = 0;
+                if (expenseType === 'Less Direct Cost') {
+                    $.each(incomeData.months, (index, expenseData) => {
+                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var valToFloat = parseFloat(preparedValue);
+                        expenseAccTotal += valToFloat;
+                    });
         
-        //             var formatExpAccTotal = expenseAccTotal.toLocaleString();
-        //             expensetotal += expenseAccTotal;
+                    var formatExpAccTotal = expenseAccTotal.toLocaleString();
+                    expensetotal += expenseAccTotal;
         
-        //             expenseHTML += `
-        //             <div class="row">
-        //                 <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
-        //                 <div class="col-sm-6 text-right">${formatExpAccTotal}</div>
-        //             </div>
-        //             `;
-        //         }else if(expenseType === 'Operating Expenses'){
-        //             $.each(incomeData.months, (index, expenseData) => {
-        //                 var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
-        //                 var valToFloat = parseFloat(preparedValue);
-        //                 operatingTotal += valToFloat;
-        //             });
+                    expenseHTML += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
+                        <div class="col-sm-6 text-right">${formatExpAccTotal}</div>
+                    </div>
+                    `;
+                }else if(expenseType === 'Operating Expenses'){
+                    $.each(incomeData.months, (index, expenseData) => {
+                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var valToFloat = parseFloat(preparedValue);
+                        operatingTotal += valToFloat;
+                    });
         
-        //             var formatOperatingTotal = operatingTotal.toLocaleString();
-        //             oetotal += operatingTotal;
+                    var formatOperatingTotal = operatingTotal.toLocaleString();
+                    oetotal += operatingTotal;
         
-        //             operatingExpenseHTML += `
-        //             <div class="row">
-        //                 <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
-        //                 <div class="col-sm-6 text-right">${formatOperatingTotal}</div>
-        //             </div>
-        //             `;
-        //         }
-        //     });
+                    operatingExpenseHTML += `
+                    <div class="row">
+                        <div class="col-sm-6 text-left">${expenseAccount[1]}</div>
+                        <div class="col-sm-6 text-right">${formatOperatingTotal}</div>
+                    </div>
+                    `;
+                }
+            });
         
-        //     var totalGTI = incometotal - expensetotal;
-        //     var totalGI = totalGTI - oetotal;
-        //     $('.gries-total').text(totalGTI.toLocaleString());
-        //     $('.tgi').text(totalGTI.toLocaleString());
-        //     $('.expenses-total').text(expensetotal.toLocaleString());
-        //     $('.append-ldc').append(expenseHTML);
-        //     $('.append-oe').append(operatingExpenseHTML);
-        //     $('.oe-total').text(oetotal.toLocaleString());
-        //     $('.net-amount').text(totalGI.toLocaleString());
+            var totalGTI = incometotal - expensetotal;
+            var totalGI = totalGTI - oetotal;
+            $('.gries-total').text(totalGTI.toLocaleString());
+            $('.tgi').text(totalGTI.toLocaleString());
+            $('.expenses-total').text(expensetotal.toLocaleString());
+            $('.append-ldc').append(expenseHTML);
+            $('.append-oe').append(operatingExpenseHTML);
+            $('.oe-total').text(oetotal.toLocaleString());
+            $('.net-amount').text(totalGI.toLocaleString());
 
-        // }
+        }
         
         
 
 
         // if (currentStep === 3) {
-        //     assetFlag = true;
-        //     let assetForm = $('.journal-asset-form').serializeArray();
-        //     $.each(assetForm, (index, assetData) => {
-        //         if (assetData.value.trim() === '') {
-        //             assetFlag = false;
-        //             $(`.journal-asset-form [name='${assetData.name}']`).addClass('is-invalid');
-        //         } else {
-        //             $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
-        //             assetObj[assetData.name] = assetData.value;
-        //         }
-        //     });
-
-        //     if (!assetFlag) {
+        //     if (Object.keys(assetObj).length === 0) {
         //         Toast.fire({
         //             icon: 'warning',
-        //             title: 'Missing Fields',
-        //             text: 'Please fill all fields'
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
         //         });
         //         return;
         //     }

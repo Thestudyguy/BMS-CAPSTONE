@@ -211,3 +211,47 @@ $('.mail-client-bs').click(function(){
 });
 
 
+
+
+
+
+
+
+
+
+///test
+
+const billings = [
+    { 
+        billing_id: 'BILL001', 
+        client_parent_services_id: 1, // Example ID
+        client_sub_services_id: 2, // Example ID
+        added_description_id: 3, // Example ID
+        due_date: '2024-12-01' 
+    },
+    { 
+        billing_id: 'BILL002', 
+        client_parent_services_id: 1, 
+        client_sub_services_id: 2, 
+        added_description_id: 3, 
+        due_date: '2024-12-15' 
+    }
+];
+
+$.ajax({
+    type: 'POST',
+    url: '/your-route-to-mail-client-billing',
+    data: {
+        accountDescriptions: yourAccountDescriptions,
+        subServiceObj: yourSubServiceObj,
+        serviceObj: yourServiceObj,
+        billings: billings, // Ensure billing data includes all necessary IDs
+        client_id: yourClientId // Include client_id if necessary
+    },
+    success: function(response) {
+        console.log(response.message);
+    },
+    error: function(xhr) {
+        console.error(xhr.responseJSON.error);
+    }
+});

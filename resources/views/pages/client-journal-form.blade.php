@@ -184,7 +184,7 @@
                                         <select class="form-control" name="assetType" id="asset_account">
                                         <option value="" selected hidden>Select asset type</option>
                                         @foreach ($ats as $at)
-                                            <option value="asset_{{ $at->id }}">{{ $at->AccountType }}</option>
+                                            <option value="{{ $at->AccountType }}_{{ $at->id }}">{{ $at->AccountType }}</option>
                                         @endforeach
                                     </select>
                                     <select name="assetAccount" id="asset_account_name" class="form-control my-3">
@@ -198,6 +198,7 @@
                                             <table class="table table-hover">
                                                 <thead">
                                                     <tr>
+                                                        
                                                         <td style="font-size: 0.8em;">Asset Type</td>
                                                         <td style="font-size: 0.8em;">Asset Account</td>
                                                         <td style="font-size: 0.8em;">Amount</td>
@@ -216,24 +217,37 @@
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Liability</h6>
                             <form action="" class="journal-liability-form">
-                                <div class="card-body"
-                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <select class="form-control" name="liability-account" id="liability_account">
-                                        <option value="" selected hidden>Select asset type</option>
-                                        @foreach ($lts as $lt)
-                                            <option value="liability_{{ $lt->id }}">{{ $lt->AccountType }}</option>
-                                        @endforeach
-                                    </select>
-                                    <select name="liability-account-name" id="liability_account_name"
-                                        class="form-control my-3">
-                                        <option value="" selected hidden>Select a liability type first</option>
-                                    </select>
-                                    <input type="text" name="liability-amount" class="form-control"
-                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
-                                    {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
-                                    {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
-                                    {{-- <div class="row w-100">
-                                    </div> --}}
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <select class="form-control" name="liability-account" id="liability_account">
+                                                <option value="" selected hidden>Select asset type</option>
+                                                @foreach ($lts as $lt)
+                                                    <option value="liability_{{ $lt->id }}">{{ $lt->AccountType }}</option>
+                                                @endforeach
+                                            </select>
+                                            <select name="liability-account-name" id="liability_account_name"
+                                                class="form-control my-3">
+                                                <option value="" selected hidden>Select a liability type first</option>
+                                            </select>
+                                            <input type="text" name="liability-amount" class="form-control"
+                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table class="table table-hover">
+                                                <thead">
+                                                    <tr>
+                                                        
+                                                        <td style="font-size: 0.8em;">Asset Type</td>
+                                                        <td style="font-size: 0.8em;">Asset Account</td>
+                                                        <td style="font-size: 0.8em;">Amount</td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="append-liability-accounts"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                   
                                 </div>
                             </form>
                             {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58">Save</button> --}}
@@ -243,19 +257,35 @@
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Owner's Equity</h6>
                             <form action="" class="journal-oe-form">
-                                <div class="card-body"
-                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                    <select class="form-control" name="oe-account" id="oe_account">
-                                        <option value="" selected hidden>Select asset type</option>
-                                        @foreach ($oets as $oet)
-                                            <option value="oe_{{ $oet->id }}">{{ $oet->AccountType }}</option>
-                                        @endforeach
-                                    </select>
-                                    <select name="oe-account-name" id="oe_account_name" class="form-control my-3">
-                                        <option value="" selected hidden>Select a owner's equity type first</option>
-                                    </select>
-                                    <input type="text" name="oe-amount" class="form-control"
-                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <select class="form-control" name="oe-account" id="oe_account">
+                                                <option value="" selected hidden>Select asset type</option>
+                                                @foreach ($oets as $oet)
+                                                    <option value="oe_{{ $oet->id }}">{{ $oet->AccountType }}</option>
+                                                @endforeach
+                                            </select>
+                                            <select name="oe-account-name" id="oe_account_name" class="form-control my-3">
+                                                <option value="" selected hidden>Select a owner's equity type first</option>
+                                            </select>
+                                            <input type="text" name="oe-amount" class="form-control"
+                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table class="table table-hover">
+                                                <thead">
+                                                    <tr>
+                                                        
+                                                        <td style="font-size: 0.8em;">Asset Type</td>
+                                                        <td style="font-size: 0.8em;">Asset Account</td>
+                                                        <td style="font-size: 0.8em;">Amount</td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="append-oe-accounts"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                     {{-- <button class="btn btn-sm mb-5 text-light fw-bold save-asset-info" style="background: #063D58; align-self: flex-end;">Save</button> --}}
                                     {{-- <input type="text" name="asset-amount" class="form-control" placeholder="Enter amount..." oninput="formatValueInput(this)" id=""> --}}
                                     {{-- <div class="row w-100">
@@ -474,8 +504,13 @@
                                         <span class="fw-bold text-md float-left">Total Current Assets</span> --}}
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <span class="fw-bold text-md float-left">Current Assets</span>
-                                                <div class="col-sm-12 ml-3 append-ca"></div>
+                                                <div class="col-sm-12">
+                                                    <span class="fw-bold text-md">Current Assets</span>
+                                                </div>
+                                                <div class="col-sm-12 ml-3 append-ca">
+                                                    
+                                                </div>
+                                                
                                             </div>
                                             <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
                                                 <span class="fw-bold text-md float-left ml-3">Total Current Assets</span>
