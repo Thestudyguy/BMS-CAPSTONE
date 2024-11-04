@@ -540,77 +540,68 @@ $(document).ready(function () {
     
 
 $('.save-asset-info').on('click', function(e) {
-    e.preventDefault(); // Prevent the default form submission
+    e.preventDefault();
 
-    var hasErrors = false; // Flag for validation
-    var assetForm = $('.journal-asset-form').serializeArray(); // Get form data
-    var accountType = ''; // Variable to hold the selected asset type
-    var assetAccount = ''; // Variable to hold the selected asset account
-    var assetAmount = ''; // Variable to hold the asset amount
+    var hasErrors = false;
+    var assetForm = $('.journal-asset-form').serializeArray();
+    var accountType = ''; 
+    var assetAccount = '';
+    var assetAmount = '';
 
-    // Clear previous validation classes
     $('.journal-asset-form input, .journal-asset-form select').removeClass('is-invalid');
 
-    // Validate inputs and extract values
     $.each(assetForm, function(index, data) {
         if (data.value === '') {
             $(`.journal-asset-form [name='${data.name}']`).addClass('is-invalid');
-            hasErrors = true; // Set error flag if any input is invalid
+            hasErrors = true;
         }
         if (data.name === 'assetType') {
-            accountType = data.value; // Capture the asset type
+            accountType = data.value;
         } else if (data.name === 'assetAccount') {
-            assetAccount = data.value; // Capture the asset account
+            assetAccount = data.value; 
         } else if (data.name === 'assetAmount') {
-            assetAmount = data.value; // Capture the asset amount
+            assetAmount = data.value;
         }
     });
 
-    // If there are validation errors, show a warning and exit
     if (hasErrors) {
-        alert('Please fill all fields'); // Replace with your Toast implementation
-        return; // Stop further processing
+        Toast.fire({
+            icon: 'warning', 
+            title: 'Missing Fields', 
+            text: 'Please fill all fields'
+        });
+        return;
     }
 
-    // Create the asset structure
     if (!assetObj[accountType]) {
-        // Initialize if the asset type doesn't exist
         assetObj[accountType] = {
             accounts: []
         };
     }
 
-    // Add the account details
     assetObj[accountType].accounts.push({
         assetAccount: assetAccount,
         amount: assetAmount
     });
 
-    // Debugging: Log the asset object
-    console.log("Asset Object:", assetObj);
-
-    // Prepare HTML for displaying the assets
     var assetDisplay = '';
     $.each(assetObj, function(key, value) {
         $.each(value.accounts, function(i, account) {
             assetDisplay += `
                 <tr>
-                    <td style="font-size: 0.8em;">${key}</td>
-                    <td style="font-size: 0.8em;">${account.assetAccount}</td>
+                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.assetAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                 </tr>
             `;
         });
     });
 
-    // Inject the generated HTML into the DOM
     $('.append-asset-accounts').html(assetDisplay);
     
-    // Clear the form fields after saving
-    $('.journal-asset-form')[0].reset(); // Reset form
+    $('.journal-asset-form')[0].reset();
     $('#asset_account_name').html('<option value="" selected hidden>Select an asset type first</option>'); // Reset asset account dropdown
 
-    // Debugging: Log the final HTML
     console.log("Final Asset Display HTML:", assetDisplay);
 });
 
