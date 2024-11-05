@@ -749,8 +749,8 @@ $('.save-asset-info').on('click', function(e) {
 
     $('.append-oe-accounts').html(oeDisplay);
     
-    $('.journal-liability-form')[0].reset();
-    $('#liability_account_name').html('<option value="" selected hidden>Select an asset type first</option>');
+    $('.journal-oe-form')[0].reset();
+    $('#oe_account_name').html('<option value="" selected hidden>Select an account type first</option>');
     });
 
     let assetFlag = true;
@@ -759,8 +759,9 @@ $('.save-asset-info').on('click', function(e) {
     var incometotal = 0;
     var expensetotal = 0;
     var oetotal = 0;
+    var netIncome = 0;
     $('.next-btn').on('click', function () {
-
+        netIncome = 0;
         // if (currentStep === 1) {
         //     if (Object.keys(incomeObj).length === 0) {
         //         Toast.fire({
@@ -890,6 +891,7 @@ $('.save-asset-info').on('click', function(e) {
         
         //     var totalGTI = incometotal - expensetotal;
         //     var totalGI = totalGTI - oetotal;
+        //     netIncome = totalGI;
         //     $('.gries-total').text(totalGTI.toLocaleString());
         //     $('.tgi').text(totalGTI.toLocaleString());
         //     $('.expenses-total').text(expensetotal.toLocaleString());
@@ -899,100 +901,123 @@ $('.save-asset-info').on('click', function(e) {
         //     $('.net-amount').text(totalGI.toLocaleString());
 
         // }
-        
-        
 
+        if (currentStep === 3) {
+            var assetDisp = '';
+            var totalAssets = 0;
+            var totalNCA = 0;
+            var totalCA = 0;
+            var totalFA = 0;
+            $('.append-ca').html('');
+            $('.append-nca').html('');
+            $('.append-fa').html('');
+            if (Object.keys(assetObj).length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Empty Field',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
 
-        // if (currentStep === 3) {
-        //     var assetDisp = '';
-        //     var totalAssets = 0;
-        //     var totalNCA = 0;
-        //     var totalCA = 0;
-        //     var totalFA = 0;
-        //     if (Object.keys(assetObj).length === 0) {
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Empty Field',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
-
-        //     $.each(assetObj, (index, data)=>{
-        //         if(index.split('_')[0] === 'Current Asset'){
-        //             $.each(data.accounts, (index, accounts)=>{
-        //                 var caAmount = accounts.amount.replace(/[^0-9]/g, '');
-        //                 var preparedCAAmount = parseFloat(caAmount);
-        //                 totalCA += preparedCAAmount;
-        //                 $('.total-ca').text(totalCA.toLocaleString());            
-        //                 $('.append-ca').append(
-        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
-        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
-        //                 );
-        //             });
-        //         }
-        //         if(index.split('_')[0] === 'Non-Current Assets'){
-        //             $.each(data.accounts, (index, accounts)=>{
-        //                 var tncaAmount = accounts.amount.replace(/[^0-9]/g, '');
-        //                 var preparedTNCAAmount = parseFloat(tncaAmount);
-        //                 totalNCA += preparedTNCAAmount;
-        //                 $('.tnca-amount').text(totalNCA.toLocaleString());
-        //                 $('.append-nca').append(
-        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
-        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
-        //                 );
-        //             });
-        //         }
-        //         if(index.split('_')[0] === 'Fixed Assets'){
-        //             $.each(data.accounts, (index, accounts)=>{
-        //                 var faAmount = accounts.amount.replace(/[^0-9]/g, '');
-        //                 var preparedFAAmount = parseFloat(faAmount);
-        //                 totalFA += preparedFAAmount;
-        //                 $('.append-fa').append(
-        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
-        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
-        //                 );
-        //             });
-        //         }
-        //     });
-        //     totalAssets = totalCA + totalNCA + totalFA;
-        //     $('.total-assets').text(totalAssets.toLocaleString());
+            $.each(assetObj, (index, data)=>{
+                if(index.split('_')[0] === 'Current Asset'){
+                    $.each(data.accounts, (index, accounts)=>{
+                        var caAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var preparedCAAmount = parseFloat(caAmount);
+                        totalCA += preparedCAAmount;
+                        $('.total-ca').text(totalCA.toLocaleString());            
+                        $('.append-ca').append(
+                            `<div class="d-flex justify-content-between">
+                            <span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+                            <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>
+                            </div>`
+                        );
+                    });
+                }
+                if(index.split('_')[0] === 'Non-Current Assets'){
+                    $.each(data.accounts, (index, accounts)=>{
+                        var tncaAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var preparedTNCAAmount = parseFloat(tncaAmount);
+                        totalNCA += preparedTNCAAmount;
+                        $('.tnca-amount').text(totalNCA.toLocaleString());
+                        $('.append-nca').append(
+                           `<div class="d-flex justify-content-between">
+                            <span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+                            <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>
+                            </div>`
+                        );
+                    });
+                }
+                if(index.split('_')[0] === 'Fixed Assets'){
+                    $.each(data.accounts, (index, accounts)=>{
+                        var faAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var preparedFAAmount = parseFloat(faAmount);
+                        totalFA += preparedFAAmount;
+                        $('.append-fa').append(
+                            `<div class="d-flex justify-content-between">
+                            <span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+                            <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>
+                            </div>`
+                        );
+                    });
+                }
+            });
+            totalAssets = totalCA + totalNCA + totalFA;
+            $('.total-assets').text(totalAssets.toLocaleString());
             
-        // }
-        // if (currentStep === 4) {
-        //     var liDisp = '';
-        //     if(Object.keys(liabilityObj).length === 0){
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Empty Field',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //     }
+        }
+        if (currentStep === 4) {
+            var liDisp = ``;
+            if(Object.keys(liabilityObj).length === 0){
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Empty Field',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+            }
 
-        //     $.each(liabilityObj, (index, liability)=>{
-        //         $.each(liability.accounts, (index, accounts)=>{
-        //             console.log(accounts);
-        //             liDisp += `
-        //                 <span class="fw-normal float-left">${accounts.liabilityAccount.split('_')[0]}</span>
-        //                 <span class="fw-normal float-right">${accounts.amount}</span>
-        //             `;
+            $.each(liabilityObj, (index, liability)=>{
+                $.each(liability.accounts, (index, accounts)=>{
+                    console.log(accounts);
+                    liDisp += `
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-normal">${accounts.liabilityAccount.split('_')[0]}</span>
+                        <span class="fw-normal">${accounts.amount}</span>
+                    </div>
+                    `;
                     
-        //         });
-        //     });
-        //     $('.append-cl').append(liDisp);
-        // }
-        // if (currentStep === 5) {
-        //    if(Object.keys(oeObj).length === 0){
-        //         Toast.fire({
-        //             icon: 'warning',
-        //             title: 'Empty Field',
-        //             text: 'Please fill and save data for at least one entry.'
-        //         });
-        //         return;
-        //    }
-        // }
+                });
+            });
+            $('.append-cl').html(liDisp);
+        }
+        if (currentStep === 5) {
+            var oeDisp = ``;
+           if(Object.keys(oeObj).length === 0){
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Empty Field',
+                    text: 'Please fill and save data for at least one entry.'
+                });
+                return;
+           }
+
+           $.each(oeObj, (index, data)=>{
+            $.each(data.accounts, (index, oe)=>{
+                oeDisp += `
+                <div class="d-flex justify-content-between">
+                <span class="fw-normal">${oe.oeAccount.split('_')[0]}</span>
+                <span class="fw-normal">${oe.amount}</span>
+            </div>
+                `;
+            });
+            
+           });
+           $('.append-oenw').html(oeDisp);
+        }
         if (currentStep === 6) {
+            var additionalCapital = 0;
             var proceedFlag = true; 
             var adjustmentForms = $('.journal-adjustments-form').serializeArray();
             $.each(adjustmentForms, (index, input) => {
@@ -1014,6 +1039,14 @@ $('.save-asset-info').on('click', function(e) {
                 });
                 return;
             }
+            $.each(adjustmentObj, (index, data)=>{
+                // var addCap = additionalCapital += data;
+                var adjAmount = data.replace(/[^0-9]/g, '');
+                var preparedAdjustments = parseFloat(adjAmount);
+                additionalCapital += preparedAdjustments;
+            });
+            $('.additional-capital').text(additionalCapital.toLocaleString());
+            $('.fp-nc').text(netIncome.toLocaleString());
         }
         
         if (currentStep < 7) {

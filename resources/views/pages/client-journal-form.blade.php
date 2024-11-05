@@ -262,7 +262,7 @@
                     <div class="multi-step-journal equity" style="display: none;">
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Owner's Equity</h6>
-                            <form action="" class="journal-oe-form border border-danger">
+                            <form action="" class="journal-oe-form">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-sm-6">
@@ -470,7 +470,7 @@
                                     </div>
                                     <div class="col-sm-12">
                                         <span class="net-income fw-bold float-left">Net Income</span>
-                                        <span class="net-amount fw-bold float-right">20,000,000</span>
+                                        <span class="net-amount fw-bold float-right"></span>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="row">
@@ -546,8 +546,12 @@
                                         <div class="col-sm-6 m-3"></div>
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <span class="fw-bold text-md float-left">Fixed Assets</span>
-                                                <div class="col-sm-12 ml-3 append-fa"></div>
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <span class="fw-bold text-md float-left">Fixed Assets</span>
+                                                    </div>
+                                                    <div class="col-sm-12 ml-3 append-fa"></div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-sm-12 m-3"></div>
@@ -572,10 +576,43 @@
                                         <div class="col-sm-12 m-3"></div>
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
-                                                <div class="col-sm-12 ml-3 append-oenw"></div>
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
+                                                    </div>
+                                                    <div class="col-sm-12 ml-3 append-oenw">
+                                                        
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <span class="fw-normal">Add: Net increase to Capital</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="fw-normal float-left ml-3">Additional Capital</span>
+                                                <span class="fw-normal float-right additional-capital">asdsd</span>
+                                            </div>
+                                            <div class="col-sm-12" style="border-bottom: 1px solid #063D58;">
+                                                <span class="fw-normal float-left ml-3">Net Income</span>
+                                                <span class="fw-normal float-right fp-nc"></span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="fw-normal float-left">Appraisal Capital</span>
+                                                <span class="fw-normal float-right appraisal-capital"></span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="fw-normal float-left">Less Drawings</span>
+                                                <span class="fw-normal float-right less-drawings"></span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span class="fw-normal float-left">Capital End</span>
+                                                <span class="fw-normal float-right capital-end"></span>
+                                            </div>
+                                        </div>
+
                                         <div class="col-sm-12 m-3"></div>
                                         <div class="row">
                                             <div class="col-sm-12">
