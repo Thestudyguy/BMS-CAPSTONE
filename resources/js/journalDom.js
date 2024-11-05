@@ -1,7 +1,5 @@
 $(document).ready(function () {
     let currentStep = 1;
-
-    // Toast configurations
     var Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -22,6 +20,7 @@ $(document).ready(function () {
     let assetObj = {};
     let liabilityObj = {};
     let oeObj = {};
+    let adjustmentObj = {};
     $('#expense-category').on('change', function () {
         selectedAccount = $('#expense-category').val();
         $('.expense-form').removeClass('visually-hidden');
@@ -92,6 +91,7 @@ $(document).ready(function () {
         }
         $('.months-container').on('input', '.month-input', function () {
             formatValueInput(this);
+            
         });
 
 
@@ -462,6 +462,8 @@ $(document).ready(function () {
     //asset 
     $(document).on('change', '#asset_account', function () {
         let at = $(this).val();
+        console.log(at);
+        
         $.ajax({
             type: 'POST',
             url: `get-account-types-${at}`,
@@ -542,8 +544,8 @@ $(document).ready(function () {
 $('.save-asset-info').on('click', function(e) {
     e.preventDefault();
 
-    var hasErrors = false;
-    var assetForm = $('.journal-asset-form').serializeArray();
+    var hasErrors = false; 
+    var assetForm = $('.journal-asset-form').serializeArray(); 
     var accountType = ''; 
     var assetAccount = '';
     var assetAmount = '';
@@ -558,7 +560,7 @@ $('.save-asset-info').on('click', function(e) {
         if (data.name === 'assetType') {
             accountType = data.value;
         } else if (data.name === 'assetAccount') {
-            assetAccount = data.value; 
+            assetAccount = data.value;
         } else if (data.name === 'assetAmount') {
             assetAmount = data.value;
         }
@@ -566,8 +568,8 @@ $('.save-asset-info').on('click', function(e) {
 
     if (hasErrors) {
         Toast.fire({
-            icon: 'warning', 
-            title: 'Missing Fields', 
+            icon: 'warning',
+            title: 'Missing Fields',
             text: 'Please fill all fields'
         });
         return;
@@ -584,6 +586,8 @@ $('.save-asset-info').on('click', function(e) {
         amount: assetAmount
     });
 
+    console.log("Asset Object:", assetObj);
+
     var assetDisplay = '';
     $.each(assetObj, function(key, value) {
         $.each(value.accounts, function(i, account) {
@@ -592,6 +596,11 @@ $('.save-asset-info').on('click', function(e) {
                     <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.assetAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
+                    <td style="font-size: 0.8em;">
+                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.assetAccount}" data-type="${key}">
+                            <div class="fas fa-times"></div>
+                        </span>
+                    </td>
                 </tr>
             `;
         });
@@ -600,34 +609,150 @@ $('.save-asset-info').on('click', function(e) {
     $('.append-asset-accounts').html(assetDisplay);
     
     $('.journal-asset-form')[0].reset();
-    $('#asset_account_name').html('<option value="" selected hidden>Select an asset type first</option>'); // Reset asset account dropdown
+    $('#asset_account_name').html('<option value="" selected hidden>Select an asset type first</option>');
 
-    console.log("Final Asset Display HTML:", assetDisplay);
 });
 
+    $('.save-liability-info').on('click', function(e){
+        e.preventDefault();
+        var hasErrors = false; 
+    var assetForm = $('.journal-liability-form').serializeArray(); 
+    var accountType = ''; 
+    var liabilityAccount = '';
+    var liabilityAmount = '';
 
+    $('.journal-liability-form input, .journal-liability-form select').removeClass('is-invalid');
 
-    // let assetFlag = true;
-    // $('.save-asset-info').click(function(e){
-    //     assetFlag = true;
-    //     e.preventDefault();
-    //     let assetForm = $('.journal-asset-form').serializeArray();
-    //     $.each(assetForm, (index, assetData)=>{
-    //         if(assetData.value === ''){
-    //             assetFlag = false;
-    //             $(`.journal-asset-form [name='${assetData.name}']`).addClass('is-invalid');
-    //             Toast.fire({
-    //                 icon: 'warning',
-    //                 title: 'Missing Fields',
-    //                 text: 'Please fill all fields'
-    //             });
-    //             return false;
-    //         }
-    //         $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
-    //         assetObj[assetData.name] = assetData.value;
-    //     });        
+    $.each(assetForm, function(index, data) {
+        if (data.value === '') {
+            $(`.journal-liability-form [name='${data.name}']`).addClass('is-invalid');
+            hasErrors = true;
+        }
+        if (data.name === 'liability-account') {
+            accountType = data.value;
+        } else if (data.name === 'liability-account-name') {
+            liabilityAccount = data.value;
+        } else if (data.name === 'liability-amount') {
+            liabilityAmount = data.value;
+        }
+    });
 
-    // });
+    if (hasErrors) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill all fields'
+        });
+        return;
+    }
+
+    if (!liabilityObj[accountType]) {
+        liabilityObj[accountType] = {
+            accounts: []
+        };
+    }
+
+    liabilityObj[accountType].accounts.push({
+        liabilityAccount: liabilityAccount,
+        amount: liabilityAmount
+    });
+
+    console.log("Asset Object:", assetObj);
+
+    var liabilityDisplay = '';
+    $.each(liabilityObj, function(key, value) {
+        $.each(value.accounts, function(i, account) {
+            liabilityDisplay += `
+                <tr>
+                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.liabilityAccount.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.amount}</td>
+                    <td style="font-size: 0.8em;">
+                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.liabilityAccount}" data-type="${key}">
+                            <div class="fas fa-times"></div>
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+
+    $('.append-liability-accounts').html(liabilityDisplay);
+    
+    $('.journal-liability-form')[0].reset();
+    $('#liability_account_name').html('<option value="" selected hidden>Select an asset type first</option>');
+    });
+
+    $('.save-oe-info').on('click', function(e){
+        e.preventDefault();
+        var hasErrors = false; 
+    var assetForm = $('.journal-oe-form').serializeArray(); 
+    var accountType = ''; 
+    var oeAccount = '';
+    var oeAmount = '';
+
+    $('.journal-oe-form input, .journal-oe-form select').removeClass('is-invalid');
+
+    $.each(assetForm, function(index, data) {
+        if (data.value === '') {
+            $(`.journal-oe-form [name='${data.name}']`).addClass('is-invalid');
+            hasErrors = true;
+        }
+        if (data.name === 'oe-account') {
+            accountType = data.value;
+        } else if (data.name === 'oe-account-name') {
+            oeAccount = data.value;
+        } else if (data.name === 'oe-amount') {
+            oeAmount = data.value;
+        }
+    });
+
+    if (hasErrors) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill all fields'
+        });
+        return;
+    }
+
+    if (!oeObj[accountType]) {
+        oeObj[accountType] = {
+            accounts: []
+        };
+    }
+
+    oeObj[accountType].accounts.push({
+        oeAccount: oeAccount,
+        amount: oeAmount
+    });
+
+    console.log("Asset Object:", assetObj);
+
+    var oeDisplay = '';
+    $.each(oeObj, function(key, value) {
+        $.each(value.accounts, function(i, account) {
+            oeDisplay += `
+                <tr>
+                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.oeAccount.split('_')[0]}</td>
+                    <td style="font-size: 0.8em;">${account.amount}</td>
+                    <td style="font-size: 0.8em;">
+                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.oeAccount}" data-type="${key}">
+                            <div class="fas fa-times"></div>
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+
+    $('.append-oe-accounts').html(oeDisplay);
+    
+    $('.journal-liability-form')[0].reset();
+    $('#liability_account_name').html('<option value="" selected hidden>Select an asset type first</option>');
+    });
+
     let assetFlag = true;
     let liabilityFlag = true;
     let oeFlag = true;
@@ -779,72 +904,119 @@ $('.save-asset-info').on('click', function(e) {
 
 
         // if (currentStep === 3) {
-        //     assetFlag = true;
-        //     let assetForm = $('.journal-asset-form').serializeArray();
-        //     $.each(assetForm, (index, assetData) => {
-        //         if (assetData.value.trim() === '') {
-        //             assetFlag = false;
-        //             $(`.journal-asset-form [name='${assetData.name}']`).addClass('is-invalid');
-        //         } else {
-        //             $(`.journal-asset-form [name='${assetData.name}']`).removeClass('is-invalid');
-        //             assetObj[assetData.name] = assetData.value;
-        //         }
-        //     });
-
-        //     if (!assetFlag) {
+        //     var assetDisp = '';
+        //     var totalAssets = 0;
+        //     var totalNCA = 0;
+        //     var totalCA = 0;
+        //     var totalFA = 0;
+        //     if (Object.keys(assetObj).length === 0) {
         //         Toast.fire({
         //             icon: 'warning',
-        //             title: 'Missing Fields',
-        //             text: 'Please fill all fields'
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
         //         });
         //         return;
         //     }
+
+        //     $.each(assetObj, (index, data)=>{
+        //         if(index.split('_')[0] === 'Current Asset'){
+        //             $.each(data.accounts, (index, accounts)=>{
+        //                 var caAmount = accounts.amount.replace(/[^0-9]/g, '');
+        //                 var preparedCAAmount = parseFloat(caAmount);
+        //                 totalCA += preparedCAAmount;
+        //                 $('.total-ca').text(totalCA.toLocaleString());            
+        //                 $('.append-ca').append(
+        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
+        //                 );
+        //             });
+        //         }
+        //         if(index.split('_')[0] === 'Non-Current Assets'){
+        //             $.each(data.accounts, (index, accounts)=>{
+        //                 var tncaAmount = accounts.amount.replace(/[^0-9]/g, '');
+        //                 var preparedTNCAAmount = parseFloat(tncaAmount);
+        //                 totalNCA += preparedTNCAAmount;
+        //                 $('.tnca-amount').text(totalNCA.toLocaleString());
+        //                 $('.append-nca').append(
+        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
+        //                 );
+        //             });
+        //         }
+        //         if(index.split('_')[0] === 'Fixed Assets'){
+        //             $.each(data.accounts, (index, accounts)=>{
+        //                 var faAmount = accounts.amount.replace(/[^0-9]/g, '');
+        //                 var preparedFAAmount = parseFloat(faAmount);
+        //                 totalFA += preparedFAAmount;
+        //                 $('.append-fa').append(
+        //                     `<span class='fw-normal float-left'>${accounts.assetAccount.split('_')[0]}</span>
+        //                     <span class='fw-normal float-right'>${accounts.amount.toLocaleString()}</span>`
+        //                 );
+        //             });
+        //         }
+        //     });
+        //     totalAssets = totalCA + totalNCA + totalFA;
+        //     $('.total-assets').text(totalAssets.toLocaleString());
+            
         // }
         // if (currentStep === 4) {
-        //     liabilityFlag = true;
-        //     let liabilityForm = $('.journal-liability-form').serializeArray();
-
-        //     $.each(liabilityForm, (index, liabilityData) => {
-        //         if (liabilityData.value.trim() === '') {
-        //             liabilityFlag = false;
-        //             $(`.journal-liability-form [name='${liabilityData.name}']`).addClass('is-invalid');
-        //         } else {
-        //             $(`.journal-liability-form [name='${liabilityData.name}']`).removeClass('is-invalid');
-        //             liabilityObj[liabilityData.name] = liabilityData.value;
-        //         }
-        //     });
-        //     if (!liabilityFlag) {
+        //     var liDisp = '';
+        //     if(Object.keys(liabilityObj).length === 0){
         //         Toast.fire({
         //             icon: 'warning',
-        //             title: 'Missing Fields',
-        //             text: 'Please fill all fields'
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
         //         });
         //         return;
         //     }
+
+        //     $.each(liabilityObj, (index, liability)=>{
+        //         $.each(liability.accounts, (index, accounts)=>{
+        //             console.log(accounts);
+        //             liDisp += `
+        //                 <span class="fw-normal float-left">${accounts.liabilityAccount.split('_')[0]}</span>
+        //                 <span class="fw-normal float-right">${accounts.amount}</span>
+        //             `;
+                    
+        //         });
+        //     });
+        //     $('.append-cl').append(liDisp);
         // }
         // if (currentStep === 5) {
-        //     oeFlag = true;
-        //     let oeForm = $('.journal-oe-form').serializeArray();
-
-        //     $.each(oeForm, (index, oeform) => {
-        //         if (oeform.value.trim() === '') {
-        //             oeFlag = false;
-        //             $(`.journal-oe-form [name='${oeform.name}']`).addClass('is-invalid');
-        //         } else {
-        //             $(`.journal-oe-form [name='${oeform.name}']`).removeClass('is-invalid');
-        //             oeObj[oeform.name] = oeform.value;
-        //         }
-        //     });
-        //     if (!oeFlag) {
+        //    if(Object.keys(oeObj).length === 0){
         //         Toast.fire({
         //             icon: 'warning',
-        //             title: 'Missing Fields',
-        //             text: 'Please fill all fields'
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
         //         });
         //         return;
-        //     }
+        //    }
         // }
-        if (currentStep < 6) {
+        if (currentStep === 6) {
+            var proceedFlag = true; 
+            var adjustmentForms = $('.journal-adjustments-form').serializeArray();
+            $.each(adjustmentForms, (index, input) => {
+                var $inputField = $(`.journal-adjustments-form [name='${input.name}']`);
+                
+                if (input.value.trim() === '') {
+                    proceedFlag = false;
+                    $inputField.addClass('is-invalid');
+                } else {
+                    $inputField.removeClass('is-invalid');
+                    adjustmentObj[input.name] = input.value;
+                }
+            });
+            if (!proceedFlag) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'Please fill all fields'
+                });
+                return;
+            }
+        }
+        
+        if (currentStep < 7) {
             $('.multi-step-journal').hide();
             currentStep++;
             showStep(currentStep);
@@ -852,7 +1024,7 @@ $('.save-asset-info').on('click', function(e) {
 
         updateStepIndicator(currentStep);
 
-        if (currentStep === 6) {
+        if (currentStep === 7) {
             $('.next-btn').hide();
             $('.save-btn').show();
         } else {
