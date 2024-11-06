@@ -593,7 +593,7 @@
                                             </div>
                                             <div class="col-sm-12">
                                                 <span class="fw-normal float-left ml-3">Additional Capital</span>
-                                                <span class="fw-normal float-right additional-capital">asdsd</span>
+                                                <span class="fw-normal float-right additional-capital"></span>
                                             </div>
                                             <div class="col-sm-12" style="border-bottom: 1px solid #063D58;">
                                                 <span class="fw-normal float-left ml-3">Net Income</span>
