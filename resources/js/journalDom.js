@@ -1,3 +1,5 @@
+import { ClientJournalEntry } from "./ajax";
+
 $(document).ready(function () {
     let currentStep = 1;
     var Toast = Swal.mixin({
@@ -762,7 +764,6 @@ $('.save-asset-info').on('click', function(e) {
     var netIncome = 0;
     var totalLC = 0;
     $('.next-btn').on('click', function () {
-        // netIncome = 0;
         // if (currentStep === 1) {
         //     if (Object.keys(incomeObj).length === 0) {
         //         Toast.fire({
@@ -968,70 +969,70 @@ $('.save-asset-info').on('click', function(e) {
         //     $('.total-assets').text(totalAssets.toLocaleString());
             
         // }
-        if (currentStep === 4) {
-            var liDisp = ``;
-            var liAmount = 0;
-            if(Object.keys(liabilityObj).length === 0){
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Empty Field',
-                    text: 'Please fill and save data for at least one entry.'
-                });
-                return;
-            }
+        // if (currentStep === 4) {
+        //     var liDisp = ``;
+        //     var liAmount = 0;
+        //     if(Object.keys(liabilityObj).length === 0){
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
+        //         });
+        //         return;
+        //     }
 
-            $.each(liabilityObj, (index, liability)=>{
-                $.each(liability.accounts, (index, accounts)=>{
-                    var sanitizeLAM = accounts.amount.replace(/[^0-9.-]/g, '');
-                    var lamToFloat = parseFloat(sanitizeLAM);
-                    liAmount += lamToFloat;
+        //     $.each(liabilityObj, (index, liability)=>{
+        //         $.each(liability.accounts, (index, accounts)=>{
+        //             var sanitizeLAM = accounts.amount.replace(/[^0-9.-]/g, '');
+        //             var lamToFloat = parseFloat(sanitizeLAM);
+        //             liAmount += lamToFloat;
                     
-                    console.log(liAmount);
+        //             console.log(liAmount);
                     
-                    liDisp += `
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-normal">${accounts.liabilityAccount.split('_')[0]}</span>
-                        <span class="fw-normal">${accounts.amount}</span>
-                    </div>
-                    `;
+        //             liDisp += `
+        //             <div class="d-flex justify-content-between">
+        //                 <span class="fw-normal">${accounts.liabilityAccount.split('_')[0]}</span>
+        //                 <span class="fw-normal">${accounts.amount}</span>
+        //             </div>
+        //             `;
                     
-                });
-            });
-            totalLC += liAmount;
-            $('.append-cl').html(liDisp);
-        }
-        if (currentStep === 5) {
-            var oeDisp = ``;
-            var oeAmount = 0;
-           if(Object.keys(oeObj).length === 0){
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Empty Field',
-                    text: 'Please fill and save data for at least one entry.'
-                });
-                return;
-           }
+        //         });
+        //     });
+        //     totalLC += liAmount;
+        //     $('.append-cl').html(liDisp);
+        // }
+        // if (currentStep === 5) {
+        //     var oeDisp = ``;
+        //     var oeAmount = 0;
+        //    if(Object.keys(oeObj).length === 0){
+        //         Toast.fire({
+        //             icon: 'warning',
+        //             title: 'Empty Field',
+        //             text: 'Please fill and save data for at least one entry.'
+        //         });
+        //         return;
+        //    }
 
-           $.each(oeObj, (index, data)=>{
-            $.each(data.accounts, (index, oe)=>{
-                var sanitizeOe = oe.amount.replace(/[^0-9.-]/g, '');
-                var oeamToFloat = parseFloat(sanitizeOe);
-                oeAmount += oeamToFloat;
+        //    $.each(oeObj, (index, data)=>{
+        //     $.each(data.accounts, (index, oe)=>{
+        //         var sanitizeOe = oe.amount.replace(/[^0-9.-]/g, '');
+        //         var oeamToFloat = parseFloat(sanitizeOe);
+        //         oeAmount += oeamToFloat;
                 
-                console.log(oeAmount);
+        //         console.log(oeAmount);
                 
-                oeDisp += `
-                <div class="d-flex justify-content-between">
-                <span class="fw-normal">${oe.oeAccount.split('_')[0]}</span>
-                <span class="fw-normal">${oe.amount}</span>
-            </div>
-                `;
-            });
+        //         oeDisp += `
+        //         <div class="d-flex justify-content-between">
+        //         <span class="fw-normal">${oe.oeAccount.split('_')[0]}</span>
+        //         <span class="fw-normal">${oe.amount}</span>
+        //     </div>
+        //         `;
+        //     });
             
-           });
-           totalLC += oeAmount;
-           $('.append-oenw').html(oeDisp);
-        }
+        //    });
+        //    totalLC += oeAmount;
+        //    $('.append-oenw').html(oeDisp);
+        // }
         if (currentStep === 6) {
             // totalLC = liAmount + oeAmount;
             // console.log(liAmount);
@@ -1154,4 +1155,31 @@ $('.save-asset-info').on('click', function(e) {
         $('.prev-btn').hide();
     }
 
+    $('.save-journal-btn').click(function(){
+        var journalData = {
+            incomeObj,
+            expensesObj,
+            assetObj,
+            liabilityObj,
+            oeObj,
+            adjustmentObj,
+            'client_id': $(this).attr('id').split('_')[1]
+
+        }
+        ClientJournalEntry(
+            'new-client-journal-entry',
+            journalData,
+            { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            CallSuccess,
+            CallFailed
+        )
+        
+        function CallSuccess(response){
+            console.log(response);
+        }
+
+        function CallFailed(error, status, jqXHR){
+            console.log(error);
+        }
+    });
 });

@@ -47,4 +47,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('mail-client-billing', [MailerController::class, 'MailClientBilling']);
     Route::post('get-account-types-{id}', [Controller::class, 'ReturnAccounts']);
     Route::post('edit-coa', [Controller::class, 'EditCOA']);
+    Route::post('new-client-journal-entry', [ClientController::class, 'NewJournalEntry']);
 });

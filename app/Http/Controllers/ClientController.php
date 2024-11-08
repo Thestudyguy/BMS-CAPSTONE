@@ -341,4 +341,17 @@ class ClientController extends Controller
             throw $th;
         }
     }
+
+    public function NewJournalEntry(Request $request){
+        if(Auth::check()){
+            try {
+                Log::info($request);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }
+        else{
+            dd('unauthorize access');
+        }
+    }
 }
