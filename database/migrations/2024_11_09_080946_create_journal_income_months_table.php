@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_incomes', function (Blueprint $table) {
+        Schema::create('journal_income_months', function (Blueprint $table) {
             $table->id();
-            $tabl
+            $table->unsignedBigInteger('income_id')->nullable();
+            $table->foreign('income_id')->references('id')->on('journal_incomes')->nullOnDelete();
+            $table->string('month');
+            $table->decimal('amount', 15);
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_incomes');
+        Schema::dropIfExists('journal_income_months');
     }
 };

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('journal_incomes', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
             $table->string('account');
-            $table->string('month');
-            $table->decimal('amount', 15);
             $table->date('start_date');
             $table->date('end_date');
             $table->string('journal_id');
