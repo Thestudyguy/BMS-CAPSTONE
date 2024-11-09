@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
             $table->string('account');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->string('start_date');
+            $table->string('end_date');
             $table->string('journal_id');
             $table->timestamps();
         });

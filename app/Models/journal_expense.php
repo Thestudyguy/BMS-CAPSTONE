@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class journal_expense extends Model
 {
     use HasFactory;
+    protected $fillable = ['client_id', 'account', 'start_date', 'end_date', 'journal_id'];
 }

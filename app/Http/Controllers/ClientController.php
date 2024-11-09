@@ -12,6 +12,10 @@ use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\CompanyProfile;
+use App\Models\journal_expense;
+use App\Models\journal_expense_month;
+use App\Models\journal_income;
+use App\Models\journal_income_months;
 use App\Models\services;
 use App\Models\ServicesSubTable;
 use App\Models\SystemProfile;
@@ -344,8 +348,60 @@ class ClientController extends Controller
 
     public function NewJournalEntry(Request $request){
         if(Auth::check()){
+                function generateAlphanumericId($length = 8)
+            {
+                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                $uniqueId = '';
+                for ($i = 0; $i < $length; $i++) {
+                    $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+                }
+                return $uniqueId;
+            }
+            $uniqueId = generateAlphanumericId();
             try {
-                Log::info($request);
+                $income = $request['incomeObj'];
+                $expense = $request['expensesObj'];
+                $assets = $request['assetObj'];
+                $liability = $request['liabilityObj'];
+                $ownersEquity = $request['oeObj'];
+                $adjustments = $request['adjustmentsObj'];
+                $client = $request['client_id'];
+                foreach ($income as $key => $value) {
+                    $jie = journal_income::create([
+                        'client_id' => $client,
+                        'account' => $key,
+                        'start_date' => $value['startDate'],
+                        'end_date' => $value['endDate'],
+                        'journal_id' => $uniqueId  
+                    ]);
+                    foreach ($value['months'] as $value) {
+                        $sanitizedAmount = str_replace(',', '', $value['value']);
+                        journal_income_months::create([
+                            'income_id' => $jie->id,
+                            'month' => $value['incomeMonthName'],
+                            'amount' => $sanitizedAmount
+                        ]);
+
+                    }
+                }
+                foreach ($expense as $key => $value) {
+                    $jee = journal_expense::create([
+                        'client_id' => $client,
+                        'account' => $key,
+                        'start_date' => $value['startDate'],
+                        'end_date' => $value['endDate'],
+                        'journal_id' => $uniqueId
+                    ]);
+
+                    foreach ($value['months'] as $value) {
+                        $sanitizedAmount = str_replace(',', '', $value['value']);
+                        journal_expense_month::create([
+                            'income_id' => $jee->id,
+                            'month' => $value['monthName'],
+                            'amount' => $sanitizedAmount
+                        ]);
+                    }
+                }
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -353,5 +409,12 @@ class ClientController extends Controller
         else{
             dd('unauthorize access');
         }
+    }
+
+    private function JournalEntryIncomeMonths($incomeID, $months){
+
+    }
+    private function JournalEntryExpenseMonths($incomeID, $months){
+        
     }
 }

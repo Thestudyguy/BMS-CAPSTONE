@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_expenses', function (Blueprint $table) {
+        Schema::create('journal_assets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
-            $table->string('account');
-            $table->string('start_date');
-            $table->string('end_date');
+            $table->string('owners_contribution');
+            $table->decimal('ocAmount', 15);
+            $table->string('owners_withdrawal');
+            $table->decimal('owAmount', 15);
             $table->string('journal_id');
             $table->timestamps();
         });
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_expenses');
+        Schema::dropIfExists('journal_assets');
     }
 };
