@@ -310,60 +310,76 @@
                         </div>
                     </div>
                     <div class="multi-step-journal summary" style="display: none; font-family: Poppins;">
-                        summary here
-                        {{-- <div class="row">
+                        <div class="row">
                             <div class="col-sm-6 border">
                                 <div class="row">
                                     <div class="col border">
                                         <div class="card fo-card rounded-0">
-                                            <center><h4 class="h4 fw-bold text-dark">Financial Operation</h4></center>
-                                            <center><h5 class="h5 fw-bold text-dark">{{$client->CompanyName}}</h5></center>
-                                            <center><h6 class="h6 text-dark">{{$client->CompanyAddress }}</h6></center>
+                                            <center>
+                                                <h4 class="h4 fw-bold text-dark">Financial Operation</h4>
+                                            </center>
+                                            <center>
+                                                <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
+                                            </center>
+                                            <center>
+                                                <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
+                                            </center>
                                             <div class="row">
-                                                <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the year Ended <span class="float-right">2024</span></div>
+                                                <div class="col-sm-12"
+                                                    style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the
+                                                    year Ended <span class="float-right">2024</span></div>
                                                 <div class="col-sm-12"></div>
                                                 <div class="col-sm-12">
                                                     <div class="row">
                                                         <span class="float-left fw-bold mt-5">Revenues</span>
-                                                        <div class="col-sm-12 ml-3">
-                                                            <span class="revenue-accounts float-left">Rev Account</span>
-                                                            <span class="revenue-amount float-right">Rev Amount</span>
+                                                        <div class="col-sm-12 ml-3 text-dark" id="append-expenses-choy">
+                                                            {{-- <span class="revenue-accounts float-left">Rev Account</span>
+                                                            <span class="revenue-amount float-right">Rev Amount</span> --}}
+                                                        </div>
+                                                        <div class="col-sm-12 ml-3 append-expense-total">
+                                                            {{-- <span class="revenue-accounts float-left">Total</span>
+                                                            <span class="revenue-amount float-right">00.00</span> --}}
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <div class="row">
                                                         <span class="float-left fw-bold">Less:Direct Cost</span>
+                                                        <div class="col-sm-12 ml-3 append-ldc">
+                                                           {{-- append less direct costs here --}}
+                                                        </div>
                                                         <div class="col-sm-12 ml-3">
-                                                            <span class="expenses-accounts float-left">Expenses Account</span>
-                                                            <span class="expenses-amount float-right">Rev Amount</span><br>
+                                                            <span class="float-left fw-bold">Total Direct Cost</span>
+                                                            <span class="expenses-total float-right"></span>
                                                         </div>
-                                                        <div class="col-sm-12">
-                                                            <span class="expenses-total float-left fw-bold">Total Direct Cost</span>
-                                                        </div>
-                                                        <div class="col-sm-12">
-                                                            <span class="expenses-total float-left fw-bold">Total Gross Income from Engineering Services Cost</span>
+                                                        <div class="col-sm-12 m-3 mt-0 pt-0">
+                                                            <span class="float-left fw-bold">Total Gross Income from
+                                                                Engineering Services Cost</span>
+                                                                <span class="gries-total float-right fw-bold"></span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <span class="float-left fw-bold">Total Gross Income</span>
-                                                    <span class="float-right fw-bold">Amount</span>
+                                                    <span class="float-right fw-bold tgi"></span>
                                                 </div>
                                                 <br>
                                                 <div class="col-sm-12">
                                                     <div class="row">
                                                         <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
-                                                        <div class="col-sm-12 ml-3">
-                                                            <span class="expenses-accounts float-left">Expenses Account</span>
-                                                            <span class="revenue-amount float-right">Expenses Amount</span>
+                                                        <div class="col-sm-12 ml-3 append-oe">
+                                                            {{-- <span class="expenses-accounts float-left">Expenses Account</span>
+                                                            <span class="revenue-amount float-right">Expenses Amount</span> --}}
                                                         </div>
-                                                        <div class="col-sm-12 fw-bold">Total Operating Expense</div>
+                                                        <div class="col-sm-12 fw-bold">
+                                                            <span class="float-left fw-bold">Total Operating Expense</span>
+                                                            <span class="float-right fw-bold oe-total"></span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <span class="net-income fw-bold float-left">Net Income</span>
-                                                    <span class="net-amount fw-bold float-right">20,000,000</span>
+                                                    <span class="net-amount fw-bold float-right"></span>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <div class="row">
@@ -371,14 +387,15 @@
                                                             <span class="float-left fw-bold">Certified True & Correct</span>
                                                         </div>
                                                         <div class="col-sm-12">
-                                                            <span class="float-left fw-bold" style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
+                                                            <span class="float-left fw-bold"
+                                                                style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
                                                         </div>
                                                         <div class="col-sm-12">
                                                             <span class="float-left">Proprietor</span>
                                                         </div>
                                                         <div class="col-sm-12">
                                                             <span class="float-left">TIN: 291-273-180-000</span>
-                    
+            
                                                         </div>
                                                     </div>
                                                 </div>
@@ -388,245 +405,148 @@
                                 </div>
                             </div>
                             <div class="col-sm-6 border">
-                                Statement of Financial Position
+                               <div class="row">
+                                <div class="col border">
+                                    <div class="card fp-card rounded-0">
+                                            <center>
+                                                <h4 class="h4 fw-bold text-dark">Financial Position</h4>
+                                            </center>
+                                            <center>
+                                                <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
+                                            </center>
+                                            <center>
+                                                <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
+                                            </center>
+                                            <div class="row">
+                                                <div class="col-sm-12"style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">
+                                                    <span class="float-left text-sm">For the years ended november</span>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-5">
+                                                <div class="col-sm-12">
+                                                    {{-- <span class="fw-bold text-md float-left">Current Assets</span>
+                                                    <span class="fw-bold text-md float-left">Total Current Assets</span> --}}
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="col-sm-12">
+                                                                <span class="fw-bold text-md">Current Assets</span>
+                                                            </div>
+                                                            <div class="col-sm-12 ml-3 append-ca">
+                                                                
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
+                                                            <span class="fw-bold text-md float-left ml-3">Total Current Assets</span>
+                                                            <span class="fw-normal text-md float-right total-ca"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 m-3"></div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-bold text-md float-left">Non-Current Assets</span><br>
+                                                            <div class="col-sm-12 ml-3 append-nca"></div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
+                                                            <span class="fw-bold text-md float-left ml-3">Total Non-Current Assets</span>
+                                                            <span class="fw-bold text-md float-right tnca-amount"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 m-3"></div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="row">
+                                                                <div class="col-sm-12">
+                                                                    <span class="fw-bold text-md float-left">Fixed Assets</span>
+                                                                </div>
+                                                                <div class="col-sm-12 ml-3 append-fa"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 m-3"></div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;"s>
+                                                            <span class="fw-bold text-md float-left">Total Assets</span>
+                                                            <span class="fw-normal text-sm float-right total-assets"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="row">
+                                                                <div class="col-sm-12">
+                                                                    <span class="fw-bold text-md float-left">Current Liabilities</span>
+                                                                </div>
+                                                                <div class="col-sm-12 ml-3 append-cl">
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 m-3"></div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="row">
+                                                                <div class="col-sm-12">
+                                                                    <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
+                                                                </div>
+                                                                <div class="col-sm-12 ml-3 append-oenw">
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+            
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-normal">Add: Net increase to Capital</span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-normal float-left ml-3">Additional Capital</span>
+                                                            <span class="fw-normal float-right additional-capital"></span>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #063D58;">
+                                                            <span class="fw-normal float-left ml-3">Net Income</span>
+                                                            <span class="fw-normal float-right fp-nc"></span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-normal float-left">Appraisal Capital</span>
+                                                            <span class="fw-normal float-right appraisal-capital"></span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-normal float-left">Less Drawings</span>
+                                                            <span class="fw-normal float-right less-drawings"></span>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-normal float-left">Capital End</span>
+                                                            <span class="fw-normal float-right capital-end"></span>
+                                                        </div>
+                                                    </div>
+            
+                                                    <div class="col-sm-12 m-3"></div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <span class="fw-bold text-md float-left">Total Liabilities & Capital</span>
+                                                            <span class="fw-normal text-md float-right tlc"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
+                               </div>
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
 
                     <div class="multi-step-action-buttons float-right">
                         <button class="btn btn-secondary prev-btn" style="font-weight: bold;">Previous</button>
                         <button class="btn next-btn"
                             style="background: #063D58; font-weight: bold; color: whitesmoke;">Next</button>
-                        <button class="btn btn-primary save-btn" style="display:none;">Save</button>
+                        <button class="btn btn-primary save-btn save-journal-btn" id="save-journal-btn_{{$client->id}}" style="display:none;">Save</button>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-6 border">
-                    <div class="row">
-                        <div class="col border">
-                            <div class="card fo-card rounded-0">
-                                <center>
-                                    <h4 class="h4 fw-bold text-dark">Financial Operation</h4>
-                                </center>
-                                <center>
-                                    <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
-                                </center>
-                                <center>
-                                    <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
-                                </center>
-                                <div class="row">
-                                    <div class="col-sm-12"
-                                        style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">For the
-                                        year Ended <span class="float-right">2024</span></div>
-                                    <div class="col-sm-12"></div>
-                                    <div class="col-sm-12">
-                                        <div class="row">
-                                            <span class="float-left fw-bold mt-5">Revenues</span>
-                                            <div class="col-sm-12 ml-3 text-dark" id="append-expenses-choy">
-                                                {{-- <span class="revenue-accounts float-left">Rev Account</span>
-                                                <span class="revenue-amount float-right">Rev Amount</span> --}}
-                                            </div>
-                                            <div class="col-sm-12 ml-3 append-expense-total">
-                                                {{-- <span class="revenue-accounts float-left">Total</span>
-                                                <span class="revenue-amount float-right">00.00</span> --}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="row">
-                                            <span class="float-left fw-bold">Less:Direct Cost</span>
-                                            <div class="col-sm-12 ml-3 append-ldc">
-                                               {{-- append less direct costs here --}}
-                                            </div>
-                                            <div class="col-sm-12 ml-3">
-                                                <span class="float-left fw-bold">Total Direct Cost</span>
-                                                <span class="expenses-total float-right"></span>
-                                            </div>
-                                            <div class="col-sm-12 m-3 mt-0 pt-0">
-                                                <span class="float-left fw-bold">Total Gross Income from
-                                                    Engineering Services Cost</span>
-                                                    <span class="gries-total float-right fw-bold"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <span class="float-left fw-bold">Total Gross Income</span>
-                                        <span class="float-right fw-bold tgi"></span>
-                                    </div>
-                                    <br>
-                                    <div class="col-sm-12">
-                                        <div class="row">
-                                            <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
-                                            <div class="col-sm-12 ml-3 append-oe">
-                                                {{-- <span class="expenses-accounts float-left">Expenses Account</span>
-                                                <span class="revenue-amount float-right">Expenses Amount</span> --}}
-                                            </div>
-                                            <div class="col-sm-12 fw-bold">
-                                                <span class="float-left fw-bold">Total Operating Expense</span>
-                                                <span class="float-right fw-bold oe-total"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <span class="net-income fw-bold float-left">Net Income</span>
-                                        <span class="net-amount fw-bold float-right"></span>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <span class="float-left fw-bold">Certified True & Correct</span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="float-left fw-bold"
-                                                    style="text-decoration: underline">Rogelio O. Magandam, Jr.</span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="float-left">Proprietor</span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="float-left">TIN: 291-273-180-000</span>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 border">
-                   <div class="row">
-                    <div class="col border">
-                        <div class="card fp-card rounded-0">
-                                <center>
-                                    <h4 class="h4 fw-bold text-dark">Financial Position</h4>
-                                </center>
-                                <center>
-                                    <h5 class="h5 fw-bold text-dark">{{ $client->CompanyName }}</h5>
-                                </center>
-                                <center>
-                                    <h6 class="h6 text-dark">{{ $client->CompanyAddress }}</h6>
-                                </center>
-                                <div class="row">
-                                    <div class="col-sm-12"style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58">
-                                        <span class="float-left text-sm">For the years ended november</span>
-                                    </div>
-                                </div>
-                                <div class="row mt-5">
-                                    <div class="col-sm-12">
-                                        {{-- <span class="fw-bold text-md float-left">Current Assets</span>
-                                        <span class="fw-bold text-md float-left">Total Current Assets</span> --}}
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="col-sm-12">
-                                                    <span class="fw-bold text-md">Current Assets</span>
-                                                </div>
-                                                <div class="col-sm-12 ml-3 append-ca">
-                                                    
-                                                </div>
-                                                
-                                            </div>
-                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
-                                                <span class="fw-bold text-md float-left ml-3">Total Current Assets</span>
-                                                <span class="fw-normal text-md float-right total-ca"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 m-3"></div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <span class="fw-bold text-md float-left">Non-Current Assets</span><br>
-                                                <div class="col-sm-12 ml-3 append-nca"></div>
-                                            </div>
-                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
-                                                <span class="fw-bold text-md float-left ml-3">Total Non-Current Assets</span>
-                                                <span class="fw-bold text-md float-right tnca-amount"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 m-3"></div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <span class="fw-bold text-md float-left">Fixed Assets</span>
-                                                    </div>
-                                                    <div class="col-sm-12 ml-3 append-fa"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 m-3"></div>
-                                        <div class="row">
-                                            <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;"s>
-                                                <span class="fw-bold text-md float-left">Total Assets</span>
-                                                <span class="fw-normal text-sm float-right total-assets"></span>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <span class="fw-bold text-md float-left">Current Liabilities</span>
-                                                    </div>
-                                                    <div class="col-sm-12 ml-3 append-cl">
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 m-3"></div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
-                                                    </div>
-                                                    <div class="col-sm-12 ml-3 append-oenw">
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <span class="fw-normal">Add: Net increase to Capital</span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="fw-normal float-left ml-3">Additional Capital</span>
-                                                <span class="fw-normal float-right additional-capital"></span>
-                                            </div>
-                                            <div class="col-sm-12" style="border-bottom: 1px solid #063D58;">
-                                                <span class="fw-normal float-left ml-3">Net Income</span>
-                                                <span class="fw-normal float-right fp-nc"></span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="fw-normal float-left">Appraisal Capital</span>
-                                                <span class="fw-normal float-right appraisal-capital"></span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="fw-normal float-left">Less Drawings</span>
-                                                <span class="fw-normal float-right less-drawings"></span>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <span class="fw-normal float-left">Capital End</span>
-                                                <span class="fw-normal float-right capital-end"></span>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-12 m-3"></div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <span class="fw-bold text-md float-left">Total Liabilities & Capital</span>
-                                                <span class="fw-normal text-md float-right tlc"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
-                   </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 @endsection

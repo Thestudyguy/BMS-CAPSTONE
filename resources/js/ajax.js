@@ -320,3 +320,29 @@ export function MailClientBilling(url, billingData, header, CallSuccess, CallErr
         }
     });
 }
+
+/** journal entry
+ *
+ * @param {string} url
+ * @param {Object} journalData
+ * @param {string} header
+ * @param {function} success
+ * @param {function} error
+ */
+export function ClientJournalEntry(url, journalData, header, CallSuccess, CallError) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: journalData,
+        headers: header,
+        success: function(response) {
+            CallSuccess(response);
+        },
+        error: function(xhr, status, errors) {
+            CallError(xhr, status, errors);
+        }
+    });
+}
+
+
+
