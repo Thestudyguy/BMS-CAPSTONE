@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
-            $table->string('owners_contribution');
-            $table->decimal('ocAmount', 15);
-            $table->string('owners_withdrawal');
-            $table->decimal('owAmount', 15);
+            $table->string('asset_category');
+            $table->string('account');
+            $table->decimal('amount', 15);
             $table->string('journal_id');
             $table->timestamps();
         });

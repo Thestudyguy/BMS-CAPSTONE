@@ -12,6 +12,7 @@ use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\CompanyProfile;
+use App\Models\journal_assets;
 use App\Models\journal_expense;
 use App\Models\journal_expense_month;
 use App\Models\journal_income;
@@ -358,6 +359,8 @@ class ClientController extends Controller
                 return $uniqueId;
             }
             $uniqueId = generateAlphanumericId();
+            // Log::info($request);
+            // return;
             try {
                 $income = $request['incomeObj'];
                 $expense = $request['expensesObj'];
@@ -366,41 +369,57 @@ class ClientController extends Controller
                 $ownersEquity = $request['oeObj'];
                 $adjustments = $request['adjustmentsObj'];
                 $client = $request['client_id'];
-                foreach ($income as $key => $value) {
-                    $jie = journal_income::create([
-                        'client_id' => $client,
-                        'account' => $key,
-                        'start_date' => $value['startDate'],
-                        'end_date' => $value['endDate'],
-                        'journal_id' => $uniqueId  
-                    ]);
-                    foreach ($value['months'] as $value) {
-                        $sanitizedAmount = str_replace(',', '', $value['value']);
-                        journal_income_months::create([
-                            'income_id' => $jie->id,
-                            'month' => $value['incomeMonthName'],
-                            'amount' => $sanitizedAmount
-                        ]);
+                // foreach ($income as $key => $value) {
+                //     $jie = journal_income::create([
+                //         'client_id' => $client,
+                //         'account' => $key,
+                //         'start_date' => $value['startDate'],
+                //         'end_date' => $value['endDate'],
+                //         'journal_id' => $uniqueId  
+                //     ]);
+                //     foreach ($value['months'] as $value) {
+                //         $sanitizedAmount = str_replace(',', '', $value['value']);
+                //         $preparedAmount = floatval($sanitizedAmount);
+                //         journal_income_months::create([
+                //             'income_id' => $jie->id,
+                //             'month' => $value['incomeMonthName'],
+                //             'amount' => $preparedAmount
+                //         ]);
 
-                    }
-                }
-                foreach ($expense as $key => $value) {
-                    $jee = journal_expense::create([
-                        'client_id' => $client,
-                        'account' => $key,
-                        'start_date' => $value['startDate'],
-                        'end_date' => $value['endDate'],
-                        'journal_id' => $uniqueId
-                    ]);
+                //     }
+                // }
+                // foreach ($expense as $key => $value) {
+                //     $jee = journal_expense::create([
+                //         'client_id' => $client,
+                //         'account' => $key,
+                //         'start_date' => $value['startDate'],
+                //         'end_date' => $value['endDate'],
+                //         'journal_id' => $uniqueId
+                //     ]);
 
-                    foreach ($value['months'] as $value) {
-                        $sanitizedAmount = str_replace(',', '', $value['value']);
-                        journal_expense_month::create([
-                            'income_id' => $jee->id,
-                            'month' => $value['monthName'],
-                            'amount' => $sanitizedAmount
+                //     foreach ($value['months'] as $value) {
+                //         $sanitizedAmount = str_replace(',', '', $value['value']);
+                //         $preparedAmount = floatval($sanitizedAmount);
+                //         journal_expense_month::create([
+                //             'income_id' => $jee->id,
+                //             'month' => $value['monthName'],
+                //             'amount' => $preparedAmount
+                //         ]);
+                //     }
+                // }
+
+                foreach ($assets as $key => $value) {
+                    Log::info($key);
+                    Log::info($value);
+                    Log::info('above');
+                    return;
+                    $preparedKey = explode($key, '_');
+                        $jea = journal_assets::create([
+                            'client_id' => $client,
+                            'asset_category' => $preparedKey[0],
+                            'account' => $key,
+                            
                         ]);
-                    }
                 }
             } catch (\Throwable $th) {
                 throw $th;
@@ -411,10 +430,4 @@ class ClientController extends Controller
         }
     }
 
-    private function JournalEntryIncomeMonths($incomeID, $months){
-
-    }
-    private function JournalEntryExpenseMonths($incomeID, $months){
-        
-    }
 }
