@@ -1,5 +1,5 @@
 <div class="modal fade" id="new-description">
-    <div class="modal-dialog modal-center">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-0">
             <div class="modal-header" style="background: #063D58; border-radius: 0px; color: whitesmoke;">
                 <h4 class="lead fw-bold">New Description</h4>

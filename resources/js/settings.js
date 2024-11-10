@@ -11,19 +11,21 @@ $(document).ready(function(){
         position: 'bottom-end',
     })
     $('#account-category').on('change', function(e){
-        $('#billing-account-type').attr('disabled');
+        $('#billing-account-type').attr('disabled', false);
         $.ajax({
             type: 'POST',
             url: `get-account-types-${$(this).val()}`,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response) {
+                console.log(response);
+                
                 $('#billing-account-type').removeAttr('disabled');
                 var select = '<select name="Type" class="form-control" id="type" disabled>';
                 var hasOptions = false;
                 $.each(response, (index, element) => {
                     $.each(element, (index, at) => {
                         if (Object.keys(at).length > 0) {
-                            select += `<option value="${at.id}">${at.ServiceRequirements}</option>`;
+                            select += `<option value="${at.id}">${at.AccountName}</option>`;
                             hasOptions = true;
                         }
                     });

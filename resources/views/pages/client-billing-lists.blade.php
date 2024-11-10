@@ -23,21 +23,24 @@
                             <thead>
                                 <tr>
                                     <td>Billing #ID</td>
-                                    <td>Date</td>
                                     <td>Due Date</td>
+                                    <td>Action</td>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($billings->isEmpty())
+                                @if ($clientBilling->isEmpty())
                                 <tr>
                                     <td colspan="3" class="text-center">No billings available.</td>
                                 </tr>
                             @else
-                                @foreach ($billings as $billing)
+                                @foreach ($clientBilling as $billing)
                                     <tr id="{{ $billing->id }}">
                                         <td>{{ $billing->billing_id }}</td>
-                                        <td>{{ $billing->created_at }}</td>
                                         <td>{{ $billing->due_date }}</td>
+                                        <td>
+                                            <span class="badge bg-warning fw-bold"style="font-size: 0.8rem;" ><i class="fas fa-trash"></i></span>
+                                            <span class="badge bg-warning fw-bold"style="font-size: 0.8rem;" ><i class="fas fa-eye"></i></span>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif

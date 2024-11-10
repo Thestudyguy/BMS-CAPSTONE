@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MailerController;
+use App\Http\Controllers\PDFController;
 use App\Http\Controllers\ServicesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -48,4 +49,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('get-account-types-{id}', [Controller::class, 'ReturnAccounts']);
     Route::post('edit-coa', [Controller::class, 'EditCOA']);
     Route::post('new-client-journal-entry', [ClientController::class, 'NewJournalEntry']);
+    Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
 });

@@ -324,6 +324,7 @@ class Controller extends BaseController
                     'FormType' => 'required|string|max:255|unique:account_descriptions,FormType',
                     'Price' => 'required|max:255',
                     'Category' => 'required|max:255',
+                    
                 ]);
                 $preparedPrice = floatval($request['Price']);
                 Log::info($request['Type']);
@@ -348,10 +349,8 @@ class Controller extends BaseController
     public function ReturnAccounts($id){
         if(Auth::check()){
             try {
-                //$preparedAccount[0] -> category
-                //$preparedAccount[1] -> id
-                $preparedAccount = explode('_', $id);
-                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
+                    $preparedAccount = explode('_', $id);
+                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $id)->get();
                     return response()->json(['assets' => $assetsAT]);
             } catch (\Exception $exception) {
                 throw $exception;

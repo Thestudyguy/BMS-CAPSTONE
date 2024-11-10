@@ -6,7 +6,7 @@
             {{ $client->CEO }} - {{ $client->CompanyName }}
         </div>
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col">
                 {{-- <div class="card mb-4">
                     <div class="card-header fw-bold" style="font-size: 1rem;">Charts of Accounts</div>
                     <div class="card-body">
@@ -46,24 +46,30 @@
                             <thead>
                                 <tr>
                                     <th style="font-size: 0.9rem;">Date</th>
-                                    <th style="font-size: 0.9rem;">Account</th>
+                                    @if (Auth::user()->Role === 'Admin')
+                                    <td style="font-size: 0.9rem;">Journal ID</td>
+                                    @endif
                                     {{-- <th style="font-size: 0.9rem;">Debit</th> --}}
                                     {{-- <th style="font-size: 0.9rem;">Credit</th> --}}
                                     <th style="font-size: 0.9rem;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($journals as $journal)
                                 <tr>
-                                    <td style="font-size: 0.9rem;">2024 - 2025</td>
-                                    {{-- <td style="font-size: 0.9rem;">{{ \Carbon\Carbon::now()->format('F j, Y') }}</td> --}}
-                                    <td style="font-size: 0.9rem;">Office Supplies Purchase</td>
-                                    {{-- <td style="font-size: 0.9rem;">200</td> --}}
-                                    {{-- <td style="font-size: 0.9rem;">-</td> --}}
+                                    @php
+                                        $preparedDate = explode('-', $journal->start_date);
+                                    @endphp
+                                    <td style="font-size: 0.9rem;">{{$preparedDate[0]}}</td>
+                                    @if (Auth::user()->Role === 'Admin')
+                                    <td style="font-size: 0.9rem;">{{$journal->journal_id}}</td>
+                                    @endif
                                     <td>
-                                        <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">remove</span>
-                                        <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">view</span>
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}"><i class="fas fa-trash" style="color: #063d58"></i></span>
+                                        <span class="badge bg-warning text-dark view-journal-btn" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}"><i class="fas fa-eye" style="color: #063d58"></i></span>
                                     </td>
                                 </tr>
+                                @endforeach
                                 <!-- More rows can be added here -->
                             </tbody>
                         </table>
@@ -71,7 +77,7 @@
                 </div>
             </div>
 
-            <div class="col-sm-4 pt-5">
+            {{-- <div class="col-sm-4 pt-5">
                 <div class="card pt-1">
                     <div class="card-header fw-bold" style="font-size: 1rem;">Summary</div>
                     <div class="card-body">
@@ -91,7 +97,7 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 @endsection

@@ -137,7 +137,8 @@ $('.add-description').on('click', function () {
         accountDescriptions.accounts.push({
             'Accounts': {
                 Account: description,
-                account_id: row.attr('id').toLocaleString()
+                account_id: row.attr('id').toLocaleString(),
+                isAdded: true
             }
         });
        defaultTotal += preparedPrice;
@@ -183,7 +184,8 @@ $('.mail-client-bs').click(function(){
         serviceObj,
         subServiceObj,
         accountDescriptions,
-        refID
+        refID,
+        billingId
     }
     MailClientBilling('mail-client-billing', billingData,
         { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },

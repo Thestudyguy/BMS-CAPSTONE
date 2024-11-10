@@ -7,16 +7,20 @@ use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\Billings;
 use App\Models\ClientBilling;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\CompanyProfile;
+use App\Models\journal_adjustments;
 use App\Models\journal_assets;
 use App\Models\journal_expense;
 use App\Models\journal_expense_month;
 use App\Models\journal_income;
 use App\Models\journal_income_months;
+use App\Models\journal_liabilities;
+use App\Models\journal_owners_equity;
 use App\Models\services;
 use App\Models\ServicesSubTable;
 use App\Models\SystemProfile;
@@ -196,13 +200,14 @@ class ClientController extends Controller
     public function ClientJournal(Request $request)
     {
         if (Auth::check()) {
-            Log::info($request->id);
             $client = Clients::where('id', $request->id)->first();
-            return view('pages.client-journal', compact('client'));
+            $journals = journal_income::where('client_id', $request->id)->get();
+            return view('pages.client-journal', compact('client', 'journals'));
         } else {
             dd('unauthorize access');
         }
     }
+
 
     public function ClientBilling(Request $request)
     {
@@ -310,7 +315,8 @@ class ClientController extends Controller
             $client = Clients::where('id', $request['id'])->first();
             $uniqueId = Str::uuid()->toString();
             $billings = ClientBilling::where('client_id', $request['id'])->get();
-            return view('pages.client-billing-lists', compact('client', 'uniqueId', 'billings'));
+            $clientBilling = Billings::where('client_id', $request['id'])->get();
+            return view('pages.client-billing-lists', compact('client', 'uniqueId', 'billings', 'clientBilling'));
         } else {
             dd('unauthorized access');
         }
@@ -359,68 +365,105 @@ class ClientController extends Controller
                 return $uniqueId;
             }
             $uniqueId = generateAlphanumericId();
-            // Log::info($request);
-            // return;
             try {
                 $income = $request['incomeObj'];
                 $expense = $request['expensesObj'];
                 $assets = $request['assetObj'];
                 $liability = $request['liabilityObj'];
                 $ownersEquity = $request['oeObj'];
-                $adjustments = $request['adjustmentsObj'];
+                $adjustments = $request['adjustmentObj'];
                 $client = $request['client_id'];
-                // foreach ($income as $key => $value) {
-                //     $jie = journal_income::create([
-                //         'client_id' => $client,
-                //         'account' => $key,
-                //         'start_date' => $value['startDate'],
-                //         'end_date' => $value['endDate'],
-                //         'journal_id' => $uniqueId  
-                //     ]);
-                //     foreach ($value['months'] as $value) {
-                //         $sanitizedAmount = str_replace(',', '', $value['value']);
-                //         $preparedAmount = floatval($sanitizedAmount);
-                //         journal_income_months::create([
-                //             'income_id' => $jie->id,
-                //             'month' => $value['incomeMonthName'],
-                //             'amount' => $preparedAmount
-                //         ]);
+                foreach ($income as $key => $value) {
+                    $jie = journal_income::create([
+                        'client_id' => $client,
+                        'account' => $key,
+                        'start_date' => $value['startDate'],
+                        'end_date' => $value['endDate'],
+                        'journal_id' => $uniqueId  
+                    ]);
+                    foreach ($value['months'] as $value) {
+                        $sanitizedAmount = str_replace(',', '', $value['value']);
+                        $preparedAmount = floatval($sanitizedAmount);
+                        journal_income_months::create([
+                            'income_id' => $jie->id,
+                            'month' => $value['incomeMonthName'],
+                            'amount' => $preparedAmount
+                        ]);
 
-                //     }
-                // }
-                // foreach ($expense as $key => $value) {
-                //     $jee = journal_expense::create([
-                //         'client_id' => $client,
-                //         'account' => $key,
-                //         'start_date' => $value['startDate'],
-                //         'end_date' => $value['endDate'],
-                //         'journal_id' => $uniqueId
-                //     ]);
+                    }
+                }
+                foreach ($expense as $key => $value) {
+                    $jee = journal_expense::create([
+                        'client_id' => $client,
+                        'account' => $key,
+                        'start_date' => $value['startDate'],
+                        'end_date' => $value['endDate'],
+                        'journal_id' => $uniqueId
+                    ]);
 
-                //     foreach ($value['months'] as $value) {
-                //         $sanitizedAmount = str_replace(',', '', $value['value']);
-                //         $preparedAmount = floatval($sanitizedAmount);
-                //         journal_expense_month::create([
-                //             'income_id' => $jee->id,
-                //             'month' => $value['monthName'],
-                //             'amount' => $preparedAmount
-                //         ]);
-                //     }
-                // }
+                    foreach ($value['months'] as $value) {
+                        $sanitizedAmount = str_replace(',', '', $value['value']);
+                        $preparedAmount = floatval($sanitizedAmount);
+                        journal_expense_month::create([
+                            'income_id' => $jee->id,
+                            'month' => $value['monthName'],
+                            'amount' => $preparedAmount
+                        ]);
+                    }
+                }
 
                 foreach ($assets as $key => $value) {
-                    Log::info($key);
-                    Log::info($value);
-                    Log::info('above');
-                    return;
-                    $preparedKey = explode($key, '_');
-                        $jea = journal_assets::create([
+                    foreach ($value['accounts'] as $account) {
+                        $preparedAssetAccount = explode('_', $account['assetAccount']);
+                        $preparedKey = explode('_', $key);
+                        $sanitizedAmount = str_replace(',', '', $account['amount']);
+                        $preparedAmount = floatval($sanitizedAmount);
+                        journal_assets::create([
                             'client_id' => $client,
                             'asset_category' => $preparedKey[0],
-                            'account' => $key,
-                            
+                            'account' => $preparedAssetAccount[0],
+                            'journal_id' => $uniqueId,
+                            'amount' => $preparedAmount,
                         ]);
+                    }
                 }
+                foreach ($liability as $key => $value) {
+                    foreach ($value['accounts'] as $account) {
+                        $preparedAssetAccount = explode('_', $account['liabilityAccount']);
+                        $preparedKey = explode('_', $key);
+                        $sanitizedAmount = str_replace(',', '', $account['amount']);
+                        $preparedAmount = floatval($sanitizedAmount);
+                        journal_liabilities::create([
+                            'client_id' => $client,
+                            'account' => $preparedAssetAccount[0],
+                            'amount' => $preparedAmount,
+                            'journal_id' => $uniqueId,
+                        ]);
+                    }
+                }
+                foreach ($ownersEquity as $key => $value) {
+                    foreach ($value['accounts'] as $account) {
+                        $sanitizedAmount = str_replace(',', '', $account['amount']);
+                        $preparedAmount = floatval($sanitizedAmount);
+                        $preparedAccount = explode('_', $account['oeAccount']);
+                        journal_owners_equity::create([
+                            'client_id' => $client,
+                            'account' => $preparedAccount[0],
+                            'journal_id' => $uniqueId,
+                            'amount' => $preparedAmount,
+                        ]);
+                    }
+                }
+                Log::info($adjustments['owners_contribution']);
+                $preparedAdjustmentAmountoc = str_replace(',', '', $adjustments['owners_contribution']);
+                $preparedAdjustmentAmountow = str_replace(',', '', $adjustments['owners_withdrawal']);
+                journal_adjustments::create([
+                    'client_id' => $client,
+                    'owners_contribution' => $preparedAdjustmentAmountoc,
+                    'owners_withdrawal' => $preparedAdjustmentAmountow,
+                    'journal_id' => $uniqueId
+                ]);
+                return response()->json(['journal' => 'new journal entry saved successfully']);
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -429,5 +472,6 @@ class ClientController extends Controller
             dd('unauthorize access');
         }
     }
+
 
 }

@@ -6,6 +6,7 @@ import './user';
 import './settings';
 import './client';
 import './billing';
+import './pdf';
 //global functions
 $(document).ready(function(){
     

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_adjustments', function (Blueprint $table) {
+        Schema::create('client_billing_services', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
-            $table->decimal('owners_contribution', 15);
-            $table->decimal('owners_withdrawal', 15);
-            $table->string('journal_id');
+            $table->string('billing_id');
+            $table->unsignedBigInteger('service')->nullable();
+            $table->foreign('service')->references('id')->on('services')->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_adjustments');
+        Schema::dropIfExists('client_billing_services');
     }
 };

@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\MailClientBillingStatement;
+use App\Models\BillingAddedDescriptions;
+use App\Models\BillingDescriptions;
+use App\Models\Billings;
 use App\Models\ClientAdditionalDescriptions;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\ClientBilling;
+use App\Models\ClientBillingService;
+use App\Models\ClientBillingSubService;
 use App\Models\Clients;
 use App\Models\SystemProfile;
 use \Illuminate\Support\Facades\DB;
@@ -29,79 +34,73 @@ class MailerController extends Controller
         }
     }
 
-    // public function MailCLientBilling(Request $request){
-    //     if(Auth::check()){
-    //         try {
-    //             $accounts = $request['accountDescriptions'];
-    //             $subServices = $request['subServiceObj'];
-    //             $services = $request['serviceObj'];
-    //             foreach ($services as $service => $serviceData) {
-    //                 foreach ($serviceData as $services) {
-    //                     foreach ($services as $service) {
-    //                         Log::info($service);
-    //                     }
-    //                 }
-    //            }
-    //         } catch (\Throwable $th) {
-    //             throw $th;
-    //         }
-    //     }else{
-    //         dd('unauthorized access');
-    //     }
-    // }
-
-
-
-    public function MailClientBilling(Request $request) {
-        if (Auth::check()) {
+    public function MailCLientBilling(Request $request){
+        if(Auth::check()){
             try {
-                $dueDate = $request->input('dueDate');
-                $services = $request['serviceObj']['Service'] ?? [];
-                $subServices = $request['subServiceObj']['SubService'] ?? [];
-                $accounts = $request['accountDescriptions']['accounts'] ?? []; // You may also remove this if it's not needed
-                
-                // Prepare to gather billing entries
-                $billingsToInsert = [];
-    
-                // Loop through services, sub-services, and accounts to create billing entries
-                foreach ($services as $serviceItem) {
-                    $service = $serviceItem['Service'];
-                    $service_id = $service['service_id'];
-    
-                    foreach ($subServices as $subServiceItem) {
-                        $subService = $subServiceItem['SubService'];
-                        $sub_service_id = $subService['sub_service_id'];
-    
-                        foreach ($accounts as $accountItem) {
-                            $account = $accountItem['Accounts'];
-                            $account_id = $account['account_id'];
-    
-                            // Proceed with the creation without checking for additional descriptions
-                            $billingsToInsert[] = [
-                                'billing_id' => $request->input('refID'),
-                                'client_id' => $request['client_id'],
-                                'client_parent_services_id' => $service_id,
-                                'client_sub_services_id' => $sub_service_id,
-                                'added_description_id' => $account_id,
-                                'due_date' => $dueDate,
-                            ];
+                $client = $request['refID'];
+                $service = $request['serviceObj'];
+                $subService = $request['subServiceObj'];
+                $descriptions = $request['accountDescriptions'];
+                $billingID = $request['billingId'];
+                $dueDate = $request['dueDate'];
+                foreach ($service as $key => $items) {
+                    foreach ($items as $key => $value) {
+                        foreach ($value as $key => $values) {
+                            ClientBillingService::create([
+                                'client_id' => $client,
+                                'billing_id' => $billingID,
+                                'service' => $values['service_id']
+                            ]);
                         }
                     }
                 }
-    
-                // Insert all billings at once
-                ClientBilling::insert($billingsToInsert);
-    
-                return response()->json(['message' => 'Billings added successfully'], 201);
+
+                foreach ($subService as $key => $value) {
+                    foreach ($value as $key => $values) {
+                        foreach ($values as $key => $subServices) {
+                            ClientBillingSubService::create([
+                                'client_id' => $client,
+                                'billing_id' => $billingID,
+                                'sub_service' => $subServices['sub_service_id']
+                            ]);
+                        }
+                    }
+                }
+
+                foreach ($descriptions as $descriptionGroup) {
+                    foreach ($descriptionGroup as $descriptionArray) {
+                        foreach ($descriptionArray as $description) {
+                            Log::info('Checking description:', $description);
+                            if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
+                                BillingAddedDescriptions::create([
+                                    'client_id' => $client,
+                                    'billing_id' => $billingID,
+                                    'description' => $description['account_id'],
+                                ]);
+                            } else {
+                                BillingDescriptions::create([
+                                    'client_id' => $client,
+                                    'billing_id' => $billingID,
+                                    'description' => $description['account_id'],
+                                ]);
+                            }
+                        }
+                    }
+                }
+                Billings::create([
+                    'client_id' => $client,
+                    'billing_id' => $billingID,
+                    'due_date' => $dueDate
+                ]);
+                return response()->json(['billing' => 'billing successfully saved']);                
             } catch (\Throwable $th) {
-                Log::error('Error while adding billings: ' . $th->getMessage());
-                return response()->json(['error' => 'Failed to add billings: ' . $th->getMessage()], 500);
+                throw $th;
             }
-        } else {
-            return response()->json(['error' => 'Unauthorized access'], 401);
+        }else{
+            dd('unauthorized access');
         }
     }
-    
+
 
 
     public function MailClientBillingStatement($id){
