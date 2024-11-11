@@ -350,7 +350,8 @@ class Controller extends BaseController
         if(Auth::check()){
             try {
                     $preparedAccount = explode('_', $id);
-                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $id)->get();
+                    Log::info($id);
+                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
                     return response()->json(['assets' => $assetsAT]);
             } catch (\Exception $exception) {
                 throw $exception;

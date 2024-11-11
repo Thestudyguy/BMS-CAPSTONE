@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('journal_expense_months', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('income_id')->nullable();
-            $table->foreign('income_id')->references('id')->on('journal_expenses')->nullOnDelete();
+            $table->unsignedBigInteger('expense_id')->nullable();
+            $table->foreign('expense_id')->references('id')->on('journal_expenses')->nullOnDelete();
             $table->string('month');
             $table->decimal('amount', 15);
             $table->timestamps();

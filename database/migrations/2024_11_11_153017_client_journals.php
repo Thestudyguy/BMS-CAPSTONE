@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('client_journals', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client')->nullable();
-            $table->foreign('client')->references('id')->on('clients')->nullOnDelete();
-            $table->string('month');
-            $table->decimal('amount', 15)->default(0);
-            $table->boolean('isVisible')->default(true);
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
+            $table->string('journal_id');
+            // $table->date('year_ended');
             $table->string('dataUserEntry');
             $table->timestamps();
         });

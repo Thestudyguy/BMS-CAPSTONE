@@ -10,9 +10,8 @@ class ClientJournal extends Model
     use HasFactory;
     protected $fillable = [
         'client',
-        'start_year',
-        'start_month',
-        'end_year',
-        'end_month',
+        'year_ended',
+        'journal_id',
+        'dataUserEntry'
     ];
 }

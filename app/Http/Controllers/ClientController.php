@@ -9,6 +9,7 @@ use App\Models\Accounts;
 use App\Models\AccountType;
 use App\Models\Billings;
 use App\Models\ClientBilling;
+use App\Models\ClientJournal;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
 use App\Models\ClientServices;
@@ -201,7 +202,7 @@ class ClientController extends Controller
     {
         if (Auth::check()) {
             $client = Clients::where('id', $request->id)->first();
-            $journals = journal_income::where('client_id', $request->id)->get();
+            $journals = ClientJournal::where('client_id', $request->id)->get();
             return view('pages.client-journal', compact('client', 'journals'));
         } else {
             dd('unauthorize access');
@@ -405,7 +406,7 @@ class ClientController extends Controller
                         $sanitizedAmount = str_replace(',', '', $value['value']);
                         $preparedAmount = floatval($sanitizedAmount);
                         journal_expense_month::create([
-                            'income_id' => $jee->id,
+                            'expense_id' => $jee->id,
                             'month' => $value['monthName'],
                             'amount' => $preparedAmount
                         ]);
@@ -454,7 +455,6 @@ class ClientController extends Controller
                         ]);
                     }
                 }
-                Log::info($adjustments['owners_contribution']);
                 $preparedAdjustmentAmountoc = str_replace(',', '', $adjustments['owners_contribution']);
                 $preparedAdjustmentAmountow = str_replace(',', '', $adjustments['owners_withdrawal']);
                 journal_adjustments::create([
@@ -462,6 +462,13 @@ class ClientController extends Controller
                     'owners_contribution' => $preparedAdjustmentAmountoc,
                     'owners_withdrawal' => $preparedAdjustmentAmountow,
                     'journal_id' => $uniqueId
+                ]);
+
+                ClientJournal::create([
+                    'client_id' => $client,
+                    // 'year_ended' => '2024-11-01',
+                    'journal_id' => $uniqueId,
+                    'dataUserEntry' => Auth::user()->id
                 ]);
                 return response()->json(['journal' => 'new journal entry saved successfully']);
             } catch (\Throwable $th) {
