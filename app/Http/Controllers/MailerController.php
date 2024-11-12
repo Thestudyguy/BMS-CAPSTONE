@@ -37,6 +37,8 @@ class MailerController extends Controller
     public function MailCLientBilling(Request $request){
         if(Auth::check()){
             try {
+                Log::info($request);
+                return;
                 $client = $request['refID'];
                 $service = $request['serviceObj'];
                 $subService = $request['subServiceObj'];
@@ -67,31 +69,35 @@ class MailerController extends Controller
                     }
                 }
 
-                foreach ($descriptions as $descriptionGroup) {
-                    foreach ($descriptionGroup as $descriptionArray) {
-                        foreach ($descriptionArray as $description) {
-                            Log::info('Checking description:', $description);
-                            if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
-                                BillingAddedDescriptions::create([
-                                    'client_id' => $client,
-                                    'billing_id' => $billingID,
-                                    'description' => $description['account_id'],
-                                ]);
-                            } else {
-                                BillingDescriptions::create([
-                                    'client_id' => $client,
-                                    'billing_id' => $billingID,
-                                    'description' => $description['account_id'],
-                                ]);
+                if (!empty($descriptions)) {
+                    foreach ($descriptions as $descriptionGroup) {
+                        foreach ($descriptionGroup as $descriptionArray) {
+                            foreach ($descriptionArray as $description) {
+                                Log::info('Checking description:', $description);
+                                // Check if description should be added or default
+                                if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
+                                    BillingAddedDescriptions::create([
+                                        'client_id' => $client,
+                                        'billing_id' => $billingID,
+                                        'description' => $description['account_id'],
+                                    ]);
+                                } else {
+                                    BillingDescriptions::create([
+                                        'client_id' => $client,
+                                        'billing_id' => $billingID,
+                                        'description' => $description['account_id'],
+                                    ]);
+                                }
                             }
                         }
                     }
                 }
-                Billings::create([
+                $billing = Billings::create([
                     'client_id' => $client,
                     'billing_id' => $billingID,
                     'due_date' => $dueDate
                 ]);
+                $this->NotifyClientBilling($billing);
                 return response()->json(['billing' => 'billing successfully saved']);                
             } catch (\Throwable $th) {
                 throw $th;
@@ -101,7 +107,13 @@ class MailerController extends Controller
         }
     }
 
-
+    private function NotifyClientBilling($billing){
+        try {
+            Log::info($billing['billing_id']);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function MailClientBillingStatement($id){
         if (Auth::check()) {

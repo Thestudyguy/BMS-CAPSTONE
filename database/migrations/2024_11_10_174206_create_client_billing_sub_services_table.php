@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
             $table->string('billing_id');
+            $table->unsignedBigInteger('service')->nullable();
+            $table->foreign('service')->references('id')->on('client_billing_services')->nullOnDelete();
             $table->unsignedBigInteger('sub_service')->nullable();
             $table->foreign('sub_service')->references('id')->on('services_sub_tables')->nullOnDelete();
             $table->timestamps();
