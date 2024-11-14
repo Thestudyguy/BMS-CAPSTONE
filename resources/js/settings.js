@@ -24,8 +24,9 @@ $(document).ready(function(){
                 var hasOptions = false;
                 $.each(response, (index, element) => {
                     $.each(element, (index, at) => {
+                        console.log(at);
                         if (Object.keys(at).length > 0) {
-                            select += `<option value="${at.id}">${at.AccountName}</option>`;
+                            select += `<option value="${at.id}">${at.ServiceRequirements}</option>`;
                             hasOptions = true;
                         }
                     });
@@ -54,6 +55,9 @@ $(document).ready(function(){
         var formObj = {};
         var callFlag = true;
         $.each(batdForm, (index, inputs)=>{
+            // console.log(inputs);
+            // return;
+            
             if(inputs.value === ''){
                 $(`.account-description-form [name="${inputs.name}"]`).addClass('is-invalid');
                 Toast.fire({

@@ -38,8 +38,8 @@
                                         <td>{{ $billing->billing_id }}</td>
                                         <td>{{ $billing->due_date }}</td>
                                         <td>
-                                            <span class="badge bg-warning fw-bold"style="font-size: 0.8rem;" ><i class="fas fa-trash"></i></span>
-                                            <span class="badge bg-warning fw-bold"style="font-size: 0.8rem;" ><i class="fas fa-eye"></i></span>
+                                            <span class="badge bg-warning fw-bold" style="font-size: 0.8rem;" ><i class="fas fa-trash"></i></span>
+                                            <span class="badge bg-warning fw-bold view-client-billing" id="{{$billing->billing_id}}_{{$client->id}}" onclick="window.location.href='{{ route('view-client-billing', ['client_id' => $client->id, 'billing_id' => $billing->billing_id]) }}'" style="font-size: 0.8rem;" ><i class="fas fa-eye"></i></span>
                                         </td>
                                     </tr>
                                 @endforeach

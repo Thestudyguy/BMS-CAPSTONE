@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ClientBillingService extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'billing_id', 'service'];
+    protected $fillable = ['client_id', 'billing_id', 'service', 'amount', 'account'];
     
 }

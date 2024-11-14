@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class BillingDescriptions extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'billing_id', 'description'];
+    protected $fillable = ['client_id', 'billing_id', 'description', 'sub_service', 'amount', 'account'];
 }

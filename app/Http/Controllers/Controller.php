@@ -277,30 +277,32 @@ class Controller extends BaseController
             $accounts = Accounts::where('isVisible', true)->get();
             $services = services::where('isVisible', true)->get();
             $ad = AccountDescription::where('isVisible', true)->get();
-            // $adac = AccountDescription::where('account_descriptions.isVisible', true)
-            // ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
-            // ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
-            // ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
-            // ->select(
-            //     'account_descriptions.Category',
-            //     'account_descriptions.Description',
-            //     'account_descriptions.TaxType',
-            //     'account_descriptions.FormType',
-            //     'account_descriptions.Price',
-            //     'account_descriptions.Category as adCategory',
-            //     'services_sub_tables.ServiceRequirements',
-            //     'services.Category', 'services.Service'
-            // )
-            // ->get();
             $adac = AccountDescription::where('account_descriptions.isVisible', true)
-            ->select(
-                'services.Service', 'services_sub_tables.ServiceRequirements',
-                'account_descriptions.Description', 'account_descriptions.TaxType',
-                'account_descriptions.FormType', 'account_descriptions.Price',
-            )
+            ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
             ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
             ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
+            ->join('accounts', 'accounts.id', '=', 'account_descriptions.account')
+            ->select(
+                'account_descriptions.Category',
+                'account_descriptions.Description',
+                'account_descriptions.TaxType',
+                'account_descriptions.FormType',
+                'account_descriptions.Price',
+                'account_descriptions.Category as adCategory',
+                'services_sub_tables.ServiceRequirements',
+                'services.Category', 'services.Service',
+                'accounts.AccountName'
+            )
             ->get();
+            // $adac = AccountDescription::where('account_descriptions.isVisible', true)
+            // ->select(
+            //     'account_descriptions.Category', 'account_descriptions.Description', 'account_descriptions.TaxType', 'account_descriptions.FormType', 'account_descriptions.Price',
+            //     'services_sub_tables.ServiceRequirements', 'services_sub_tables.BelongsToService',
+            //     'services.Service' 
+            // )
+            // ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+            // ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
+            // ->get();
             return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac'));
         }else{
             dd('Unauthorized Access');
@@ -312,6 +314,8 @@ class Controller extends BaseController
 
     public function GetAccountTypes($id){
             try {
+                // Log::info($id);
+                // return;
             if(Auth::check()){
                 $serviceTypes = ServicesSubTable::where('isVisible', true)->where('BelongsToService', $id)->get();
                 return response()->json(['account' => $serviceTypes]);
@@ -326,13 +330,13 @@ class Controller extends BaseController
     public function NewAccountDescription(Request $request){
             try {
             if(Auth::check()){
+                
                 $request->validate([
                     'Description' => 'required|string|max:255|unique:account_descriptions,Description',
                     'TaxType' => 'required|string|max:255',
                     'FormType' => 'required|string|max:255|unique:account_descriptions,FormType',
                     'Price' => 'required|max:255',
                     'Category' => 'required|max:255',
-                    
                 ]);
                 $preparedPrice = floatval($request['Price']);
                 Log::info($request['Type']);
@@ -353,6 +357,7 @@ class Controller extends BaseController
             throw $th;
         }
     }
+
 
     public function ReturnAccounts($id){
         if(Auth::check()){

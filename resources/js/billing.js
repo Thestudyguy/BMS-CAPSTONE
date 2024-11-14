@@ -6,40 +6,52 @@ $(document).ready(function () {
         showConfirmButton: false,
         timer: 5000
     });
-    
+    var ToastError = Swal.mixin({
+        toast: false,
+        position: 'bottom-end',
+    });
     
     var defaultTotal = 0;
     var servicesToBilling = window.servicesData;
+    console.log(servicesToBilling);
     var adsToBilling = window.ads;
     var serviceObj = { Service: [] };
     var subServiceObj = { SubService: [] };
     var accountDescriptions = { accounts: [] };
     $.each(servicesToBilling, (index, services) => {
         $.each(services.Service, (serviceName, service) => {
+            
             serviceObj.Service.push({
-                "Service" : {service_name: serviceName,
-                service_id: Object.keys(service.parent_service_id)[0]}
+                "Service" : {
+                    service_name: serviceName,
+                    service_id: Object.keys(service.parent_service_id)[0],
+                    service_price: service.parent_service_id[Object.keys(service.parent_service_id)[0]].parentServicePrice,
+            }
             });
             if (service.sub_service) {
                 $.each(service.sub_service, (subServiceName, subService) => {
                     $.each(subService, (index, ad)=>{
                         $.each(ad, (index, ads)=>{
                             $.each(ads.account_descriptions, (index, ads)=>{
+                                
                                 accountDescriptions.accounts.push({
                                     'Accounts': {
                                         Account: ads.Description,
-                                        account_id: ads.adID.toLocaleString()
+                                        account_id: ads.adID.toLocaleString(),
+                                        price: ads.Price
                                     }
                                 });
                             });
                         });
                     });
                     $.each(subService.sub_service_id, (subId) => {
-                        
+                        let subServiceId = Object.keys(subService.sub_service_id)[0];
+                        let subServicePrice = subService.sub_service_id[subServiceId].sub_service_price;
                         subServiceObj.SubService.push({
                            "SubService": {
                             sub_service_name: subServiceName,
-                            sub_service_id: subId
+                            sub_service_id: subId,
+                            sub_service_price: subServicePrice
                            }
                         });
                     });
@@ -168,6 +180,8 @@ $('.mail-client-bs').click(function(){
     var billingId = $('.billing-id').text();
     var date = $('.date').text();
     var refID = $(this).attr('id');
+    console.log(serviceObj);
+    
     if(dueDate === '' || dueDate === undefined){
         $('#dd').addClass('is-invalid');
         Toast.fire({
@@ -210,5 +224,24 @@ $('.mail-client-bs').click(function(){
         }
     )
 });
+
+    // $('.view-client-billing').click(function(){
+    //     $.ajax({
+    //         type: 'POST',
+    //         url: `view-client-billing-${$(this).attr('id')}`,
+    //         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+    //         success: function(response){
+    //             console.log('yawa');
+                
+    //         },
+    //         error: function(error, status, jqXHR){
+    //             Toast.fire({
+    //                 icon: 'error',
+    //                 title: 'Fatal Error',
+    //                 text: 'Something went wrong'
+    //             });
+    //         }
+    //     });
+    // });
 });
 

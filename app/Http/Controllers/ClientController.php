@@ -9,6 +9,8 @@ use App\Models\Accounts;
 use App\Models\AccountType;
 use App\Models\Billings;
 use App\Models\ClientBilling;
+use App\Models\ClientBillingService;
+use App\Models\ClientBillingSubService;
 use App\Models\ClientJournal;
 use App\Models\ClientRepresentative;
 use App\Models\Clients;
@@ -267,7 +269,6 @@ class ClientController extends Controller
                     // 'sub_service' => [],
                     'parentServicePrice' => $service->ParentServicePrice
                 ];
-            
                 $subServices = DB::table('client_services as cs_sub')
                     ->join('services_sub_tables as ss', 'cs_sub.ClientService', '=', 'ss.ServiceRequirements')
                     ->where('cs_sub.Client', $clientId)
@@ -302,7 +303,7 @@ class ClientController extends Controller
                     }
                 }
             }
-            // Log::info(json_encode($ads, JSON_PRETTY_PRINT));
+            // Log::info(json_encode($result, JSON_PRETTY_PRINT));
             response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
             return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {
@@ -479,6 +480,27 @@ class ClientController extends Controller
             dd('unauthorize access');
         }
     }
+
+
+    public function ViewClientBilling(Request $request)
+{
+    if (Auth::check()) {
+        try {
+            
+            return view('pages.view-client-billing', [
+                'systemProfile' => SystemProfile::get(),
+                'client' => Clients::where('id', $request['client_id'])->first(),
+                'billing' => Billings::where('billing_id', $request['billing_id'])->first(),
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error while processing the data: " . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    } else {
+        dd('Unauthorized access');
+    }
+}
 
 
 }
