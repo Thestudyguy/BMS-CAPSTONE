@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\MailClientBillingStatement;
+use App\Mail\JournalPINRequest;
 use App\Models\BillingAddedDescriptions;
 use App\Models\BillingDescriptions;
 use App\Models\Billings;
@@ -13,8 +14,10 @@ use App\Models\AccountDescription;
 use App\Models\ClientBilling;
 use App\Models\ClientBillingService;
 use App\Models\ClientBillingSubService;
+use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\SystemProfile;
+use App\Models\User;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -201,6 +204,30 @@ class MailerController extends Controller
             return response()->json(['response' => 'email sent']);
         } else {
             dd('unauthorized access');
+        }
+    }
+    
+    public function SendJournalPINRequest($ids){
+        if(Auth::check()){
+            try {
+                $client = Clients::where('id', explode('_', $ids)[1])->first();
+                $sendTo = User::where('id', explode('_', $ids)[2])->first();
+                $requestorFN = Auth::user()->FirstName;
+                $requestorLN = Auth::user()->LastName;
+                $journal = ClientJournal::where('id', explode('_', $ids)[0])->first();
+                // Log::info(
+                //     "$requestor \n
+                //         Requesting for client's $client->CompanyName, $client->CEO Journal PIN $journal->journal_id
+                //     "
+                // );
+                // Mail::to($sendTo->Email)->send(new JournalPINRequest($client, $requestorFN, $requestorLN, $journal));
+                Mail::to($sendTo->Email)->send(new JournalPINRequest($client, $requestorFN, $requestorLN, $journal));
+                return response()->json(['mail' => 'Request Sent']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+
         }
     }
 }

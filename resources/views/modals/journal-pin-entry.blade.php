@@ -9,6 +9,7 @@
             <div class="modal-body">
                     <input type="text" name="journal_id" class="form-control" placeholder="Enter pin..." id="">
                     <input type="hidden" name="journalID" value="{{$journal->id}}">
+                    <input type="hidden" name="client_id" value="{{$client->id}}">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn rounded-0 text-white fw-bold" style="background: #063D58;">{{__('Done')}}</button>

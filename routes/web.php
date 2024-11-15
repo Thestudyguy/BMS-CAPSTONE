@@ -52,5 +52,6 @@ Route::middleware('authenticated')->group(function(){
     Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
     Route::get('view-client-billing', [ClientController::class, 'ViewClientBilling'])->name('view-client-billing');
     Route::post('journal-pin-entry', [ClientController::class, 'BookkeeperJournalView']);
+    Route::post('request-journal-pin_{id}', [MailerController::class, 'SendJournalPINRequest']);
 
 });
