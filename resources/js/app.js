@@ -7,6 +7,7 @@ import './settings';
 import './client';
 import './billing';
 import './pdf';
+import './journal-pin-entry';
 //global functions
 $(document).ready(function(){
     

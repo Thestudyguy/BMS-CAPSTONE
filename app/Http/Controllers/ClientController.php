@@ -486,15 +486,27 @@ class ClientController extends Controller
 {
     if (Auth::check()) {
         try {
-            
+            $testt = 1 + 1;
+            Log::info($testt);
+            $billingData = Billings::where('billings.billing_id', $request['billing_id'])
+    ->select(
+        'services.Service',            // Fetching service name
+        'services.Price as ServicePrice',  // Fetching service price (corrected typo in 'ServicePrice')
+        'client_billing_services.service'  // Fetching the reference to the service from client_billing_services
+    )
+    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')  // Joining on billing_id
+    ->join('services', 'services.id', '=', 'client_billing_services.service')  // Joining on service reference
+    ->get();
+
             return view('pages.view-client-billing', [
                 'systemProfile' => SystemProfile::get(),
                 'client' => Clients::where('id', $request['client_id'])->first(),
                 'billing' => Billings::where('billing_id', $request['billing_id'])->first(),
+                'test' => $billingData
             ]);
 
-        } catch (\Exception $e) {
-            Log::error("Error while processing the data: " . $e->getMessage());
+        } catch (\Throwable $th) {
+            Log::info($th);
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     } else {
@@ -502,5 +514,19 @@ class ClientController extends Controller
     }
 }
 
+public function BookkeeperJournalView(Request $request){
+    if(Auth::check()){
+        try {
+            
+            $journal = ClientJournal::where('id', $request['journalID'])->first();
+
+            return response()->json($journal->journal_id);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }else{
+        dd('unauthorized access');
+    }
+}
 
 }

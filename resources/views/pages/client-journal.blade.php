@@ -64,11 +64,19 @@
                                     @if (Auth::user()->Role === 'Admin')
                                     <td style="font-size: 0.9rem;">{{$journal->journal_id}}</td>
                                     @endif
+                                    
                                     <td>
+                                        @if (Auth::user()->Role === 'Admin')
                                         <span class="badge bg-warning text-dark" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}"><i class="fas fa-trash" style="color: #063d58"></i></span>
                                         <span class="badge bg-warning text-dark view-journal-btn" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}"><i class="fas fa-eye" style="color: #063d58"></i></span>
+                                        @endif
+                                        @if (Auth::user()->Role === 'Bookkeeper')
+                                        <span class="badge bg-warning text-dark view-journal-btn-bookkeeper" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->id}}"><i class="fas fa-eye" style="color: #063d58"></i></span>
+                                        <span class="badge bg-warning text-dark request-pdf" data-bs-target='#journal_pin_entry_{{$client->id}}_{{$journal->id}}' data-bs-toggle='modal' title="pdf"><i class="fas fa-file"></i></span>
+                                        @endif
                                     </td>
                                 </tr>
+                                @include('modals.journal-pin-entry')
                                 @endforeach
                                 <!-- More rows can be added here -->
                             </tbody>

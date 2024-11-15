@@ -46,9 +46,11 @@ Route::middleware('authenticated')->group(function(){
     Route::post('edit-sub-service', [ServicesController::class, 'EditSubService']);
     Route::post('mail-client-bs-{id}', [MailerController::class, 'MailClientBillingStatement']);
     Route::post('mail-client-billing', [MailerController::class, 'NewClientBilling']);
-    // Route::post('get-account-types-{id}', [Controller::class, 'ReturnAccounts']);
+    Route::post('get-accounts-{id}', [Controller::class, 'ReturnAccounts']);
     Route::post('edit-coa', [Controller::class, 'EditCOA']);
     Route::post('new-client-journal-entry', [ClientController::class, 'NewJournalEntry']);
     Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
     Route::get('view-client-billing', [ClientController::class, 'ViewClientBilling'])->name('view-client-billing');
+    Route::post('journal-pin-entry', [ClientController::class, 'BookkeeperJournalView']);
+
 });

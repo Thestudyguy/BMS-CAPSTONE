@@ -365,7 +365,7 @@ class Controller extends BaseController
                     $preparedAccount = explode('_', $id);
                     Log::info($id);
                     // return;
-                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $id)->get();
+                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
                     return response()->json(['assets' => $assetsAT]);
             } catch (\Exception $exception) {
                 throw $exception;

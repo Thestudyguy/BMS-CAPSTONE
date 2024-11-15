@@ -464,13 +464,16 @@ $(document).ready(function () {
     //asset 
     $(document).on('change', '#asset_account', function () {
         let at = $(this).val();
+        console.log(at);
         
         $.ajax({
             type: 'POST',
-            url: `get-account-types-${at}`,
+            url: `get-accounts-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function (response) {
+                console.log(response);
+                
                 let atElement = '';
                 $.each(response, (index, ats) => {
                     $.each(ats, (index, atsData) => {
@@ -494,7 +497,7 @@ $(document).ready(function () {
         let at = $(this).val();
         $.ajax({
             type: 'POST',
-            url: `get-account-types-${at}`,
+            url: `get-accounts-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function (response) {
@@ -520,7 +523,7 @@ $(document).ready(function () {
         let at = $(this).val();
         $.ajax({
             type: 'POST',
-            url: `get-account-types-${at}`,
+            url: `get-accounts-${at}`,
             // data: at,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function (response) {
