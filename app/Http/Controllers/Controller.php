@@ -6,6 +6,7 @@ use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
 use App\Models\Clients;
+use App\Models\ClientServices;
 use App\Models\services;
 use App\Models\ServicesSubTable;
 use App\Models\SystemProfile;
@@ -14,6 +15,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use \App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -85,22 +87,57 @@ class Controller extends BaseController
     }
 
     public function dashboard()
-    {
-        if (auth::check()) {
-            try {
-                $clientPaymentStatus = Clients::where('clients.isVisible', true)
-                    ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
-                    ->select('clients.CompanyName', 'company_profiles.image_path')
-                    ->get();
-                $client = Clients::where('isVisible', true)->get();
-                $clientCount = count($client);
-                return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount'));
-            } catch (\Exception $exception) {
-                throw $exception;
+{
+    if (auth::check()) {
+        try {
+            $sales = ClientServices::select(
+                'client_services.id as ClientServiceId',
+                'client_services.ClientService as Service',
+                'services.Price as ServicePrice',
+                'services_sub_tables.ServiceRequirementPrice as SubServicePrice',
+                'client_services.created_at'
+            )
+            ->leftJoin('services', 'services.Service', '=', 'client_services.ClientService')
+            ->leftJoin('services_sub_tables', 'services_sub_tables.ServiceRequirements', '=', 'client_services.ClientService')
+            ->whereYear('client_services.created_at', \Carbon\Carbon::now()->year)
+            ->get();
+
+            $monthlySales = array_fill(0, 12, 0);
+
+            foreach ($sales as $sale) {
+                Log::info("Service: $sale[Service]\n Created At: $sale[created_at]");
+                
+                $servicePrice = $sale->ServicePrice ?? 0;
+                $subServicePrice = $sale->SubServicePrice ?? 0;
+                
+                $month = \Carbon\Carbon::parse($sale->created_at)->month - 1; 
+
+                $monthlySales[$month] += $servicePrice + $subServicePrice;
             }
+
+            $clientPaymentStatus = Clients::where('clients.isVisible', true)
+                ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
+                ->select('clients.CompanyName', 'company_profiles.image_path')
+                ->get();
+
+            $client = Clients::where('isVisible', true)->get();
+            $clientCount = count($client);
+
+            return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount', 'monthlySales'));
+
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
+            throw $exception;
         }
-        dd('fuck you are not allowed');
     }
+
+    // Redirect or deny access if not authenticated
+    return redirect()->route('login');
+}
+
+    
+
+
 
     public function ChartOfAccounts()
     {

@@ -36,7 +36,6 @@
         <span class="info-box-icon bg-danger"><i class="ion ion-stats-bars"></i></span>
         <div class="info-box-content">
           <span class="info-box-text">Total Sales</span>
-          <span class="info-box-number">93,139</span>
         </div>
       </div>
     </div>
@@ -46,10 +45,12 @@
   <div class="row">
     <div class="col-sm-8">
       <div class="card">
-        <h4 class="h6 fw-bold m-3">Clients Chart</h4>
+        <div class="card-header">
+          <h4 class="h6 fw-bold m-3">Sales Chart</h4>
+        </div>
         <div class="card-body">
           <div class="chart">
-            <canvas id="stackedBarChart" style="height: 50px;"></canvas>
+            <canvas id="lineChart" width="400" height="200"></canvas>
           </div>
         </div>
       </div>
@@ -73,7 +74,8 @@
         </div>
         <div class="card-body">
           <div class="chart">
-            <canvas id="stackedBarChart" style="height: 50px;"></canvas>
+            {{-- <canvas id="lineChart" width="400" height="200"></canvas> --}}
+
           </div>
         </div>
       </div>
@@ -99,7 +101,6 @@
                 @endforeach
             </tbody>
         </table>
-        
         </div>
       </div>
     </div>
@@ -107,45 +108,52 @@
     {{--end of transaction history --}}
 </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var ctx = document.getElementById('stackedBarChart').getContext('2d');
-      var stackedBarChart = new Chart(ctx, {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var monthlySales = @json($monthlySales);
+
+    var ctx = document.getElementById('lineChart').getContext('2d');
+    var lineChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-          datasets: [
-            {
-              label: 'Dataset 1',
-              backgroundColor: 'transparent',
-              borderColor: 'rgb(255 193 7)',
-              data: [65, 59, 80, 81, 56, 55]
-            },
-            {
-              label: 'Dataset 2',
-              backgroundColor: 'transparent',
-              borderColor: '#063d58',
-              data: [28, 48, 40, 19, 86, 27]
-            }
-          ]
+            labels: [
+                'January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ],
+            datasets: [
+                {
+                    label: 'Sales',
+                    data: monthlySales,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
         },
         options: {
-          responsive: true,
-          animation: {
-            duration: 1000,
-            easing: 'easeOutQuart'
-          },
-          scales: {
-            x: {
-              stacked: true
-            },
-            y: {
-              stacked: true
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Sales (Price + Requirement Price)'
+                    },
+                    beginAtZero: true
+                }
             }
-          }
         }
-      });
     });
-  </script>
+});
+
+</script>
+
   
 @endsection
