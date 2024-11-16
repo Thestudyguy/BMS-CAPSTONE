@@ -125,15 +125,19 @@
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            @if ($service->getClientOriginalName)
-                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;">
-                                                                    <i class="fas fa-cloud-download-alt"></i>
-                                                                </span>
+                                                            @if ($service->getClientOriginalName == null)
+                                                            <span class="text-muted">No Action</span>
+                                                            @else
+                                                            <a href="{{ asset('storage/' . $service->getClientOriginalName) }}"
+                                                                download="{{ basename($service->getClientOriginalName) }}" 
+                                                                class="badge bg-warning text-dark" 
+                                                                style="font-size: 10px;">
+                                                                 <i class="fas fa-cloud-download-alt"></i> Download
+                                                             </a>
                                                                 <span class="badge bg-warning text-dark" style="font-size: 10px;">
                                                                     <i class="fas fa-trash"></i>
                                                                 </span>
-                                                            @else
-                                                                <span class="text-muted">No Action</span>
+                                                                
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -199,7 +203,7 @@
                             {{-- <h6 class="h5 fw-bold">Bookkeeping</h6> --}}
                             <div class="card">
                                 <div class="card-header">
-                                    <div class="lead fw-bold text-light">Bookkeeping</div>
+                                    <div class="lead fw-bold text-light">Billings</div>
                                 </div>
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
                                     <table class="table-hover table-bordered table-striped">

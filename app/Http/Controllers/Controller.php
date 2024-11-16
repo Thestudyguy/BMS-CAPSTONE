@@ -90,6 +90,7 @@ class Controller extends BaseController
 {
     if (auth::check()) {
         try {
+            $totalSales = 0;
             $sales = ClientServices::select(
                 'client_services.id as ClientServiceId',
                 'client_services.ClientService as Service',
@@ -105,15 +106,18 @@ class Controller extends BaseController
             $monthlySales = array_fill(0, 12, 0);
 
             foreach ($sales as $sale) {
-                Log::info("Service: $sale[Service]\n Created At: $sale[created_at]");
-                
+                // Log::info("Service: $sale->SubServicePrice");
                 $servicePrice = $sale->ServicePrice ?? 0;
                 $subServicePrice = $sale->SubServicePrice ?? 0;
                 
                 $month = \Carbon\Carbon::parse($sale->created_at)->month - 1; 
 
                 $monthlySales[$month] += $servicePrice + $subServicePrice;
+                $sales = $sale->SubServicePrice += $sale->ServicePrice;
+                $totalSales += $sales;
             }
+            // Log::info("Start here...");
+            // Log::info("End here...");
 
             $clientPaymentStatus = Clients::where('clients.isVisible', true)
                 ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
@@ -123,15 +127,13 @@ class Controller extends BaseController
             $client = Clients::where('isVisible', true)->get();
             $clientCount = count($client);
 
-            return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount', 'monthlySales'));
+            return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales'));
 
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
             throw $exception;
         }
     }
-
-    // Redirect or deny access if not authenticated
     return redirect()->route('login');
 }
 

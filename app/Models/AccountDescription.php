@@ -19,4 +19,5 @@ class AccountDescription extends Model
         'Category',
         'dataUserEntry',
     ];
+    
 }

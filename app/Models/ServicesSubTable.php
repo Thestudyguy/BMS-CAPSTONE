@@ -9,4 +9,5 @@ class ServicesSubTable extends Model
 {
     use HasFactory;
     protected $fillable = ['ServiceRequirements', 'ServiceRequirementPrice', 'BelongsToService', 'dataEntryUser', 'isVisible'];
+    
 }

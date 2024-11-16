@@ -36,6 +36,7 @@
         <span class="info-box-icon bg-danger"><i class="ion ion-stats-bars"></i></span>
         <div class="info-box-content">
           <span class="info-box-text">Total Sales</span>
+          <div class="infor-box-number">{{number_format($totalSales)}}</div>
         </div>
       </div>
     </div>

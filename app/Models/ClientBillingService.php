@@ -10,4 +10,5 @@ class ClientBillingService extends Model
     use HasFactory;
     protected $fillable = ['client_id', 'billing_id', 'service', 'amount', 'account'];
     
+    
 }

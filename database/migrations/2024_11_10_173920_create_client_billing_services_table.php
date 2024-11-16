@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('account');
             $table->decimal('amount', 15);
             $table->unsignedBigInteger('service')->nullable();
-            $table->foreign('service')->references('id')->on('client_services')->nullOnDelete();
+            $table->foreign('service')->references('id')->on('services')->nullOnDelete();
             $table->timestamps();
         });
     }

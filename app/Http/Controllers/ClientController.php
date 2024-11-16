@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailClientNewServices;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
@@ -147,12 +148,14 @@ class ClientController extends Controller
                     $mimeType = null;
                     $size = null;
                     $realPath = null;
-
+                    $path = null;
                     if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        // $storagePath = $file->store('client-services', 'public'); 
                         $fileName = $file->getClientOriginalName();
                         $mimeType = $file->getClientMimeType();
                         $size = $file->getSize();
                         $realPath = $file->getRealPath();
+                        $path = $file->storeAs('client-files', $fileName, 'public');
                     }
 
                     Log::info("{
@@ -167,14 +170,14 @@ class ClientController extends Controller
                         'Client' => $clientId,
                         'ClientService' => $services['serviceName'],
                         'ClientServiceProgress' => 'Pending',
-                        'getClientOriginalName' => $fileName,
+                        'getClientOriginalName' => $path,
                         'getClientMimeType' => $mimeType,
                         'getSize' => $size,
                         'getRealPath' => $realPath,
                         'dataEntryUser' => Auth::user()->id,
                         'isVisible' => true,
                     ]);
-                    // $this->MailClientServices($clientId);
+                    $this->MailNewServiceToClient($request['client_id'], $request['services']);
                 }
             } catch (\Throwable $th) {
                 Log::error($th);
@@ -185,6 +188,20 @@ class ClientController extends Controller
         }
     }
 
+    public function MailNewServiceToClient($client, $services){
+        if(Auth::check()){
+            try {
+                $clientEmail = Clients::where('id', $client)->first();
+                Mail::to($clientEmail->CompanyEmail)->send(new MailClientNewServices($clientEmail, $services));
+                return response()->json(['mail-client-services-status' => 'Mail Sent'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('Unauthorized Accecss');
+        }
+    }
+    
     public function viewClientProfile(Request $request)
     {
         if (Auth::check()) {
@@ -274,7 +291,7 @@ class ClientController extends Controller
                 // $result[$clientId]['Service'][$service->ParentService] = [
                 //     'sub_service' => [],
                 // ];
-                $result[$clientId]['Service'][$service->ParentService]['parent_service_id'][$service->ParentServiceID] = [
+                $result[$clientId]['Service'][$service->ParentService]['parent_service_id'][$service->ServiceID] = [
                     // 'sub_service' => [],
                     'parentServicePrice' => $service->ParentServicePrice
                 ];
@@ -495,23 +512,60 @@ class ClientController extends Controller
 {
     if (Auth::check()) {
         try {
-            $testt = 1 + 1;
-            Log::info($testt);
-            $billingData = Billings::where('billings.billing_id', $request['billing_id'])
-    ->select(
-        'services.Service',            // Fetching service name
-        'services.Price as ServicePrice',  // Fetching service price (corrected typo in 'ServicePrice')
-        'client_billing_services.service'  // Fetching the reference to the service from client_billing_services
-    )
-    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')  // Joining on billing_id
-    ->join('services', 'services.id', '=', 'client_billing_services.service')  // Joining on service reference
+            $servicesData = DB::table('billings')
+    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')
+    ->join('services', 'services.id', '=', 'client_billing_services.service')
+    ->where('billings.billing_id', $request['billing_id'])
+    ->select('services.id as service_id', 'services.Service as service_name', 'services.Price as service_price')
     ->get();
+
+// Initialize the array to hold the final service hierarchy
+$servicesHierarchy = [];
+
+foreach ($servicesData as $service) {
+    // Step 2: Get the sub-services that belong to the current service and are related to the billing_id
+    $subServicesData = DB::table('services_sub_tables')
+        ->join('client_billing_services', 'client_billing_services.service', '=', 'services_sub_tables.BelongsToService')
+        ->where('client_billing_services.billing_id', $request['billing_id']) // Ensure sub-service is linked to the specific billing_id
+        ->where('services_sub_tables.BelongsToService', $service->service_id) // Filter by the parent service
+        ->select('services_sub_tables.id as sub_service_id', 'services_sub_tables.ServiceRequirements as sub_service_name', 'services_sub_tables.ServiceRequirementPrice as sub_service_price')
+        ->get();
+
+    // Initialize the service entry in the result array if not already set
+    $servicesHierarchy[$service->service_id] = [
+        'service_name' => $service->service_name,
+        'service_price' => $service->service_price,
+        'sub_services' => []
+    ];
+
+    // Step 3: Add sub-services to the service entry
+    foreach ($subServicesData as $subService) {
+        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id] = [
+            'sub_service_name' => $subService->sub_service_name,
+            'sub_service_price' => $subService->sub_service_price,
+            'account_descriptions' => [] // Placeholder for account descriptions
+        ];
+
+        // Step 4: Get account descriptions for this sub-service
+        $accountDescriptions = DB::table('account_descriptions')
+            ->where('account', $subService->sub_service_id) // Account is linked to the sub-service
+            ->select('Description as account_description', 'Category as account_category', 'Price as account_price', 'id as account_id')
+            ->get();
+
+        // Step 5: Add the account descriptions to the sub-service
+        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id]['account_descriptions'] = $accountDescriptions;
+    }
+}
+
+// Log the final hierarchy for debugging
+Log::info('Final Services Hierarchy with Account Descriptions: ' . json_encode($servicesHierarchy, JSON_PRETTY_PRINT));
+
+
 
             return view('pages.view-client-billing', [
                 'systemProfile' => SystemProfile::get(),
                 'client' => Clients::where('id', $request['client_id'])->first(),
                 'billing' => Billings::where('billing_id', $request['billing_id'])->first(),
-                'test' => $billingData
             ]);
 
         } catch (\Throwable $th) {

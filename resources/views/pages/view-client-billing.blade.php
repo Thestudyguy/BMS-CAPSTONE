@@ -13,7 +13,6 @@
                             <div class="col-sm-12 mt-4">
                                 <div class="fw-bold h1 billing-title" style="color: #063D58;">RAM'S ACCOUNTING FIRM</div>
                             </div>
-                            {{$test}}
                             <div class="col-sm-12">
                                 <div class="row ram-creds">
                                     @foreach ($systemProfile as $sp)
