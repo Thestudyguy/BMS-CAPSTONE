@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillingAddedDescriptions;
+use App\Models\Billings;
 use App\Models\Clients;
 use App\Models\journal_adjustments;
 use App\Models\journal_assets;
@@ -12,6 +14,7 @@ use App\Models\journal_income;
 use App\Models\journal_income_months;
 use App\Models\journal_liabilities;
 use App\Models\journal_owners_equity;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -497,5 +500,166 @@ class PDFController extends Controller
         }
     }
     
+    public function ClientBillingData($billingID){
+        if(Auth::check()){
+            try {
+                $billing = Billings::where('billing_id', $billingID)->first();
+                $client = Clients::where('id', $billing->client_id)->first();
+                $addedDescriptions = BillingAddedDescriptions::where('billing_id', $billingID)->get();
+                $servicesData = DB::table('billings')
+                    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')
+                    ->join('services', 'services.id', '=', 'client_billing_services.service')
+                    ->where('billings.billing_id', $billingID)
+                    ->select('services.id as service_id', 'services.Service as service_name', 'services.Price as service_price')
+                    ->get();
+
+                $servicesHierarchy = [];
+
+                foreach ($servicesData as $service) {
+                    $subServicesData = DB::table('client_billing_sub_services')
+                        ->join('services_sub_tables', 'services_sub_tables.id', '=', 'client_billing_sub_services.sub_service')
+                        ->where('services_sub_tables.BelongsToService', $service->service_id)
+                        ->select(
+                            'services_sub_tables.ServiceRequirements as sub_service_name',
+                            'services_sub_tables.ServiceRequirementPrice as sub_service_price',
+                            'services_sub_tables.id as sub_service_id'
+                        )
+                        ->get();
+                    $servicesHierarchy[$service->service_id] = [
+                        'service_name' => $service->service_name,
+                        'service_price' => $service->service_price,
+                        'sub_services' => []
+                    ];
+                    foreach ($subServicesData as $subService) {
+                        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id] = [
+                            'sub_service_name' => $subService->sub_service_name,
+                            'sub_service_price' => $subService->sub_service_price,
+                            'account_descriptions' => []
+                        ];
+                        $accountDescriptions = DB::table('billing_descriptions')
+                            ->select(
+                                'account_descriptions.Description as account_description',
+                                'account_descriptions.Price as account_price'
+                            )
+                            ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
+                            ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+                            ->where('billing_descriptions.billing_id', $billingID)
+                            ->where('services_sub_tables.id', $subService->sub_service_id)
+                            ->get();
+                        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id]['account_descriptions'] = $accountDescriptions;
+                    }
+                }
+
+                $leftMargin = 15;
+                $rightMargin = 15;
+                $pageWidth = 210;
+                $usableWidth = $pageWidth - $leftMargin - $rightMargin;
+
+                $columnWidth = ($usableWidth * 0.7);
+                $priceWidth = ($usableWidth * 0.3);
+
+                $this->fpdf->AddPage();
+                $this->fpdf->SetFont('Arial', '', 10);
+
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->SetX($leftMargin);
+                $this->fpdf->SetY(10);
+                $this->fpdf->Cell($columnWidth, 10, "Billed to: \t" . $client->CompanyName, 0, 1, 'L');
+                $this->fpdf->SetY(15);
+                $this->fpdf->Cell($columnWidth, 10, "Due: \t" . $billing->due_date, 0, 1, 'L');
+                $this->fpdf->SetY(20);
+                $this->fpdf->Cell($columnWidth, 10, "Billing ID: \t" . $billing->billing_id, 0, 1, 'L');
+
+                $this->fpdf->SetFillColor(200, 200, 200);
+                $this->fpdf->SetX($leftMargin);
+                $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
+                $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
+
+                $grandTotal = 0;
+
+                foreach ($servicesHierarchy as $service) {
+                    $serviceTotal = $service['service_price'];
+
+                    $this->fpdf->SetFont('Arial', 'B', 10);
+                    $this->fpdf->SetX($leftMargin);
+                    $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$service[service_name]", 1);
+                    $this->fpdf->Cell($priceWidth, 8, number_format($service['service_price'], 2), 1, 1, 'R');
+
+                    foreach ($service['sub_services'] as $subService) {
+                        $serviceTotal += $subService['sub_service_price'];
+
+                        $this->fpdf->SetFont('Arial', '', 10);
+                        $this->fpdf->SetX($leftMargin);
+                        $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$subService[sub_service_name]", 1);
+                        $this->fpdf->Cell($priceWidth, 8, number_format($subService['sub_service_price'], 2), 1, 1, 'R');
+
+                        foreach ($subService['account_descriptions'] as $accountDescription) {
+                            $serviceTotal += $accountDescription->account_price;
+
+                            $this->fpdf->SetX($leftMargin);
+                            $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$accountDescription->account_description", 1);
+                            $this->fpdf->Cell($priceWidth, 8, number_format($accountDescription->account_price, 2), 1, 1, 'R');
+                        }
+                    }
+
+                    // $this->fpdf->SetFont('Arial', 'B', 10);
+                    // $this->fpdf->SetX($leftMargin);
+                    // $this->fpdf->Cell($columnWidth, 8, "        Total for " . $service['service_name'] . ":", 1);
+                    // $this->fpdf->Cell($priceWidth, 8, number_format($serviceTotal, 2), 1, 1, 'R');
+
+                    $grandTotal += $serviceTotal;
+
+                    if ($this->fpdf->GetY() > 270) {
+                        $this->fpdf->AddPage();
+                        $this->fpdf->SetX($leftMargin);
+
+                        $this->fpdf->SetFillColor(200, 200, 200);
+                        $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
+                        $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
+                    }
+                }
+
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->SetX($leftMargin);
+                $this->fpdf->Cell($columnWidth, 10, "Total", 1, 0, '');
+                $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal, 2), 1, 1, 'R');
+
+
+                if ($addedDescriptions->isNotEmpty()) {
+                    $this->fpdf->SetFont('Arial', 'B', 10);
+                    $this->fpdf->SetX($leftMargin);
+                    $this->fpdf->Cell($columnWidth, 10, "Added Descriptions", 1, 0, 'C', true);
+                    $this->fpdf->Cell($priceWidth, 10, "Amount", 1, 1, 'C', true);
     
+                    $addedDescriptionsTotal = 0;
+                    foreach ($addedDescriptions as $description) {
+                        $addedDescriptionsTotal += $description->amount;
+    
+                        $this->fpdf->SetFont('Arial', '', 10);
+                        $this->fpdf->SetX($leftMargin);
+                        $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$description->account", 1);
+                        $this->fpdf->Cell($priceWidth, 8, number_format($description->amount, 2), 1, 1, 'R');
+                    }
+    
+                    $this->fpdf->SetFont('Arial', 'B', 10);
+                    $this->fpdf->SetX($leftMargin);
+                    $this->fpdf->Cell($columnWidth, 10, "Total for Added Descriptions", 1, 0, '');
+                    $this->fpdf->Cell($priceWidth, 10, number_format($addedDescriptionsTotal, 2), 1, 1, 'R');
+                }
+    
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->SetX($leftMargin);
+                $this->fpdf->Cell($columnWidth, 10, "Total", 1, 0, '');
+                $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal + $addedDescriptionsTotal, 2), 1, 1, 'R');
+    
+                // Output the PDF
+                $this->fpdf->Output();
+                exit;
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
 }

@@ -3,6 +3,8 @@
 @section('content')
     <div class="container-fluid p-5 mt-5">
         <div class="container">
+            {{-- <span class="badge bg-warning text-dark rounded-0 p-2 fw-bold"><span class="i fas fa-print"></span></span> --}}
+                <button class="btn fw-bold  text-light rounded-1 gen-client-billing-pdf" style="background: #063D58" id="{{$billing->billing_id}}"><i class="fas fa-print"></i></button>
             <div class="card border border-dark rounded-1">
                 <div class="row g-0">
                     <div class="col-sm-4">
@@ -47,73 +49,83 @@
                     </div>
                     <div class="card">
                         <div class="card-body" style="background: #eff7fe;">
-                            <table class="table table-striped table-hover table-bordered client-billing-services">
+                            <table class="table table-bordered client-billing">
                                 <thead>
                                     <tr>
                                         <td colspan="10">Services</td>
                                     </tr>
                                 </thead>
-                               <tbody>
-                                data here
-                        {{-- @php $totalPrintedPrice = 0; @endphp
-                        @php $overAllDue = 0; @endphp
-                        @if (!empty($result))
-                            
-                        @foreach ($result as $clientId => $clientData)
-                            @foreach ($clientData['Service'] as $serviceName => $serviceData)
-                                <tr>
-                                    <td colspan="5" class="fw-bold">{{$serviceName}}</td>
-                                    @foreach ($serviceData['parent_service_id'] as $ParentServiceID => $ParentData)
-                                    <td colspan="3"></td>
-                                    <td colspan="1"  class="price">{{number_format($ParentData['parentServicePrice'], 2)}}</td>
-                                     @php $totalPrintedPrice += $ParentData['parentServicePrice']; @endphp
-                                    <td colspan="1"><span class="float-right badge fw-bold text-danger remove-parent-service-billing-action" id="{{$serviceName}}_{{$ParentServiceID}}"><i class="fas fa-times"></i></span></td>
-                                        @if (!empty($serviceData['sub_service']))
-                                        @foreach ($serviceData['sub_service'] as $subService => $subServiceData)
+                                <tbody>
+                                    @php
+                                        $total = 0;
+                                        $adTotal = 0;
+                                    @endphp
+                                    @foreach ($clientBilling as $services)
                                         <tr>
-                                            <td colspan="5"></td>
-                                            <td colspan="3">{{$subService}}</td>
-                                            @foreach ($subServiceData['sub_service_id'] as $sub_service_id  => $ssData)
-                                            <td colspan="1" class="price">{{number_format($ssData['sub_service_price'], 2)}}</td>
-                                            @php $totalPrintedPrice += $ssData['sub_service_price']; @endphp
-                                            <td colspan="1"><span class="badge fw-bold text-danger remove-sub-service-billing-action" id="{{$subService}}_{{$sub_service_id}}"><i class="fas fa-times"></i></span></td>
-                                        @if (!empty($ssData['account_descriptions']))
-                                        
-                                        @foreach ($ssData['account_descriptions'] as $ad)
-                                            <tr  style="font-size: .9em;">
+                                            <td colspan="5">{{$services['service_name']}}</td>
+                                            <td colspan="2"></td>
+                                            <td colspan="2">{{$services['service_price']}}</td>
+                                            @php
+                                                $total += $services['service_price'];
+                                            @endphp
+                                            @foreach ($services['sub_services'] as $sub_services)
+                                            @php
+                                                $total += $sub_services['sub_service_price'];
+                                            @endphp    
+                                            <tr>
                                                 <td colspan="5"></td>
-                                                <td colspan="2">{{ $ad['Description'] }}</td>
-                                                <td colspan="2" class="price">{{ number_format($ad['Price'], 2) }}</td>
-                                                @php $totalPrintedPrice += $ad['Price']; @endphp
-                                                <td colspan="1"><span class="badge text-danger fw-bold remove-account-description-billing-action" id="{{ $ad['Description'] }}_{{$ad['adID']}}"><i class="fas fa-times"></i></span></td></td>
+                                                <td colspan="">{{ $sub_services['sub_service_name'] }}</td>
+                                                <td colspan="1">{{ $sub_services['sub_service_price'] }}</td>
+                                                <td colspan="1"></td>
+                                                @foreach ($sub_services['account_descriptions'] as $ads)
+                                                <tr>
+                                                <td colspan="6"></td>
+                                                <td>{{ $ads->account_description }}</td>
+                                                    <td>{{ $ads->account_price }}</td>
+                                                </tr>
+                                                @php
+                                                $total += $ads->account_price;
+                                                @endphp   
+                                                @endforeach
+                                            </tr>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                    {{-- @foreach ($clientBilling as $service)
+                                        <!-- Service Row -->
+                                        <tr>
+                                            <td rowspan="{{ count($service['sub_services']) + 1 }}">{{ $service['service_name'] }}</td>
+                                            <td rowspan="{{ count($service['sub_services']) + 1 }}">{{ $service['service_price'] }}</td>
+                                        </tr>
+                                        <!-- Sub-Services -->
+                                        @foreach ($service['sub_services'] as $subService)
+                                            <tr>
+                                                <td>{{ $subService['sub_service_name'] }}</td>
+                                                <td>{{ $subService['sub_service_price'] }}</td>
+                                                <td colspan="2">
+                                                    @if (count($subService['account_descriptions']) > 0)
+                                                        <table class="table mb-0">
+                                                            @foreach ($subService['account_descriptions'] as $account)
+                                                                <tr>
+                                                                    <td>{{ $account->account_description }}</td>
+                                                                    <td>{{ $account->account_price }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </table>
+                                                    @else
+                                                        <i>No accounts available</i>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
-                                    </tr>
-                                    @else
-                                    <tr>
-                                        <td colspan="10" class="text-center" style="font-size: .8em;">no account description for {{$subService}}</td>
-                                    </tr>
-                                    @endif
-                                            @endforeach
-                                        </tr>
-                                            @endforeach
-                                        @else
-                                        <tr>
-                                            <td colspan="10">No added requirement for this service</td>
-                                        </tr>
-                                        @endif
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        @endforeach
-                        @else
-                        <tr colspan='6'>No services for this client</tr>
-                        @endif --}}
-                               </tbody>
+                                    @endforeach --}}
+                                </tbody>
                             </table>
-                               <span class="float-right fw-bold text-dark" style="font-size: .8em;">Total: ₱<span class="total-printed-price">00.00</span></span>
+                            
+                               <span class="float-right fw-bold text-dark" style="font-size: .8em;">Total: ₱<span class="total-printed-price">{{number_format($total)}}</span></span>
                         </div>
                     </div>
+                    {{-- span.badge.fw-bold> --}}
                     <div class="card">
                         <div class="card-header" style="background: #eff7fe; border-bottom: none;">
                             <span class="fw-bold text-sm text-dark">Additional Descriptions</span>
@@ -125,24 +137,27 @@
                             <table class="table table-striped table-hover table-bordered additional-desc-table" id="selected-descriptions-table">
                                 <thead>
                                     <tr>
-                                        <td>Under Service</td>
-                                        <td>Account Type</td>
-                                        <td>Category</td>
                                         <td>Description</td>
-                                        <td>TaxType</td>
-                                        <td>FormType</td>
                                         <td>Price</td>
-                                        <td>Action</td>
                                     </tr>
                                 </thead>
-                                <tbody class="append-ad">
+                                <tbody>
+                                    @foreach ($addedDescription as $ad)
+                                        <tr>
+                                            <td>{{$ad->account}}</td>
+                                            <td>{{number_format($ad->amount)}}</td>
+                                            @php
+                                                $adTotal += $ad->amount;
+                                            @endphp
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
-                            <span class="fw-bold float-right" style="font-size: 12px;">Sub Total: ₱<span class="fw-bold total" id="additional-description-subtotal">0.00</span></span>
+                            <span class="fw-bold float-right" style="font-size: 12px;">Sub Total: ₱<span class="fw-bold total" id="additional-description-subtotal">{{number_format($adTotal)}}</span></span>
                         </div>
                     </div>
                     <div class="float-right">
-                    <span class="fw-bold float-right" style="font-size: 16px;">Overall Total: ₱<span class="fw-bold overall-due">00.00</span></span>
+                    <span class="fw-bold float-right" style="font-size: 16px;">Overall Total: ₱<span class="fw-bold overall-due">{{number_format($total + $adTotal)}}</span></span>
                     </div>
                     <div class="card rounded-0">
                         <div class="card-body">
@@ -174,3 +189,6 @@
             </div>
         </div>
     @endsection
+<script>
+    
+</script>

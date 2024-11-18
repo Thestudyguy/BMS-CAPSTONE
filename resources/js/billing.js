@@ -150,6 +150,7 @@ $('.add-description').on('click', function () {
             'Accounts': {
                 Account: description,
                 account_id: row.attr('id').toLocaleString(),
+                price: price,
                 isAdded: true
             }
         });
@@ -224,6 +225,7 @@ $('.mail-client-bs').click(function(){
         }
     )
 });
+
 
     // $('.view-client-billing').click(function(){
     //     $.ajax({

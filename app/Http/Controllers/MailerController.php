@@ -80,7 +80,7 @@ class MailerController extends Controller
                     foreach ($descriptions as $descriptionGroup) {
                         foreach ($descriptionGroup as $descriptionArray) {
                             foreach ($descriptionArray as $description) {
-                                Log::info('Checking description:', $description);
+                                
                                 if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
                                     BillingAddedDescriptions::create([
                                         'client_id' => $client,

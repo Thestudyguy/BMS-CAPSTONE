@@ -8,6 +8,7 @@ use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\BillingAddedDescriptions;
 use App\Models\Billings;
 use App\Models\ClientBilling;
 use App\Models\ClientBillingService;
@@ -509,73 +510,68 @@ class ClientController extends Controller
 
 
     public function ViewClientBilling(Request $request)
-{
-    if (Auth::check()) {
-        try {
-            $servicesData = DB::table('billings')
-    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')
-    ->join('services', 'services.id', '=', 'client_billing_services.service')
-    ->where('billings.billing_id', $request['billing_id'])
-    ->select('services.id as service_id', 'services.Service as service_name', 'services.Price as service_price')
-    ->get();
+    {
+        if (Auth::check()) {
+            try {
+                $servicesData = DB::table('billings')
+                    ->join('client_billing_services', 'client_billing_services.billing_id', '=', 'billings.billing_id')
+                    ->join('services', 'services.id', '=', 'client_billing_services.service')
+                    ->where('billings.billing_id', $request['billing_id'])
+                    ->select('services.id as service_id', 'services.Service as service_name', 'services.Price as service_price')
+                    ->get();
 
-// Initialize the array to hold the final service hierarchy
-$servicesHierarchy = [];
+                $servicesHierarchy = [];
 
-foreach ($servicesData as $service) {
-    // Step 2: Get the sub-services that belong to the current service and are related to the billing_id
-    $subServicesData = DB::table('services_sub_tables')
-        ->join('client_billing_services', 'client_billing_services.service', '=', 'services_sub_tables.BelongsToService')
-        ->where('client_billing_services.billing_id', $request['billing_id']) // Ensure sub-service is linked to the specific billing_id
-        ->where('services_sub_tables.BelongsToService', $service->service_id) // Filter by the parent service
-        ->select('services_sub_tables.id as sub_service_id', 'services_sub_tables.ServiceRequirements as sub_service_name', 'services_sub_tables.ServiceRequirementPrice as sub_service_price')
-        ->get();
+                foreach ($servicesData as $service) {
+                    $subServicesData = DB::table('client_billing_sub_services')
+                        ->join('services_sub_tables', 'services_sub_tables.id', '=', 'client_billing_sub_services.sub_service')
+                        ->where('services_sub_tables.BelongsToService', $service->service_id)
+                        ->select(
+                            'services_sub_tables.ServiceRequirements as sub_service_name',
+                            'services_sub_tables.ServiceRequirementPrice as sub_service_price',
+                            'services_sub_tables.id as sub_service_id'
+                        )
+                        ->get();
+                    $servicesHierarchy[$service->service_id] = [
+                        'service_name' => $service->service_name,
+                        'service_price' => $service->service_price,
+                        'sub_services' => []
+                    ];
+                    foreach ($subServicesData as $subService) {
+                        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id] = [
+                            'sub_service_name' => $subService->sub_service_name,
+                            'sub_service_price' => $subService->sub_service_price,
+                            'account_descriptions' => []
+                        ];
+                        $accountDescriptions = DB::table('billing_descriptions')
+                            ->select(
+                                'account_descriptions.Description as account_description',
+                                'account_descriptions.Price as account_price'
+                            )
+                            ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
+                            ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+                            ->where('billing_descriptions.billing_id', $request['billing_id'])
+                            ->where('services_sub_tables.id', $subService->sub_service_id)
+                            ->get();
+                        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id]['account_descriptions'] = $accountDescriptions;
+                    }
+                }
+                $addedDescriptions = BillingAddedDescriptions::where('billing_id', $request['billing_id'])->get();
+                return view('pages.view-client-billing', [
+                    'systemProfile' => SystemProfile::get(),
+                    'client' => Clients::where('id', $request['client_id'])->first(),
+                    'billing' => Billings::where('billing_id', $request['billing_id'])->first(),
+                    'clientBilling' => $servicesHierarchy, 'addedDescription' => $addedDescriptions
+                ]);
 
-    // Initialize the service entry in the result array if not already set
-    $servicesHierarchy[$service->service_id] = [
-        'service_name' => $service->service_name,
-        'service_price' => $service->service_price,
-        'sub_services' => []
-    ];
-
-    // Step 3: Add sub-services to the service entry
-    foreach ($subServicesData as $subService) {
-        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id] = [
-            'sub_service_name' => $subService->sub_service_name,
-            'sub_service_price' => $subService->sub_service_price,
-            'account_descriptions' => [] // Placeholder for account descriptions
-        ];
-
-        // Step 4: Get account descriptions for this sub-service
-        $accountDescriptions = DB::table('account_descriptions')
-            ->where('account', $subService->sub_service_id) // Account is linked to the sub-service
-            ->select('Description as account_description', 'Category as account_category', 'Price as account_price', 'id as account_id')
-            ->get();
-
-        // Step 5: Add the account descriptions to the sub-service
-        $servicesHierarchy[$service->service_id]['sub_services'][$subService->sub_service_id]['account_descriptions'] = $accountDescriptions;
-    }
-}
-
-// Log the final hierarchy for debugging
-Log::info('Final Services Hierarchy with Account Descriptions: ' . json_encode($servicesHierarchy, JSON_PRETTY_PRINT));
-
-
-
-            return view('pages.view-client-billing', [
-                'systemProfile' => SystemProfile::get(),
-                'client' => Clients::where('id', $request['client_id'])->first(),
-                'billing' => Billings::where('billing_id', $request['billing_id'])->first(),
-            ]);
-
-        } catch (\Throwable $th) {
-            Log::info($th);
-            return response()->json(['error' => 'Something went wrong'], 500);
+            } catch (\Throwable $th) {
+                Log::info($th);
+                return response()->json(['error' => 'Something went wrong'], 500);
+            }
+        } else {
+            dd('Unauthorized access');
         }
-    } else {
-        dd('Unauthorized access');
     }
-}
 
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){
