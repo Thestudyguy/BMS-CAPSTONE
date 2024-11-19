@@ -112,40 +112,54 @@
                                                     <td colspan="7" class="text-center">No services available for this client.</td>
                                                 </tr>
                                             @else
-                                                @foreach($clientServices as $service)
-                                                    <tr>
-                                                        <td>{{ $service->ClientService }}</td>
-                                                        <td>{{ $service->ClientServiceProgress }}</td>
-                                                        <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
-                                                        <td>{{ $service->getClientMimeType ?: 'No file provided' }}</td>
-                                                        <td>{{ $service->getSize ?: 'No file provided' }}</td>
-                                                        <td>
-                                                            <span class="badge bg-warning" data-bs-target="#update-client-service-{{$service->id}}" data-bs-toggle="modal">
-                                                                <strong>{{ $service->ClientServiceProgress }}</strong>
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            @if ($service->getClientOriginalName == null)
-                                                            <span class="text-muted">No Action</span>
-                                                            @else
-                                                            <a href="{{ asset('storage/' . $service->getClientOriginalName) }}"
-                                                                download="{{ basename($service->getClientOriginalName) }}" 
-                                                                class="badge bg-warning text-dark" 
-                                                                style="font-size: 10px;">
-                                                                 <i class="fas fa-cloud-download-alt"></i> Download
-                                                             </a>
-                                                                <span class="badge bg-warning text-dark" style="font-size: 10px;">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </span>
-                                                                
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    @include('modals.update-client-service-progress')
-                                                @endforeach
+                                            @foreach($clientServices as $service)
+                                            <tr>
+                                                <td>{{ $service->ClientService }}</td>
+                                                <td>
+                                                    <span class="badge 
+                                                        @if($service->ClientServiceProgress == 'Pending') bg-secondary 
+                                                        @elseif($service->ClientServiceProgress == 'On progress') bg-primary 
+                                                        @elseif($service->ClientServiceProgress == 'Done') bg-success 
+                                                        @elseif($service->ClientServiceProgress == 'Paid') bg-dark 
+                                                        @endif">
+                                                        <strong>{{ ucfirst($service->ClientServiceProgress) }}</strong>
+                                                    </span>
+                                                </td>
+                                                <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
+                                                <td>{{ $service->getClientMimeType ?: 'No file provided' }}</td>
+                                                <td>{{ $service->getSize ?: 'No file provided' }}</td>
+                                                <td>
+                                                    @if ($service->ClientServiceProgress != 'Paid')
+                                                        <span class="badge bg-warning" 
+                                                            data-bs-target="#update-client-service-{{ $service->id }}" 
+                                                            data-bs-toggle="modal">
+                                                            <strong>{{ $service->ClientServiceProgress }}</strong>
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-dark text-light">
+                                                            <strong>Paid</strong>
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($service->getClientOriginalName == null)
+                                                        <span class="text-muted">No Action</span>
+                                                    @else
+                                                        <a href="{{ asset('storage/' . $service->getClientOriginalName) }}" 
+                                                            download="{{ basename($service->getClientOriginalName) }}" 
+                                                            class="badge bg-warning text-dark" 
+                                                            style="font-size: 10px;">
+                                                            <i class="fas fa-cloud-download-alt"></i> Download
+                                                        </a>
+                                                        <span class="badge bg-danger text-light" style="font-size: 10px;">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @include('modals.update-client-service-progress')
+                                            @endforeach
                                             @endif
-
-
                                             </tbody>
                                         </table>
                                     </center>

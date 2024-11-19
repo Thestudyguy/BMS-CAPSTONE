@@ -573,6 +573,21 @@ class ClientController extends Controller
         }
     }
 
+    public function UpdateClientService(Request $request){
+        if(Auth::check()){
+            try {
+                foreach ($request['serviceVal'] as $value) {
+                    ClientServices::where('id', $request['serviceId'])->update(['ClientServiceProgress' => $value['value']]);
+                }
+                return response()->json(['client-service' => 'progress updated'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized acceess');
+        }
+    }
+
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){
         try {

@@ -36,6 +36,16 @@ class DatabaseSeeder extends Seeder
             'PIN' => '101106',
             'password' => FacadesHash::make('admin')
         ]);
+
+        User::factory()->create([
+            'FirstName' => 'John',
+            'LastName' => 'Dave',
+            'UserName' => 'john',
+            'email' => 'john@gmail.com',  // lowercase 'email'
+            'role' => 'Accountant',              // lowercase 'role'
+            'PIN' => '101109',
+            'password' => FacadesHash::make('admin')
+        ]);
         
         User::factory()->create([
             'FirstName' => 'Dave',

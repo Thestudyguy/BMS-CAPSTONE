@@ -34,6 +34,14 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="" class="nav-link">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p class="text-sm">
+                            {{ __('Journals') }}
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{route('admin-hub')}}" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p class="text-sm">
@@ -71,14 +79,14 @@
                         </p>
                     </a>
                 </li> --}}
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="" class="nav-link">
                         <i class="nav-icon fas fa-book"></i>
                         <p class="text-sm">
                             {{ __('Bookkeeping') }}
                         </p>
                     </a>
-                </li>
+                </li> --}}
                 @if (Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Accountant')
                 <li class="nav-item">
                     <a href="{{route('settings')}}" class="nav-link">

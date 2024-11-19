@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('journal_status');
             // $table->date('year_ended');
             $table->string('dataUserEntry');
+            $table->boolean('isVisible')->default(true);
+            $table->string('JournalStatus')->default('Pending');
             $table->timestamps();
         });
     }

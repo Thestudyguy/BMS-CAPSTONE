@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\ClientServices;
 use App\Models\services;
@@ -428,6 +429,18 @@ class Controller extends BaseController
                     'AccountType' => $request['AccountType']
                 ]);
                 return response()->json(['account' => 'Account updated successfully'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
+    public function AccountantInterface(){
+        if(Auth::check()){
+            try {
+                $journals = ClientJournal::where('isVisible', true)->get();
             } catch (\Throwable $th) {
                 throw $th;
             }
