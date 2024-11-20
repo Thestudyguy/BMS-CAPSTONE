@@ -23,4 +23,27 @@ $(document).ready(function(){
         }
     };
     
+    window.previewImage = function(event, previewId) {
+        const fileInput = event.target;
+        const file = fileInput.files[0]; 
+    
+        if (file) {
+            const reader = new FileReader();
+    
+            reader.onload = function (e) {
+                const previewElement = document.getElementById(previewId);
+                if (previewElement) {
+                    previewElement.src = e.target.result;
+                } else {
+                    console.error(`Preview element with ID ${previewId} not found.`);
+                }
+            };
+    
+            reader.readAsDataURL(file);
+        } else {
+            console.warn('No file selected.');
+        }
+    };
+    
+
 });

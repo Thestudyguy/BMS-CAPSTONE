@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\Mail as FacadesMail;
 use Mail;
 use Illuminate\Support\Str;
 use Codedge\Fpdf\Fpdf\Fpdf;
+use Storage;
 
 class ClientController extends Controller
 {
@@ -108,7 +109,14 @@ class ClientController extends Controller
             $representative->save();
             if ($request->hasFile('profile')) {
                 $profile = $request->file('profile');
-                $profilePath = $profile->store('profiles', 'public');
+            
+                // Generate a custom file name (e.g., including a timestamp or client ID for uniqueness)
+                $fileName = 'client_' . $client->id . '_' . time() . '.' . $profile->getClientOriginalExtension();
+            
+                // Store the file with a custom name in the 'client-files' directory under the 'public' disk
+                $profilePath = $profile->storeAs('client-files', $fileName, 'public');
+            
+                // Save the file information to the database
                 $companyProfile = new CompanyProfile();
                 $companyProfile->company = $client->id;
                 $companyProfile->image_path = $profilePath;
@@ -586,6 +594,54 @@ class ClientController extends Controller
             dd('unauthorized acceess');
         }
     }
+
+    public function UpdateClientCompanyInfo(Request $request){
+        if(Auth::check()){
+            try {
+                Clients::where('id', $request['client_id'])->update([
+                    'CompanyName' => $request['CompanyName'],
+                    'CompanyAddress' => $request['CompanyAddress'],
+                    'CompanyEmail' => $request['CompanyEmail'],
+                    'TIN' => $request['TIN'],
+                ]);
+                return response()->json(['company-info' => 'updated']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
+
+    public function updateCompanyProfile(Request $request)
+{
+    // Log::info($request['client_id']);
+    // return;
+    $request->validate([
+        'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // Retrieve or create CompanyProfile
+    $clientProfile = CompanyProfile::firstOrNew(['company' => $request['client_id']]);
+
+    if ($request->hasFile('profile')) {
+        $file = $request->file('profile');
+        $fileName = 'client_' . $request['client_id'] . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $filePath = $file->storeAs('client-files', $fileName, 'public');
+
+        // Delete old image if exists
+        if ($clientProfile->image_path) {
+            Storage::disk('public')->delete($clientProfile->image_path);
+        }
+
+        // Update database
+        $clientProfile->image_path = $filePath;
+        $clientProfile->save();
+    }
+
+    return redirect()->back()->with('success', 'Profile updated successfully!');
+}
 
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){

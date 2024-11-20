@@ -14,26 +14,28 @@
                                         @if ($clientProfile && $clientProfile->image_path)
                                             <center><img src="{{ asset('storage/' . $clientProfile->image_path) }}" 
                                                 alt="Company Profile Image" width="100" style="border-radius: 50%; border: 5px solid #063D58;"></center>
-                                                <div class="update-company-profile"><button class="btn rounded-circle btn-secondary btn-sm" style="position: absolute; top: 65%; left: 50%; color: black;"><i class="fas fa-pen fw-bold"></i></button></div>
+                                                <div class="update-company-profile"><button class="btn rounded-circle btn-secondary btn-sm" data-bs-target="#edit-company-profile-{{$client->id}}" data-bs-toggle="modal" style="position: absolute; top: 65%; left: 50%; color: black;"><i class="fas fa-pen fw-bold"></i></button></div>
                                         @else
                                             <img src="default-image-path.jpg" alt="Default Image">
                                         @endif
                                     </div>
                                 </div>
                             </div>
+                            @include('modals.edit-company-profile')
                         </div>
                         <div class="col-sm-12">
                            
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title lead fw-bold text-light">Company Information</div>
-                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
+                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" data-bs-target="#edit-company-profile-{{$client->id}}" data-bs-toggle="modal" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
                                 </div>
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold">{{ $client->CompanyName }}</div>
                                     <div class="fw-bold my-1">{{ $client->CompanyAddress }}</div>
                                     <div class="fw-bold">{{ $client->CompanyEmail }}</div>
                                     <div class="fw-bold">Tin: {{ $client->TIN }}</div>
+                                    @include('modals.edit-company-info')
                                 </div>
                             </div>
                         </div>
