@@ -44,7 +44,7 @@
                                     <tbody>
                                        @foreach ($users as $user)
                                            <tr id="{{$user->id}}">
-                                            <td>{{$user->LastName}}, {{$user->FirstName}} - {{$user->role}}</td>
+                                            <td>{{$user->LastName}}, {{$user->FirstName}} - {{$user->Role}}</td>
                                            <td>
                                             @if ($user->UserPrivilege)
                                             <span class="badge bg-warning fw-bold" title="disable user log in"><strong>Disable</strong></span>

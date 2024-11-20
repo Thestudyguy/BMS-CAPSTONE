@@ -28,7 +28,7 @@
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title lead fw-bold text-light">Company Information</div>
-                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" data-bs-target="#edit-company-profile-{{$client->id}}" data-bs-toggle="modal" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
+                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" data-bs-target="#edit-company-info-modal-{{$client->id}}" data-bs-toggle="modal" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
                                 </div>
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold">{{ $client->CompanyName }}</div>
@@ -44,12 +44,13 @@
                             <div class="card">
                                 <div class="card-header">
                                     <div class="card-title lead fw-bold text-light">CEO Information</div>
-                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
+                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" data-bs-target="#edit-company-ceo-{{$client->id}}" data-bs-toggle="modal" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
                                 </div>
                                 <div class="card-body" style="color: #063D58;">
                                     <div class="fw-bold">{{ $client->CEO }}</div>
                                     <div class="fw-bold my-1">{{ $client->CEODateOfBirth }}</div>
                                     <div class="fw-bold">{{ $client->CEOContactInformation }}</div>
+                                    @include('modals.edit-company-ceo')
                                 </div>
                             </div>
                         </div>
@@ -57,16 +58,17 @@
                             {{-- <h6 class="h5 fw-bold">Representative Information</h6> --}}
                             <div class="card">
                                 <div class="card-header">
+                                    @foreach ($repInfo as $repInfoData)
                                     <div class="card-title lead fw-bold text-light">Representative Information</div>
-                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" id="{{ $client->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
+                                    <div class="card-tools"><button class="btn btn-tranparent mt-0 pt-0" data-bs-target="#edit-company-rep-{{$repInfoData->id}}" data-bs-toggle="modal" id="{{ $repInfoData->id }}"><i class="fas fa-pen text-light" style="font-size: 70%;"></i></button></div>
                                 </div>
                                 <div class="card-body" style="color: #063D58;">
-                                    @foreach ($repInfo as $repInfoData)
                                         <div class="fw-bold">{{ $repInfoData->RepresentativeName }}</div>
                                         <div class="fw-bold my-1">{{ $repInfoData->RepresentativeContactInformation }}</div>
                                         <div class="fw-bold">{{ $repInfoData->RepresentativeDateOfBirth }}</div>
                                         <div class="fw-bold my-1">{{ $repInfoData->RepresentativePosition }}</div>
                                         <div class="fw-bold">{{ $repInfoData->RepresentativeAddress }}</div>
+                                        @include('modals.edit-company-rep')
                                     @endforeach
                                 </div>
                             </div>

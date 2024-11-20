@@ -55,6 +55,7 @@ class LoginController extends Controller
         if ($user && $user->UserPrivilege) {
             return $this->guard()->attempt($credentials, $request->filled('remember'));
         }
+        
 
         if ($user && $user->Role === 'Accountant') {
             return redirect()->route('journals');

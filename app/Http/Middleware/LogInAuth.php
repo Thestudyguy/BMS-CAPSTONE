@@ -19,12 +19,9 @@ class LogInAuth
         if (Auth::check()) {
             $user = Auth::user();
             if (!$user->UserPrivilege || !$user->isVisible) {
-                Auth::logout();
-                return redirect('/login')->withErrors(['error' => 'Your account is restricted by the admin for some reasons']);
+                redirect('/login')->withErrors(['error' => 'Your account is restricted by the admin for some reasons']);
+                return Auth::logout();
             }
-            // if ($user->Role === 'Accountant' && !$request->is('journals')) {
-            //     return redirect('/journals');
-            // }
         } else {
             return redirect('/login');
         }

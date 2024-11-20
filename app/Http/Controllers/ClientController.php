@@ -37,11 +37,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail as FacadesMail;
-use Mail;
+use Illuminate\Support\Facades\Mail;
+// use Mail;
 use Illuminate\Support\Str;
 use Codedge\Fpdf\Fpdf\Fpdf;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
@@ -384,7 +384,7 @@ class ClientController extends Controller
             Log::info($clientID);
             $services = ClientServices::where('Client', $clientID)->get();
             $client = Clients::where('id', $clientID)->pluck('CompanyEmail', 'CEO')->first();
-            FacadesMail::to($client)->send(new MailClientServices($services, testemail: $client));
+            Mail::to($client)->send(new MailClientServices($services, testemail: $client));
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -616,7 +616,9 @@ class ClientController extends Controller
 
     public function updateCompanyProfile(Request $request)
 {
-    // Log::info($request['client_id']);
+   if(Auth::check()){
+    try {
+         // Log::info($request['client_id']);
     // return;
     $request->validate([
         'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -641,7 +643,51 @@ class ClientController extends Controller
     }
 
     return redirect()->back()->with('success', 'Profile updated successfully!');
+    } catch (\Throwable $th) {
+        throw $th;
+    }
+   }else{
+    dd('unauthorized access');
+   }
 }
+
+    public function EditCEO(Request $request){
+        if(Auth::check()){
+            try {
+                // Log::info($request);
+                // return;
+              Clients::where('id', $request['client_id'])->update([
+                'CEO' => $request['CEO'],
+                'CEODateOfBirth' => $request['DateOfBirth'],
+                'CEOContactInformation' => $request['CEOContactInformation']
+              ]);
+              return response()->json(['ceo' => 'updated'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
+    public function EditRep(Request $request){
+        if(Auth::check()){
+            try {
+                ClientRepresentative::where('id', $request['rep_id'])->update([
+                    'RepresentativeName' => $request['RepresentativeName'],
+                    'RepresentativeContactInformation' => $request['RepresentativeContactInformation'],
+                    'RepresentativeDateOfBirth' => $request['RepresentativeDateOfBirth'],
+                    'RepresentativePosition' => $request['RepresentativePosition'],
+                    'RepresentativeAddress' => $request['RepresentativeAddress'],
+                ]);
+                return response()->json(['client-rep' => 'updated']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
 
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){

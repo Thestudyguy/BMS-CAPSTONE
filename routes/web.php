@@ -64,5 +64,7 @@ Route::middleware('authenticated')->group(function(){
     Route::post('archive-journal-entry-{id}', [Controller::class, 'ArchiveJournalEntry']);
     Route::post('update-company-info', [ClientController::class, 'UpdateClientCompanyInfo']);
     Route::put('update-company-profile', [ClientController::class, 'updateCompanyProfile'])->name('update-company-profile');
+    Route::post('edit-ceo', [ClientController::class, 'EditCEO']);
+    Route::post('edit-rep', [ClientController::class, 'EditRep']);
 
 });

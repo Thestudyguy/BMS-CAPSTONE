@@ -1,4 +1,4 @@
-<div class="modal fade" id="edit-company-profile-{{$client->id}}">
+<div class="modal fade" id="edit-company-info-modal-{{$client->id}}">
     <div class="modal-dialog modal-center">
         <div class="modal-content rounded-0">
             <div class="modal-header rounded-0" style="background: #063D58;">
