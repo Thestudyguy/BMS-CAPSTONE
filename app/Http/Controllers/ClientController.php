@@ -491,10 +491,9 @@ class ClientController extends Controller
                     'owners_withdrawal' => $preparedAdjustmentAmountow,
                     'journal_id' => $uniqueId
                 ]);
-
+                // Log::info("Client id = $client");
                 ClientJournal::create([
                     'client_id' => $client,
-                    // 'year_ended' => '2024-11-01',
                     'journal_id' => $uniqueId,
                     'dataUserEntry' => Auth::user()->id
                 ]);
@@ -1044,7 +1043,6 @@ public function BookkeeperJournalView(Request $request){
                 $this->fpdf->Output('I', 'example.pdf');
                 exit;
             }else{
-                $customResponse = 1102;
                 return response()->json(['message' => 'Incorrect PIN'], 400);
             }
         } catch (\Throwable $th) {

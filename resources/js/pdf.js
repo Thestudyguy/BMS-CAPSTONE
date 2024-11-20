@@ -13,7 +13,6 @@ var ToastError = Swal.mixin({
 $(document).ready(function(){
     $('.view-journal-btn').on('click', function(e){
         var clientID = $(this).attr('id');
-
         $.ajax({
             type: 'POST',
             url: `view-client-journal-${clientID}`,
@@ -24,6 +23,8 @@ $(document).ready(function(){
                 responseType: 'blob'
             },
             success: function(response){
+                console.log(response);
+                
                 var blob = new Blob([response], { type: 'application/pdf' });
                 var url = URL.createObjectURL(blob);
                 window.open(url, '_blank');
@@ -37,6 +38,7 @@ $(document).ready(function(){
             }
         });
     });
+
     $('.gen-client-billing-pdf').click(function(){
         $.ajax({
             type: "POST",

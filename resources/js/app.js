@@ -8,6 +8,7 @@ import './client';
 import './billing';
 import './pdf';
 import './journal-pin-entry';
+import './accountant';
 //global functions
 $(document).ready(function(){
     

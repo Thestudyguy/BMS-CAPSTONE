@@ -28,9 +28,13 @@ class PDFController extends Controller
     {
         $this->fpdf = new Fpdf();
     }
+
+
     public function ViewClientJournal($id){
         if(Auth::check()){
             try {
+                Log::info($id);
+                Log::info("asdasd");
                 $preparedJournalID = explode('_', $id);
                 $client = Clients::where('isVisible', true)->where('id', $id)->first();
                 $income = journal_income::where('journal_id', $preparedJournalID[1])->get();
@@ -487,7 +491,7 @@ class PDFController extends Controller
                 $this->fpdf->SetY($yPosition + 30);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
-                $this->fpdf->Output('I', 'example.pdf');
+                $this->fpdf->Output();
                 exit;
         
                

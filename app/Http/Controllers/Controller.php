@@ -440,7 +440,17 @@ class Controller extends BaseController
     public function AccountantInterface(){
         if(Auth::check()){
             try {
-                $journals = ClientJournal::where('isVisible', true)->get();
+                $journals = ClientJournal::where('client_journals.isVisible', true)
+                ->select(
+                    'clients.CEO', 'clients.CompanyName', 'clients.id as client_id',
+                    'client_journals.journal_id', 'client_journals.JournalStatus', 'client_journals.dataUserEntry',
+                    'users.FirstName', 'users.LastName', 'users.Role'
+                )
+                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
+                ->get();
+                // Log::info($journals);
+                return view('pages.journals', compact('journals'));
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -448,6 +458,19 @@ class Controller extends BaseController
             dd('unauthorized access');
         }
     }
+
+    public function UpdateClientJournal(Request $request){
+        if(Auth::check()){
+            try {
+                Log::info($request);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
 }
 
 // try {

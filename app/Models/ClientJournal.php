@@ -9,7 +9,7 @@ class ClientJournal extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'client',
+        'client_id',
         'year_ended',
         'journal_id',
         'dataUserEntry'
