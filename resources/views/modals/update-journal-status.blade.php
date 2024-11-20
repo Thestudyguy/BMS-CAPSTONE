@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body" style="color:#063D58;">
               <form action="" class="update-journal-status-{{$journal->journal_id}}">
-                <select name="ClientServiceProgress" class="form-control" id="serviceprogress">
+                <select name="JournalStatus" class="form-control" id="serviceprogress">
                     <option value="{{$journal->JournalStatus}}" selected hidden>{{$journal->JournalStatus}}</option>
                     <option value="Rejected">Rejected</option>
                     <option value="Canceled">Canceled</option>
@@ -17,7 +17,7 @@
               </form>
             </div>
             <div class="modal-footer"> 
-                <button type="submit" class="btn update-journal-stat text-light fw-bold" style="background: #063D58;" id="{{$journal->journal_id}}">{{__('Update')}}</button>
+                <button type="submit" class="btn update-journal-status text-light fw-bold" style="background: #063D58;" id="{{$journal->journal_id}}">{{__('Update')}}</button>
                 <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">{{__('Cancel')}}</button>
             </div>
         </div>

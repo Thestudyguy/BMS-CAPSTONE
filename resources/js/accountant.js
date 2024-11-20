@@ -9,35 +9,33 @@ var ToastError = Swal.mixin({
     position: 'bottom-end',
 });
 $(document).ready(function(){
-    $('.update-journal-stat').on('click', function(e){
-        var JournalID = $(this).attr('id');
-        var form = $(`.update-journal-status-${JournalID}`).serializeArray();
-
-        $.ajax({
-            type: 'POST',
-            url: 'update-journal-custom',
-            data: form,
-            headers: { 
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") 
-            },
-            success: function(response){
-                console.log(response);
-                
-            },
-            error: function(jqXHR, textStatus, errorThrown){
-                try {
-                    const response = JSON.parse(jqXHR.responseText);
-                    console.log('Parsed Response:', response);
-                    ToastError.fire({
-                        icon: 'warning',
-                        title: 'Conflict',
-                        text: response
-                    });
-                } catch (e) {
-                    console.log('Could not parse JSON response:', e);
-                }
-            }
-        });
+   $('.update-journal-status').on('click', function(){
+    console.log($(this).attr('id'));
+    var form = $(`.update-journal-status-${$(this).attr('id')}`).serializeArray();
+    $.ajax({
+        type: 'POST',
+        url: `/update-journal-status`,
+        data: form,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+        success: function(responmse){
+            console.log(responmse);
+            localStorage.setItem('journal-status', 'updated');
+            location.reload();
+        },
+        error: function(error, status, jqXHR){
+            console.log(error);
+            
+        }
     });
-    
+   });
+
+   var journalStat = localStorage.getItem('journal-status');
+   if(journalStat === 'updated'){
+    Toast.fire({
+        icon: 'success',
+        title: 'Journal Status Update',
+        text: 'Journal status updated successfully'
+    });
+    localStorage.removeItem('journal-status');
+   }
 });

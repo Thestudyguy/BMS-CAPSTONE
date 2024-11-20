@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-center modal-lg">
         <div class="modal-content rounded-0">
             <div class="modal-header">
-                <h4 class="lead fw-bold">Edit User <span class="fw-bold" style="color:#063D58;"><strong>{{$user->LastName}}, {{$user->FirstName}} - {{$user->role}}</strong></span></h4>
+                <h4 class="lead fw-bold">Edit User <span class="fw-bold" style="color:#063D58;"><strong>{{$user->LastName}}, {{$user->FirstName}} - {{$user->Role}}</strong></span></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="color:#063D58;">

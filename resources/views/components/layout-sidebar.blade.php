@@ -8,6 +8,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('dashboard')}}" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <i class="fa-solid fa-gauge"></i>
@@ -15,26 +16,31 @@
                             {{ __('Dashboard') }}
                         </p>
                     </a>
+                    @endif
                 </li>
-
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('clients')}}" class="nav-link">
                         <i class="nav-icon fas fa-users"></i>
                         <p class="text-sm">
                             {{ __('Clients') }}
                         </p>
                     </a>
+                    @endif
                 </li>
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('users')}}" class="nav-link">
                         <i class="nav-icon fas fa-user"></i>
                         <p class="text-sm">
                             {{ __('Users') }}
                         </p>
                     </a>
+                    @endif
+                    
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{route('journals')}}" class="nav-link">
                         <i class="nav-icon fas fa-book"></i>
                         <p class="text-sm">
                             {{ __('Journals') }}
@@ -42,14 +48,17 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('admin-hub')}}" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p class="text-sm">
                             {{ __('Activity Log') }}
                         </p>
                     </a>
+                    @endif
                 </li>
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('external-services')}}" class="nav-link">
                         <i class="nav-icon fas fa-solid fa-file-invoice-dollar"></i>
                         <p class="text-sm">
@@ -57,6 +66,8 @@
                             {{-- <i class="right fas fa-angle-left"></i> --}}
                         </p>
                     </a>
+                    @endif
+                    
                     {{-- <ul class="nav nav-treeview">
                         <li class="nav-item bg-dark">
                             <a href="#" class="nav-link">
@@ -87,7 +98,7 @@
                         </p>
                     </a>
                 </li> --}}
-                @if (Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Accountant')
+                @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                 <li class="nav-item">
                     <a href="{{route('settings')}}" class="nav-link">
                         <i class="nav-icon fas fa-cog"></i>
@@ -105,7 +116,7 @@
                         </p>
                     </a>
                 </li> --}}
-                @if (Auth::check() && Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Bookkeeping')
+                @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                 <li class="nav-item">
                     <a href="{{route('chart-of-accounts')}}" class="nav-link">
                         <i class="nav-icon fas fa-file-import"></i>

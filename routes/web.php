@@ -49,13 +49,17 @@ Route::middleware('authenticated')->group(function(){
     Route::post('get-accounts-{id}', [Controller::class, 'ReturnAccounts']);
     Route::post('edit-coa', [Controller::class, 'EditCOA']);
     Route::post('new-client-journal-entry', [ClientController::class, 'NewJournalEntry']);
+    // if (Auth::check() && Auth::user()->Role === 'Accountant') {
+    //     Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
+    // }
     Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
-    Route::post('view-client-journal-accountant-{id}', [PDFController::class, 'ViewClientJournal']);
     Route::get('view-client-billing', [ClientController::class, 'ViewClientBilling'])->name('view-client-billing');
     Route::post('journal-pin-entry', [ClientController::class, 'BookkeeperJournalView']);
     Route::post('request-journal-pin_{id}', [MailerController::class, 'SendJournalPINRequest']);
     Route::post('client-billing-data_{id}', [PDFController::class, 'ClientBillingData']);
     Route::post('update-client-service', [ClientController::class, 'UpdateClientService']);
     Route::get('/journals', [Controller::class, 'AccountantInterface'])->name('journals');
-    Route::post('update-journal-custom', [Controller::class, 'UpdateClientJournal']);
+    Route::post('/update-journal-status', [Controller::class, 'UpdateJournalStatus']);
+    Route::post('view-client-journal-{id}', [PDFController::class, 'ViewClientJournal']);
+    Route::post('archive-journal-entry-{id}', [Controller::class, 'ArchiveJournalEntry']);
 });

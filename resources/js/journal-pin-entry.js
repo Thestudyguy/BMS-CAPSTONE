@@ -79,4 +79,34 @@ $(document).ready(function(){
             }
         });        
     });
+    $('.remove-journal-entry').click(function(){
+        $.ajax({
+            type: "POST",
+            url: `archive-journal-entry-${$(this).attr('id')}`,
+            headers:{'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")},
+            success: function(response){
+                localStorage.setItem('journal', 'Removed');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Error Translated: '+ error
+                });
+            }
+        });
+    });
+
+
+    var journal = localStorage.getItem('journal');
+    if(journal === 'Removed'){
+        localStorage.removeItem('journal');
+        Toast.fire({
+            icon: 'success',
+            title: 'Journal Update',
+            text: 'Journal Successfully removed'
+        });
+    }
+    
 });

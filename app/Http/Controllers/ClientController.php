@@ -231,7 +231,7 @@ class ClientController extends Controller
         if (Auth::check()) {
             $client = Clients::where('id', $request->id)->first();
             $users = User::where('isVisible', true)->get();
-            $journals = ClientJournal::where('client_id', $request->id)->get();
+            $journals = ClientJournal::where('isVisible', true)->where('client_id', $request->id)->get();
             return view('pages.client-journal', compact('client', 'journals', 'users'));
         } else {
             dd('unauthorize access');

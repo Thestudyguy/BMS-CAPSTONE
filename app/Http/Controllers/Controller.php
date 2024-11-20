@@ -458,11 +458,11 @@ class Controller extends BaseController
             dd('unauthorized access');
         }
     }
-
-    public function UpdateClientJournal(Request $request){
+    public function UpdateJournalStatus(Request $request){
         if(Auth::check()){
             try {
-                Log::info($request);
+                ClientJournal::where('journal_id', $request['journal_id'])->update(['JournalStatus' => $request['JournalStatus']]);
+                return response()->json(['journal-status', 'updated']);
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -471,6 +471,18 @@ class Controller extends BaseController
         }
     }
 
+    public function ArchiveJournalEntry($id){
+        if(Auth::check()){
+            try {
+                ClientJournal::where('journal_id', $id)->update(['isVisible' => false]);
+                return response()->json(['Journal Entry', 'Move to Archive']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
 }
 
 // try {

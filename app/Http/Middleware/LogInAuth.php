@@ -22,9 +22,9 @@ class LogInAuth
                 Auth::logout();
                 return redirect('/login')->withErrors(['error' => 'Your account is restricted by the admin for some reasons']);
             }
-            if ($user->Role === 'Accountant' && !$request->is('journals')) {
-                return redirect('/journals');
-            }
+            // if ($user->Role === 'Accountant' && !$request->is('journals')) {
+            //     return redirect('/journals');
+            // }
         } else {
             return redirect('/login');
         }
