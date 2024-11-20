@@ -11,7 +11,18 @@
                         </ol>
                 </div>
             </div>
-            <div class="fw-bold p-3" style="color: rgb(6,61,88);">{{$client->CEO}} - {{$client->CompanyName}}</div>
+
+            
+
+
+            <div class="fw-bold p-3" style="color: rgb(6,61,88);">{{$client->CEO}} - {{$client->CompanyName}}
+                    <button class="btn btn-link">
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-file-pdf"></i> Generate PDF
+                        </span>
+                    </button>
+            </div>
+           
             <div class="col">
                 <div class="card">
                     <div class="card-header">

@@ -47,6 +47,30 @@
                         </p>
                     </a>
                 </li>
+
+                <li class="nav-item">
+            @if (Auth::check() && Auth::user()->Role !== 'Accountant')
+                <a href="{{route('income')}}" class="nav-link">
+                    <i class="nav-icon fas fa-money-bill-alt"></i>
+                    <p class="text-sm">
+                        {{ __('Income') }}
+                    </p>
+                </a>
+            @endif
+            </li>
+
+            <li class="nav-item">
+                @if (Auth::check() && Auth::user()->Role !== 'Accountant')
+                    <a href="{{route('expense')}}" class="nav-link">
+                        <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                        <p class="text-sm">
+                            {{ __('Expense') }}
+                        </p>
+                    </a>
+                @endif
+            </li>
+
+            
                 <li class="nav-item">
                     @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('admin-hub')}}" class="nav-link">
@@ -57,6 +81,8 @@
                     </a>
                     @endif
                 </li>
+                
+    
                 <li class="nav-item">
                     @if (Auth::check() && Auth::user()->Role !== 'Accountant')
                     <a href="{{route('external-services')}}" class="nav-link">
@@ -126,6 +152,7 @@
                     </a>
                 </li>
                 @endif
+           
                 {{-- <li class="nav-item">
                     <a href="{{route('billings')}}" class="nav-link">
                         <i class="nav-icon fas fa-file"></i>

@@ -41,7 +41,7 @@
                             <div class="row">
                                 <div class="col-sm-4">Due Date: <input type="date" class="form-control w-50" name="due-date" id="dd"></div>
                                 <div class="col-sm-4">Date: <span class="date">{{$currentDate}}</span></div>
-                                <div class="col-sm-4" style="font-size: .9em;">Billing ID: format(000-000) <div id="span" class="billing-id">{{$uniqueId}}</div></div>
+                                <div class="col-sm-4" style="font-size: .9em;"><div id="span" class="billing-id">Billing ID: {{$uniqueId}}</div></div>
                             </div>
                         </div>
                     </div>

@@ -65,7 +65,7 @@
                             <div class="card-title">Account Descriptions</div>
                             <div class="card-tools"><button class="btn btn-transparent fw-bold" data-bs-target='#new-description' data-bs-toggle='modal'><i class="fas fa-plus text-light"></i></button></div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" style="max-height: 400px; overflow-y: auto;" >
                             <table class="table table-bordered table-hover table-striped" style="font-size: .8em;">
                                 <thead>
                                     <tr>
@@ -85,7 +85,7 @@
                                             <td>{{$ads->ServiceRequirements}}</td>
                                             <td>{{$ads->adCategory}}</td>
                                             <td>{{$ads->Description}}</td>
-                                            <td>{{$ads->Price}}</td>
+                                            <td>{{ number_format($ads->Price, 2) }}</td>
                                             <td>{{$ads->TaxType}}</td>
                                             <td>{{$ads->FormType}}</td>
                                         </tr>

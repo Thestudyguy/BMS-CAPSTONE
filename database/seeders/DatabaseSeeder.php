@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AccountDescription;
 use App\Models\ChartOfAccounts;
 use App\Models\Services;
 use App\Models\ServicesSubTable;
@@ -167,5 +168,8 @@ class DatabaseSeeder extends Seeder
         ];
 
         DB::table('accounts')->insert($accounts);
+
+
+
     }
 }

@@ -483,6 +483,15 @@ class Controller extends BaseController
             dd('unauthorized access');
         }
     }
+
+    public function income(){
+        return view('pages.income');
+
+    }
+
+    public function expense(){
+        return view('pages.expense');
+    }
 }
 
 // try {
