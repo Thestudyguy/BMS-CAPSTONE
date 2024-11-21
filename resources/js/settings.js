@@ -111,12 +111,97 @@ $(document).ready(function(){
         }
     });
 
+    $('.edit-sys-profile').on('click', function(e) {
+        e.preventDefault();
+        var callFlag = true;
+        var profileObj = {};
+        var form = $('#sys-profile-form').serializeArray();
+    
+        $.each(form, (index, input) => {
+            if (input.value.trim() === '') {
+                callFlag = false;
+                $(`.sys-profile-form [name='${input.name}']`).addClass('is-invalid');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Missing fields',
+                    text: 'Please fill all fields'
+                });
+            } else {
+                $(`.sys-profile-form [name='${input.name}']`).removeClass('is-invalid');
+            }
+            profileObj[input.name] = input.value;
+        });
+
+        if (callFlag) {
+            $.ajax({
+                type: "POST",
+                url: 'edit-sys-info',
+                data: profileObj,
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                success: function(response){
+                    localStorage.setItem('system-profile', 'updated');
+                    location.reload();
+                },
+                error: function(error, status, jqXHR){
+                    try {
+                        const response = JSON.parse(error.responseText);
+                        console.log('Parsed Response:', response);
+                        ToastError.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    } catch (e) {
+                        console.log('Could not parse JSON response:', e);
+                    }
+                }
+            });
+        }
+    });
+
+    $('.edit-user-privilege').on('click', function(e) {
+        e.preventDefault();
+        var userId = $(this).attr('id');
+        console.log(userId);
+        $.ajax({
+            url: `/users/toggle-privilege/${userId}`,
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                localStorage.setItem('user_privilege_updated', response.message);
+                location.reload();
+            },
+            error: function(error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'An error occurred while updating the privilege.'
+                });
+            }
+        });
+    });
+    
+
     var accountDescription = localStorage.getItem('account_description');
+    var sysProfile = localStorage.getItem('system-profile');
+    var privilegeMessage = localStorage.getItem('user_privilege_updated');
     if(accountDescription === 'created'){
         Toast.fire({
             icon: 'success',
             title: 'Account Description Created!'
         });
         localStorage.removeItem('account_description');
+    }
+    if(sysProfile === 'updated'){
+        Toast.fire({
+            icon: 'success',
+            title: 'System Profile Updated'
+        });
+        localStorage.removeItem('system-profile');
+    }
+    if (privilegeMessage) {
+        Toast.fire({ icon: 'success', title: privilegeMessage });
+        localStorage.removeItem('user_privilege_updated');
     }
 });

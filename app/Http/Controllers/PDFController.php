@@ -14,6 +14,7 @@ use App\Models\journal_income;
 use App\Models\journal_income_months;
 use App\Models\journal_liabilities;
 use App\Models\journal_owners_equity;
+use App\Models\services;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -666,4 +667,67 @@ class PDFController extends Controller
             dd('unauthorized access');
         }
     }
+
+    public function GenerateServicesPDF()
+{
+    if (Auth::check()) {
+        try {
+            $services = DB::table('services')
+                ->join('services_sub_tables', 'services_sub_tables.BelongsToService', '=', 'services.id')
+                ->where('services.isVisible', true)
+                ->where('services_sub_tables.isVisible', true)
+                ->select(
+                    'services.id as ServiceID',
+                    'services.Service as ServiceName',
+                    'services.Price as ServicePrice',
+                    'services.Category as ServiceCategory',
+                    'services_sub_tables.ServiceRequirements as SubServiceName',
+                    'services_sub_tables.ServiceRequirementPrice as SubServicePrice'
+                )
+                ->orderBy('ServiceID')
+                ->get();
+
+            $groupedServices = [];
+            foreach ($services as $service) {
+                $groupedServices[$service->ServiceID]['ServiceName'] = $service->ServiceName;
+                $groupedServices[$service->ServiceID]['ServicePrice'] = $service->ServicePrice;
+                $groupedServices[$service->ServiceID]['ServiceCategory'] = $service->ServiceCategory;
+                $groupedServices[$service->ServiceID]['SubServices'][] = [
+                    'SubServiceName' => $service->SubServiceName,
+                    'SubServicePrice' => $service->SubServicePrice,
+                ];
+            }
+
+
+            $this->fpdf->AddPage();
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetFont('Arial', 'B', 14);
+            $this->fpdf->Cell(0, 10, 'Services and Sub-Services Report', 0, 1, 'C');
+            $this->fpdf->Ln(10);
+            foreach ($groupedServices as $serviceID => $serviceData) {
+                $this->fpdf->SetFont('Arial', 'B', 12);
+                $this->fpdf->Cell(0, 10, "Service: {$serviceData['ServiceName']} (Category: {$serviceData['ServiceCategory']})", 0, 1);
+                $this->fpdf->Cell(0, 10, "Price: PHP {$serviceData['ServicePrice']}", 0, 1);
+                $this->fpdf->Ln(5);
+                $this->fpdf->SetFont('Arial', '', 10);
+                $this->fpdf->Cell(0, 10, 'Sub-Services:', 0, 1);
+                foreach ($serviceData['SubServices'] as $subService) {
+                    $this->fpdf->Cell(10, 10, '', 0, 0);
+                    $this->fpdf->Cell(100, 10, "- {$subService['SubServiceName']}", 0, 0);
+                    $this->fpdf->Cell(30, 10, "PHP {$subService['SubServicePrice']}", 0, 1);
+                }
+
+                $this->fpdf->Ln(5);
+            }
+            $this->fpdf->Output();
+            exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    } else {
+        dd('Unauthorized access');
+    }
+}
+
+
 }

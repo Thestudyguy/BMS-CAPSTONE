@@ -58,6 +58,10 @@
                             <div class="card-header">
                                 <div class="card-title">Services</div>
                                 <div class="card-tools">
+                                    <button class="btn text-light pdf-services" data-url="{{ route('services/pdf') }}">
+                                        <i class="fas fa-file text-light"></i>
+                                    </button>
+                                    {{-- <button class="btn text-light pdf-services" onclick="location.href='{{ route('services/pdf') }}'"><i class="fas fa-file text-light"></i></button> --}}
                                     <button class="btn new-client-modal text-light" data-bs-target='#new-service-modal' data-bs-toggle='modal'>
                                         <i class="fas fa-plus text-light"></i>
                                     </button>

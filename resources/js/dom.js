@@ -560,6 +560,12 @@ $(document).ready(function () {
         }
     });
 
+    $('.pdf-services').on('click', function(e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        window.open(url, 'services/pdf');
+    });
+
 
     var activeLink = localStorage.getItem('activeNavItem');
     if (activeLink) {

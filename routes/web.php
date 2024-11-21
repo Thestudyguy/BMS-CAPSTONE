@@ -66,5 +66,7 @@ Route::middleware('authenticated')->group(function(){
     Route::put('update-company-profile', [ClientController::class, 'updateCompanyProfile'])->name('update-company-profile');
     Route::post('edit-ceo', [ClientController::class, 'EditCEO']);
     Route::post('edit-rep', [ClientController::class, 'EditRep']);
-
+    Route::post('edit-sys-info', [Controller::class, 'EditSystemProfile']);
+    Route::post('/users/toggle-privilege/{id}', [Controller::class, 'toggleUserLogInPrivilege']);
+    Route::get('services/pdf', [PDFController::class, 'GenerateServicesPDF'])->name('services/pdf');
 });

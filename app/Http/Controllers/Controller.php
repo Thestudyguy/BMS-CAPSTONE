@@ -483,6 +483,35 @@ class Controller extends BaseController
             dd('unauthorized access');
         }
     }
+
+    public function EditSystemProfile(Request $request){
+        if(Auth::check()){
+            try {
+                SystemProfile::where('id', 1)->update([
+                    'PhoneNumber' => $request['PhoneNumber'],
+                    'Email' => $request['Email'],
+                    'Address' => $request['Address']
+                ]);
+                return response()->json(['system-profile' => 'updated']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+    public function toggleUserLogInPrivilege($id)
+    {
+        $user = User::findOrFail($id);
+        $user->UserPrivilege = $user->UserPrivilege == 1 ? 0 : 1;
+        $user->save();
+        return response()->json([
+            'success' => true,
+            'message' => $user->UserPrivilege == 1 
+                ? 'User login enabled successfully.' 
+                : 'User login disabled successfully.'
+        ]);
+    }
 }
 
 // try {
