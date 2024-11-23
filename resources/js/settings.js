@@ -10,46 +10,172 @@ $(document).ready(function(){
         toast: false,
         position: 'bottom-end',
     })
-    $('#account-category').on('change', function(e){
-        $('#billing-account-type').attr('disabled', false);
+    $('#account-category').on('change', function(e) {
+        
+        $('#billing-account-type').prop('disabled', false); // Correct way to enable the select element
         $.ajax({
             type: 'POST',
             url: `get-account-types-${$(this).val()}`,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response) {
                 console.log(response);
-                
-                $('#billing-account-type').removeAttr('disabled');
-                var select = '<select name="Type" class="form-control" id="type" disabled>';
-                var hasOptions = false;
+    
+                let options = '<option value="" selected hidden>Select Type</option>';
+                let hasOptions = false;
+    
+                // Populate options dynamically
                 $.each(response, (index, element) => {
                     $.each(element, (index, at) => {
-                        console.log(at);
                         if (Object.keys(at).length > 0) {
-                            select += `<option value="${at.id}">${at.ServiceRequirements}</option>`;
+                            options += `<option value="${at.id}">${at.ServiceRequirements}</option>`;
                             hasOptions = true;
                         }
                     });
                 });
+    
                 if (!hasOptions) {
-                    select = `<select name="Type" class="form-control" id="billing-account-type" disabled>
-                                <option value="" selected hidden>Category has no type</option>
-                              </select>`;
-                } else {
-                    select += '</select>';
+                    options = `<option value="" selected hidden>Category has no type</option>`;
                 }
-                $('#billing-account-type').html(select);
+    
+                $('#billing-account-type').html(options);
             },
-            error: function(error, status, jqXHR){
+            error: function(error) {
+                console.error(error);
                 ToastError.fire({
                     icon: 'error',
-                    title: 'Fatal Error',
-                    text: `Translated: ${error}`
+                    title: 'Error',
+                    text: `Could not load account types: ${error.responseText || error.statusText}`
                 });
-                return;
             }
         });
     });
+
+    $(document).on('change', '[id^="edit-account-category-"]', function(e) {
+        let modalId = $(this).attr('id').split('-').pop();
+        let billingAccountTypeSelector = `#edit-billing-account-type-${modalId}`;
+    
+        console.log($(this).val());
+        console.log('Fetching types for modal:', modalId);
+    
+        $.ajax({
+            type: 'POST',
+            url: `get-account-types-${$(this).val()}`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response) {
+                console.log(response);
+    
+                let options = '<option value="" selected hidden>Select Type</option>';
+                let hasOptions = false;
+    
+                // Populate options dynamically
+                $.each(response, (index, element) => {
+                    $.each(element, (index, at) => {
+                        if (Object.keys(at).length > 0) {
+                            options += `<option value="${at.id}">${at.ServiceRequirements}</option>`;
+                            hasOptions = true;
+                        }
+                    });
+                });
+    
+                if (!hasOptions) {
+                    options = `<option value="" selected hidden>Category has no type</option>`;
+                }
+    
+                $(billingAccountTypeSelector).html(options);
+            },
+            error: function(error) {
+                console.error(error);
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: `Could not load account types: ${error.responseText || error.statusText}`
+                });
+            }
+        });
+    });
+    
+
+    $('.edit-description').on('click', function(e){
+        var modal = $(this).attr('id').split('-').pop();
+        e.preventDefault();
+        var updatedDescription = {};
+        var descriptionForm = $(`.update-description-form-${modal}`).serializeArray();
+        var callFlag = true;
+        
+        $.each(descriptionForm, (index, input)=>{
+            if(input.value === ''){
+                callFlag = false;
+                Toast.fire({
+                    icon: 'warning', 
+                    title: 'Missing Fields!',
+                    text: 'Please fill all fields'
+                });
+                $(`.update-description-form-${modal} [name='${input.name}']`).addClass('is-invalid');
+            }
+            $(`.update-description-form-${modal} [name='${input.name}']`).removeClass('is-invalid');
+            updatedDescription[input.name] = input.value;
+        });
+        console.log(updatedDescription);
+        
+        if(callFlag){
+            $.ajax({
+                type: 'POST',
+                url: 'update/account-description',
+                data: updatedDescription,
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                success: function(response){
+                    localStorage.setItem('account_description', 'updated');
+                    location.reload();
+                },
+                error: function(error, status, jqXHR){
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Oops! Something went wrong',
+                        text: 'Translated: ' + error.responseText
+                    });
+                }
+            });
+        }
+    });
+    
+    $('.remove-description').on('click', function(){
+        $.ajax({
+            type: 'POST',
+            url: `remove/account-description/${$(this).attr('id')}`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                success: function(response){
+                    localStorage.setItem('account_description', 'removed');
+                    location.reload();
+                },
+                error: function(error, status, jqXHR){
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Oops! Something went wrong',
+                        text: 'Translated: ' + error.responseText
+                    });
+                }
+        });
+    });
+
+    $('.remove-coa').on('click', function(){
+        $.ajax({
+            type: 'POST',
+            url: `remove/coa/${$(this).attr('id')}`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+                success: function(response){
+                    localStorage.setItem('coa', 'removed');
+                    location.reload();
+                },
+                error: function(error, status, jqXHR){
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Oops! Something went wrong',
+                        text: 'Translated: ' + error.responseText
+                    });
+                }
+        });
+    });
+
     $('.save-account-description').on('click', function(e){
         var batdForm = $('.account-description-form').serializeArray();
         var formObj = {};
@@ -185,11 +311,26 @@ $(document).ready(function(){
 
     var accountDescription = localStorage.getItem('account_description');
     var sysProfile = localStorage.getItem('system-profile');
+    var coa = localStorage.getItem('coa');
     var privilegeMessage = localStorage.getItem('user_privilege_updated');
     if(accountDescription === 'created'){
         Toast.fire({
             icon: 'success',
             title: 'Account Description Created!'
+        });
+        localStorage.removeItem('account_description');
+    }
+    if(accountDescription === 'removed'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Account Description Removed!'
+        });
+        localStorage.removeItem('account_description');
+    }
+    if(accountDescription === 'updated'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Account Description Updated!'
         });
         localStorage.removeItem('account_description');
     }
@@ -199,6 +340,13 @@ $(document).ready(function(){
             title: 'System Profile Updated'
         });
         localStorage.removeItem('system-profile');
+    }
+    if(coa === 'removed'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Account Removed'
+        });
+        localStorage.removeItem('coa');
     }
     if (privilegeMessage) {
         Toast.fire({ icon: 'success', title: privilegeMessage });

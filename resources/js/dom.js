@@ -115,7 +115,7 @@ $(document).ready(function () {
                         <tr class='sub-service' id='${element.id}'>
                             <td>${element.ServiceRequirements}</td>
                             <td>${formattedAmount}
-                            <span class="badge mx-2 bg-warning float-right text-sm sub-service-action-icons">
+                            <span id='${element.id}' class="badge mx-2 bg-warning float-right text-sm sub-service-action-icons-remove" data-bs-target='#remove-sub-service' data-bs-toggle='modal' >
                                 <i class="fas fa-trash" style="font-size: .8em;"></i>
                             </span>
                             <span id='${element.id}' data-bs-target='#edit-sub-service-modal' data-bs-toggle='modal' class="badge bg-warning float-right text-sm sub-service-action-icons-edit">
@@ -162,6 +162,34 @@ $(document).ready(function () {
                 });
             }
         });
+    });
+
+    $(document).on('click', '.sub-service-action-icons-remove', function(e){
+        e.preventDefault();
+        var subServiceID = $(this).attr('id');
+        var subService = $(this).closest('tr').find('td:eq(0)').text().trim();
+        console.log(subService);
+        $('.sub-service-app').text(subService);
+        $('.remove-sub-service').attr('id', subServiceID);
+    });
+
+    $(document).on('click', '.remove-sub-service', function(){
+        $.ajax({
+            type: 'POST',
+            url: `remove-sub-service/${$(this).attr('id')}`,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(response){
+                localStorage.setItem('sub-service', 'removed');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Translated: ' + error 
+                });
+            }
+        });        
     });
 
     $('#edit-sub-service').on('click', function(e){
@@ -592,6 +620,7 @@ $(document).ready(function () {
         }
     }
     var subService = localStorage.getItem('sub_service');
+    var sub_service = localStorage.getItem('sub-service');
     if(subService === 'created'){
         Toast.fire({
             icon: 'success',
@@ -605,5 +634,12 @@ $(document).ready(function () {
             title: 'Service Updated!'
         });
         localStorage.removeItem('sub_service');
+    }
+    if(sub_service === 'removed'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Service Removed!'
+        });
+        localStorage.removeItem('sub-service');
     }
 });

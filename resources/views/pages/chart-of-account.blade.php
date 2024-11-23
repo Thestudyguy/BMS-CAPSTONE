@@ -52,9 +52,10 @@
                                                 <td>{{$accounts->Category}}</td>
                                                 <td>
                                                     <span data-bs-target="#edit-coa-modal-{{$accounts->id}}" data-bs-toggle="modal" id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
-                                                    <span id="{{$accounts->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
+                                                    <span id="{{$accounts->id}}" data-bs-target="#remove-coa-{{$accounts->id}}" data-bs-toggle="modal" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
                                                 </td>
                                             </tr>
+                                            @include('modals.remove-coa')
                                             @include('modals.edit-coa-modal')
                                         @endforeach
                             </tbody>
@@ -82,10 +83,10 @@
                                     <tr id="{{$ats->id}}">
                                         <td>{{$ats->AccountType}}</td>
                                         <td>{{$ats->Category}}</td>
-                                        <td>
+                                        {{-- <td>
                                             <span id="{{$ats->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-pen"></i></span>
                                             <span id="{{$ats->id}}" class="badge bg-warning p-1 rounded-1" style="font-size: .7rem;"><i class="fas fa-trash"></i></span>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             </tbody>

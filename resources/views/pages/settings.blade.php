@@ -92,10 +92,12 @@
                                             <td>{{$ads->TaxType}}</td>
                                             <td>{{$ads->FormType}}</td>
                                             <td>
-                                                <span class="badge fw-bold text-dark bg-warning"><i class="fas fa-pen"></i></span>
-                                                <span class="badge fw-bold text-dark bg-warning"><i class="fas fa-trash"></i></span>
+                                                <span class="badge fw-bold text-dark bg-warning" data-bs-target="#edit-description-{{$ads->id}}" data-bs-toggle="modal"><i class="fas fa-pen"></i></span>
+                                                <span class="badge fw-bold text-dark bg-warning" data-bs-target="#remove-description-{{$ads->id}}" data-bs-toggle="modal"><i class="fas fa-trash"></i></span>
                                             </td>
                                         </tr>
+                                        @include('modals.remove-account-description')
+                                        @include('modals.edit-description')
                                     @endforeach
                                 </tbody>
                             </table>

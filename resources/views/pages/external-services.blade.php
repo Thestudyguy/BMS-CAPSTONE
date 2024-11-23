@@ -99,6 +99,7 @@
                                     @include('modals.remove-service-modal')
                                     @endforeach
                                 </table>
+                                @include('modals.remove-sub-service')
                             </div>
                         </div>
                     </div>

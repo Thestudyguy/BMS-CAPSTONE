@@ -69,4 +69,8 @@ Route::middleware('authenticated')->group(function(){
     Route::post('edit-sys-info', [Controller::class, 'EditSystemProfile']);
     Route::post('/users/toggle-privilege/{id}', [Controller::class, 'toggleUserLogInPrivilege']);
     Route::get('services/pdf', [PDFController::class, 'GenerateServicesPDF'])->name('services/pdf');
+    Route::post('remove-sub-service/{id}', [Controller::class, 'RemoveSubService']);
+    Route::post('update/account-description', [Controller::class, 'UpdateDescription']);
+    Route::post('remove/account-description/{id}', [Controller::class, 'RemoveDescription']);
+    Route::post('remove/coa/{id}', [Controller::class, 'RemoveCOA']);
 });

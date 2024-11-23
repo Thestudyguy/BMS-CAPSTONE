@@ -786,7 +786,7 @@ $('.save-asset-info').on('click', function(e) {
                 var accountTotal = 0;
 
                 $.each(accountData.months, function (index, month) {
-                    var preparedValue = month.value.replace(/[^0-9]/g, '');
+                    var preparedValue = month.value.replace(/,/g, '');
                     var valToFloat = parseFloat(preparedValue);
                     accountTotal += valToFloat;
                 });
@@ -798,14 +798,15 @@ $('.save-asset-info').on('click', function(e) {
                         <div class="col-sm-6 text-right">${formattedAccountTotal}</div>
                     </div>`;
             });
-
-            var formattedTotal = incometotal.toLocaleString();
+            
+            var formattedTotal = parseFloat(incometotal);
+            console.log(typeof(formattedTotal));
             $('#append-expenses-choy').append(expensesHtml);
 
             var totalExpensesHtml = `
                 <div class="row mt-3">
                     <div class="col-sm-6 text-left"><strong>Total:</strong></div>
-                    <div class="col-sm-6 text-right"><strong>${formattedTotal}</strong></div>
+                    <div class="col-sm-6 text-right"><strong>${formattedTotal.toLocaleString()}</strong></div>
                 </div>`;
 
             $('.append-expense-total').html(totalExpensesHtml);

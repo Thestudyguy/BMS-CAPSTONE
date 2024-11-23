@@ -698,11 +698,11 @@ class PDFController extends Controller
                 ];
             }
 
-
+            $currentDate = date('F j, Y');
             $this->fpdf->AddPage();
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->SetFont('Arial', 'B', 14);
-            $this->fpdf->Cell(0, 10, 'Services and Sub-Services Report', 0, 1, 'C');
+            $this->fpdf->Cell(0, 10, "Services as of $currentDate", 0, 1, 'C');
             $this->fpdf->Ln(10);
             foreach ($groupedServices as $serviceID => $serviceData) {
                 $this->fpdf->SetFont('Arial', 'B', 12);

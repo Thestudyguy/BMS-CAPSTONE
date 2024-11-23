@@ -327,10 +327,10 @@ class Controller extends BaseController
                 'account_descriptions.Description',
                 'account_descriptions.TaxType',
                 'account_descriptions.FormType',
-                'account_descriptions.Price',
+                'account_descriptions.Price', 'account_descriptions.id',
                 'account_descriptions.Category as adCategory',
-                'services_sub_tables.ServiceRequirements',
-                'services.Category', 'services.Service',
+                'services_sub_tables.ServiceRequirements', 'services_sub_tables.id as sub_service_id',
+                'services.Category', 'services.Service', 'services.id as service_id',
                 'accounts.AccountName'
             )
             ->get();
@@ -502,16 +502,87 @@ class Controller extends BaseController
     }
     public function toggleUserLogInPrivilege($id)
     {
-        $user = User::findOrFail($id);
-        $user->UserPrivilege = $user->UserPrivilege == 1 ? 0 : 1;
-        $user->save();
-        return response()->json([
-            'success' => true,
-            'message' => $user->UserPrivilege == 1 
-                ? 'User login enabled successfully.' 
-                : 'User login disabled successfully.'
-        ]);
+        if(Auth::check()){
+            try {
+                $user = User::findOrFail($id);
+                $user->UserPrivilege = $user->UserPrivilege == 1 ? 0 : 1;
+                $user->save();
+                return response()->json([
+                    'success' => true,
+                    'message' => $user->UserPrivilege == 1 
+                        ? 'User login enabled successfully.' 
+                        : 'User login disabled successfully.'
+                ]);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized accecss');
+        }
     }
+
+    public function RemoveSubService($id){
+        if(Auth::check()){
+            try {
+                ServicesSubTable::where('id', $id)->update(['isVisible' => false]);
+                return response()->json(['sub-service', 'removed']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+    
+    public function UpdateDescription(Request $request){
+        if(Auth::check()){
+            try {
+                $preparedPrice = (float)str_replace(',', '', $request['price']);
+                AccountDescription::where('id', $request['ad_id'])->update([
+                    'Description' => $request['description'],
+                    'TaxType' => $request['taxType'],
+                    'FormType' => $request['formType'],
+                    'Price' => $preparedPrice,
+                    'Category' => $request['category'],
+                    'account' => $request['Type'],
+                    'dataUserEntry' => Auth::user()->id,
+                ]);
+                // Log::info("$preparedPrice type = $type");
+                return response()->json(['account_description' => 'updated']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
+    public function RemoveDescription($id){
+        if(Auth::check()){
+            try {
+                AccountDescription::where('id', $id)->update(['isVisible' => false]);
+                return response()->json(['description' => 'removed']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
+    public function RemoveCOA($id){
+        if(Auth::check()){
+            try {
+                Accounts::where('id', $id)->update(['isVisible' => false]);
+                return response()->json(['description' => 'removed']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            dd('unauthorized access');
+        }
+    }
+
 }
 
 // try {
