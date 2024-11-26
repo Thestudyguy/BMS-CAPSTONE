@@ -193,6 +193,8 @@ $(document).ready(function () {
         $('.start-date').val('');
         selectedAccount = '';
         hasValue = true;
+        console.log(expensesObj);
+        
     });
 
 
@@ -579,7 +581,9 @@ $('.save-asset-info').on('click', function(e) {
         });
         return;
     }
-
+    var test = accountType.split('_');
+    console.log(test[0]);
+    
     if (!assetObj[accountType]) {
         assetObj[accountType] = {
             accounts: []
@@ -591,6 +595,7 @@ $('.save-asset-info').on('click', function(e) {
         amount: assetAmount
     });
 
+    
     console.log("Asset Object:", assetObj);
 
     var assetDisplay = '';
@@ -662,14 +667,14 @@ $('.save-asset-info').on('click', function(e) {
         amount: liabilityAmount
     });
 
-    console.log("Asset Object:", assetObj);
+    console.log("liability Object:", liabilityObj);
 
     var liabilityDisplay = '';
     $.each(liabilityObj, function(key, value) {
         $.each(value.accounts, function(i, account) {
+            // <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
             liabilityDisplay += `
                 <tr>
-                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.liabilityAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                     <td style="font-size: 0.8em;">
@@ -732,14 +737,14 @@ $('.save-asset-info').on('click', function(e) {
         amount: oeAmount
     });
 
-    console.log("Asset Object:", assetObj);
+    console.log("Asset Object:", oeObj);
 
     var oeDisplay = '';
     $.each(oeObj, function(key, value) {
         $.each(value.accounts, function(i, account) {
+            // <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
             oeDisplay += `
                 <tr>
-                    <td style="font-size: 0.8em;">${key.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.oeAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                     <td style="font-size: 0.8em;">
@@ -756,8 +761,9 @@ $('.save-asset-info').on('click', function(e) {
     
     $('.journal-oe-form')[0].reset();
     $('#oe_account_name').html('<option value="" selected hidden>Select an account type first</option>');
+    console.log("oeObj Object:", oeObj);
     });
-
+    
     let assetFlag = true;
     let liabilityFlag = true;
     let oeFlag = true;
@@ -862,7 +868,7 @@ $('.save-asset-info').on('click', function(e) {
                 var operatingTotal = 0;
                 if (expenseType === 'Less Direct Cost') {
                     $.each(incomeData.months, (index, expenseData) => {
-                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var preparedValue = expenseData.value.replace(/,/g, '');
                         var valToFloat = parseFloat(preparedValue);
                         expenseAccTotal += valToFloat;
                     });
@@ -878,7 +884,7 @@ $('.save-asset-info').on('click', function(e) {
                     `;
                 }else if(expenseType === 'Operating Expenses'){
                     $.each(incomeData.months, (index, expenseData) => {
-                        var preparedValue = expenseData.value.replace(/[^0-9]/g, '');
+                        var preparedValue = expenseData.value.replace(/,/g, '');
                         var valToFloat = parseFloat(preparedValue);
                         operatingTotal += valToFloat;
                     });
@@ -929,7 +935,7 @@ $('.save-asset-info').on('click', function(e) {
             $.each(assetObj, (index, data)=>{
                 if(index.split('_')[0] === 'Current Asset'){
                     $.each(data.accounts, (index, accounts)=>{
-                        var caAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var caAmount = accounts.amount.replace(/,/g, '');
                         var preparedCAAmount = parseFloat(caAmount);
                         totalCA += preparedCAAmount;
                         $('.total-ca').text(totalCA.toLocaleString());            
@@ -943,7 +949,7 @@ $('.save-asset-info').on('click', function(e) {
                 }
                 if(index.split('_')[0] === 'Non-Current Assets'){
                     $.each(data.accounts, (index, accounts)=>{
-                        var tncaAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var tncaAmount = accounts.amount.replace(/,/g, '');
                         var preparedTNCAAmount = parseFloat(tncaAmount);
                         totalNCA += preparedTNCAAmount;
                         $('.tnca-amount').text(totalNCA.toLocaleString());
@@ -957,7 +963,7 @@ $('.save-asset-info').on('click', function(e) {
                 }
                 if(index.split('_')[0] === 'Fixed Assets'){
                     $.each(data.accounts, (index, accounts)=>{
-                        var faAmount = accounts.amount.replace(/[^0-9]/g, '');
+                        var faAmount = accounts.amount.replace(/,/g, '');
                         var preparedFAAmount = parseFloat(faAmount);
                         totalFA += preparedFAAmount;
                         $('.append-fa').append(
@@ -987,7 +993,7 @@ $('.save-asset-info').on('click', function(e) {
 
             $.each(liabilityObj, (index, liability)=>{
                 $.each(liability.accounts, (index, accounts)=>{
-                    var sanitizeLAM = accounts.amount.replace(/[^0-9.-]/g, '');
+                    var sanitizeLAM = accounts.amount.replace(/,/g, '');
                     var lamToFloat = parseFloat(sanitizeLAM);
                     liAmount += lamToFloat;
                     
@@ -1019,7 +1025,7 @@ $('.save-asset-info').on('click', function(e) {
 
            $.each(oeObj, (index, data)=>{
             $.each(data.accounts, (index, oe)=>{
-                var sanitizeOe = oe.amount.replace(/[^0-9.-]/g, '');
+                var sanitizeOe = oe.amount.replace(/,/g, '');
                 var oeamToFloat = parseFloat(sanitizeOe);
                 oeAmount += oeamToFloat;
                 
@@ -1070,7 +1076,7 @@ $('.save-asset-info').on('click', function(e) {
             }
         
             $.each(adjustmentObj, (index, data) => {
-                var adjAmount = data.replace(/[^0-9]/g, '');
+                var adjAmount = data.replace(/,/g, '');
                 var preparedAdjustments = parseFloat(adjAmount);
         
                 if (index === 'owners_withdrawal') {

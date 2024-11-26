@@ -9,6 +9,7 @@ import './billing';
 import './pdf';
 import './journal-pin-entry';
 import './accountant';
+import './edit-journal';
 //global functions
 $(document).ready(function(){
     

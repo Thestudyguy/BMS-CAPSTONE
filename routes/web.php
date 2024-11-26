@@ -73,4 +73,7 @@ Route::middleware('authenticated')->group(function(){
     Route::post('update/account-description', [Controller::class, 'UpdateDescription']);
     Route::post('remove/account-description/{id}', [Controller::class, 'RemoveDescription']);
     Route::post('remove/coa/{id}', [Controller::class, 'RemoveCOA']);
+    // Route::get('journal/audit', [ClientController::class, 'AuditPage']);
+    Route::get('journal-audit', [ClientController::class, 'AuditPage'])->name('journal-audit');
+
 });

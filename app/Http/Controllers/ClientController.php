@@ -37,11 +37,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-// use Mail;
+use Illuminate\Support\Facades\Mail as FacadesMail;
+use Mail;
 use Illuminate\Support\Str;
 use Codedge\Fpdf\Fpdf\Fpdf;
-use Illuminate\Support\Facades\Storage;
+use Storage;
 
 class ClientController extends Controller
 {
@@ -384,7 +384,7 @@ class ClientController extends Controller
             Log::info($clientID);
             $services = ClientServices::where('Client', $clientID)->get();
             $client = Clients::where('id', $clientID)->pluck('CompanyEmail', 'CEO')->first();
-            Mail::to($client)->send(new MailClientServices($services, testemail: $client));
+            FacadesMail::to($client)->send(new MailClientServices($services, testemail: $client));
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -616,78 +616,73 @@ class ClientController extends Controller
 
     public function updateCompanyProfile(Request $request)
 {
-   if(Auth::check()){
-    try {
-         // Log::info($request['client_id']);
+    // Log::info($request['client_id']);
     // return;
-    $request->validate([
-        'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    // Retrieve or create CompanyProfile
-    $clientProfile = CompanyProfile::firstOrNew(['company' => $request['client_id']]);
-
-    if ($request->hasFile('profile')) {
-        $file = $request->file('profile');
-        $fileName = 'client_' . $request['client_id'] . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $filePath = $file->storeAs('client-files', $fileName, 'public');
-
-        // Delete old image if exists
-        if ($clientProfile->image_path) {
-            Storage::disk('public')->delete($clientProfile->image_path);
+    if(Auth::check()){
+        try {
+            $request->validate([
+                'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+        
+            $clientProfile = CompanyProfile::firstOrNew(['company' => $request['client_id']]);
+        
+            if ($request->hasFile('profile')) {
+                $file = $request->file('profile');
+                $fileName = 'client_' . $request['client_id'] . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('client-files', $fileName, 'public');
+        
+                if ($clientProfile->image_path) {
+                    Storage::disk('public')->delete($clientProfile->image_path);
+                }
+        
+                $clientProfile->image_path = $filePath;
+                $clientProfile->save();
+            }
+        
+            return redirect()->back()->with('success', 'Profile updated successfully!');
+        } catch (\Throwable $th) {
+            throw $th;
         }
-
-        // Update database
-        $clientProfile->image_path = $filePath;
-        $clientProfile->save();
+    }else{
+        dd('unauthorized access');
     }
-
-    return redirect()->back()->with('success', 'Profile updated successfully!');
-    } catch (\Throwable $th) {
-        throw $th;
-    }
-   }else{
-    dd('unauthorized access');
-   }
 }
 
-    public function EditCEO(Request $request){
-        if(Auth::check()){
-            try {
-                // Log::info($request);
-                // return;
-              Clients::where('id', $request['client_id'])->update([
-                'CEO' => $request['CEO'],
-                'CEODateOfBirth' => $request['DateOfBirth'],
-                'CEOContactInformation' => $request['CEOContactInformation']
-              ]);
-              return response()->json(['ceo' => 'updated'], 200);
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-        }else{
-            dd('unauthorized access');
-        }
-    }
-
-    public function EditRep(Request $request){
-        if(Auth::check()){
-            try {
-                ClientRepresentative::where('id', $request['rep_id'])->update([
-                    'RepresentativeName' => $request['RepresentativeName'],
-                    'RepresentativeContactInformation' => $request['RepresentativeContactInformation'],
-                    'RepresentativeDateOfBirth' => $request['RepresentativeDateOfBirth'],
-                    'RepresentativePosition' => $request['RepresentativePosition'],
-                    'RepresentativeAddress' => $request['RepresentativeAddress'],
-                ]);
-                return response()->json(['client-rep' => 'updated']);
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-        }else{
-            dd('unauthorized access');
-        }
-    }
+public function AuditPage(Request $request){
+    $journalIncome = journal_income::where('journal_incomes.journal_id', $request->id)
+    ->select(
+        'journal_incomes.*', 'journal_income_months.*',
+        'journal_incomes.id as jiID', 'journal_income_months.id as jimID',
+    )
+    ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
+    ->get();
+    $journalExpense = journal_expense::where('journal_expenses.journal_id', $request->id)
+    ->select(
+        'journal_expenses.*', 'journal_expense_months.*',
+        'journal_expenses.id as jeID', 'journal_expense_months.id as jemID'
+    )
+    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+    ->get();
+    $journalAsset = journal_assets::where('journal_id', $request->id)->get();
+    $journalLiability = journal_liabilities::where('journal_id', $request->id)->get();
+    $journalOE = journal_owners_equity::where('journal_id', $request->id)->get();
+    $journaladjustment = journal_adjustments::where('journal_id', $request->id)->first();
+    
+    $journal = ClientJournal::where('journal_id', $request->id)->first();
+    $client = Clients::where('id', $journal->client_id)->first();
+    $accounts = Accounts::where('accounts.isVisible', true)
+        ->select('accounts.AccountName as Account', 'account_types.AccountType as AT', 'account_types.Category', 'accounts.id')
+        ->join('account_types', 'accounts.AccountType', '=', 'account_types.id')
+        ->get();
+    $ats = AccountType::where('isVisible', true)->where('Category', 'Asset')->get();
+    $lts = AccountType::where('isVisible', true)->where('Category', 'Liability')->get();
+    $oets = AccountType::where('isVisible', true)->where('Category', 'Equity')->get();
+    $ets = AccountType::where('isVisible', true)->where('Category', 'Expenses')->get();
+    return view('pages.journal-audit', compact(
+        'client', 'accounts', 'ats', 'lts', 'oets', 'ets', 'journal' ,'journalAsset',
+        'journalExpense', 'journalExpense', 'journalLiability', 'journalOE', 'journaladjustment', 'journalIncome', 
+    ));
+}
 
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){

@@ -67,6 +67,13 @@
                                         @if (Auth::user()->Role === 'Admin')
                                         <span class="badge bg-warning text-dark" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}">
                                             <i class="fas fa-trash" style="color: #063d58"></i>
+                                            
+                                        </span>
+                                        <span class="badge fw-bold bg-warning text-dark audit-journal" 
+                                                id="{{$journal->client_id}}_{{$journal->journal_id}}"
+                                                onclick="window.location.href='{{ route('journal-audit', ['id' => $journal->journal_id]) }}'"
+                                                >
+                                            <i class="fas fa-pen" style="color: #063d58"></i>
                                         </span>
                                         <span class="badge bg-warning text-dark view-journal-btn" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}">
                                             <i class="fas fa-eye" style="color: #063d58"></i>
