@@ -581,8 +581,6 @@ $('.save-asset-info').on('click', function(e) {
         });
         return;
     }
-    var test = accountType.split('_');
-    console.log(test[0]);
     
     if (!assetObj[accountType]) {
         assetObj[accountType] = {
@@ -911,7 +909,6 @@ $('.save-asset-info').on('click', function(e) {
             $('.append-oe').append(operatingExpenseHTML);
             $('.oe-total').text(oetotal.toLocaleString());
             $('.net-amount').text(totalGI.toLocaleString());
-
         }
 
         if (currentStep === 3) {
@@ -980,6 +977,8 @@ $('.save-asset-info').on('click', function(e) {
             
         }
         if (currentStep === 4) {
+            console.log(liabilityObj);
+            
             var liDisp = ``;
             var liAmount = 0;
             if(Object.keys(liabilityObj).length === 0){

@@ -3,6 +3,9 @@
 @section('content')
     <div class="container-fluid p-5 mt-5">
         <div class="container">
+            <div class="audit-client-journal-loader visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
+                <div class="loader"></div>
+            </div>
             <div class="card">
                 <div class="card-body">
                     <h6 class="h4 fw-bold">Edit Journal</h6>
@@ -94,13 +97,16 @@
                                             <div class="saved-audited-months-table text-sm">
                                                 <table class="table" id="saved-audited-income-months">
                                                     @foreach ($journalIncome as $income)
-                                                    @php
-                                                        $preparedAccount = explode('_', $income->account);
-                                                    @endphp
+                                                        @php
+                                                            // Handle account format with or without an underscore
+                                                            $preparedAccount = Str::contains($income->account, '_') 
+                                                                                ? explode('_', $income->account)[1] 
+                                                                                : $income->account;
+                                                        @endphp
                                                         <tr id="{{$income->jiID}}" class="client-journal-accounts text-sm" data-widget="expandable-table" aria-expanded="true">
-                                                            <td>{{$preparedAccount[1]}}</td>
+                                                            <td>{{ $preparedAccount }}</td>
                                                             <td>
-                                                                <span class="fw-bold text-dark remove-audit-income" id="{{$income->account}}"><i class="fas fa-times"></i></span>
+                                                                <span class="fw-bold text-dark remove-audit-income" id="{{ $income->account }}"><i class="fas fa-times"></i></span>
                                                             </td>
                                                         </tr>
                                                         <tr class="expandable-body bg-light">
@@ -115,8 +121,8 @@
                                                                         </thead>
                                                                         <tbody>
                                                                             <tr>
-                                                                                <td>{{$income->month}}</td>
-                                                                                <td>{{number_format($income->amount, 2)}}</td>
+                                                                                <td>{{ $income->month }}</td>
+                                                                                <td>{{ number_format($income->amount, 2) }}</td>
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
@@ -125,6 +131,7 @@
                                                         </tr>
                                                     @endforeach
                                                 </table>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -234,7 +241,7 @@
                                         <option value="" selected hidden>Select an asset type first</option>
                                     </select>
                                     <input type="text" name="assetAmount" class="form-control"
-                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
+                                        placeholder="Enter amount..." oninput="formatValueInput(this)" id="assetAmount">
                                     <button class="btn btn-sm mb-5 text-light fw-bold save-audit-asset-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
                                         </div>
                                         <div class="col-sm-6">
@@ -267,29 +274,30 @@
                     <div class="multi-step-journal-audit liability" style="display: none;">
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Liability</h6>
-                            <form action="" class="journal-liability-form">
+                            <form action="" class="journal-audit-liability-form">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <select class="form-control" name="liability-account" id="liability_account">
+                                            <select class="form-control" name="audit-liability-account" id="liability_account">
                                                 <option value="" selected hidden>Select liability type</option>
                                                 @foreach ($lts as $lt)
                                                     <option value="{{ $lt->AccountType }}_{{ $lt->id }}">{{ $lt->AccountType }}</option>
                                                 @endforeach
                                             </select>
-                                            <select name="liability-account-name" id="liability_account_name"
+                                            <select name="audit-liability-account-name" id="liability_account_name"
                                                 class="form-control my-3">
                                                 <option value="" selected hidden>Select a liability type first</option>
                                             </select>
                                             <input type="text" name="liability-amount" class="form-control"
-                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
-                                                <button class="btn btn-sm mb-5 text-light fw-bold save-liability-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
+                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="liabilityAmount">
+                                                <button class="btn btn-sm mb-5 text-light fw-bold save-audit-liability-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
                                             </div>
                                         <div class="col-sm-6">
                                             <table class="table table-hover">
                                                 <thead">
                                                     <tr>
                                                         
+                                                        <td style="font-size: 0.8em;">Account Type</td>
                                                         <td style="font-size: 0.8em;">Account</td>
                                                         <td style="font-size: 0.8em;">Amount</td>
                                                     </tr>
@@ -297,8 +305,9 @@
                                                 <tbody class="append-audit-liability-accounts text-sm">
                                                     @foreach ($journalLiability as $liability)
                                                         <tr id="{{$liability->id}}" class="text-sm">
+                                                            <td>{{$liability->AccountType}}</td>
                                                             <td>{{$liability->account}}</td>
-                                                            <td>{{number_format($liability->amount, 2)}}<span class="badge fw-bold text-dark float-right"><i class="fas fa-times"></i></span></td>
+                                                            <td>{{number_format($liability->amount, 2)}}<span class="badge fw-bold text-dark float-right remove-audit-liability" id="{{$liability->account}}"><i class="fas fa-times"></i></span></td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -314,7 +323,7 @@
                     <div class="multi-step-journal-audit equity" style="display: none;">
                         <div class="card border">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Owner's Equity</h6>
-                            <form action="" class="journal-oe-form">
+                            <form action="" class="journal-audit-oe-form">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-sm-6">
@@ -328,14 +337,15 @@
                                                 <option value="" selected hidden>Select a owner's equity type first</option>
                                             </select>
                                             <input type="text" name="oe-amount" class="form-control"
-                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="">
-                                                <button class="btn btn-sm mb-5 text-light fw-bold save-oe-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
+                                                placeholder="Enter amount..." oninput="formatValueInput(this)" id="oeAmount">
+                                                <button class="btn btn-sm mb-5 text-light fw-bold save-audit-oe-info" type="button" style="background: #063D58; align-self: flex-end;">Save</button>
                                         </div>
                                         <div class="col-sm-6">
                                             <table class="table table-hover">
                                                 <thead">
                                                     <tr>
                                                         
+                                                        <td style="font-size: 0.8em;">Account Type</td>
                                                         <td style="font-size: 0.8em;">Account</td>
                                                         <td style="font-size: 0.8em;">Amount</td>
                                                     </tr>
@@ -343,10 +353,11 @@
                                                 <tbody class="append-audit-oe-accounts">
                                                     @foreach ($journalOE as $oe)
                                                         <tr id="{{$oe->id}}" class="text-sm">
+                                                            <td>{{$oe->AccountType}}</td>
                                                             <td>{{$oe->account}}</td>
                                                             <td>
                                                                 {{number_format($oe->amount, 2)}}
-                                                                <span class="badge fw-bold text-dark float-right"><i class="fas fa-times"></i></span>
+                                                                <span class="badge fw-bold text-dark float-right remove-audit-oe"><i class="fas fa-times"></i></span>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -362,21 +373,22 @@
                     <div class="multi-step-journal-audit adjustments" style="display: none; font-family: Poppins;">
                         <div class="card border p-3">
                             <h6 class="h4 fw-bold p-3" style="color:#063D58;">Owner's Equity Adjustments</h6>
-                            <form action="" class="journal-adjustments-form">
+                            <form action="" class="journal-audit-adjustments-form">
                                 <label for="OnwersContribution">Owner's Contribution</label>
-                                <input type="text" value="{{number_format($journaladjustment->owners_contribution, 2)}}" name="owners_contribution" class="form-control" oninput="formatValueInput(this)" id="" placeholder="Enter amount...">
+                                <input type="text" value="{{number_format($journaladjustment->owners_contribution, 2)}}" name="audit-owners_contribution" class="form-control" oninput="formatValueInput(this)" id="" placeholder="Enter amount...">
                                 <label for="OnwersContribution">Owner's Withdrawal</label>
-                                <input type="text" value="{{number_format($journaladjustment->owners_withdrawal, 2)}}" name="owners_withdrawal" class="form-control" oninput="formatValueInput(this)" id="" placeholder="Enter amount...">
+                                <input type="text" value="{{number_format($journaladjustment->owners_withdrawal, 2)}}" name="audit-owners_withdrawal" class="form-control" oninput="formatValueInput(this)" id="" placeholder="Enter amount...">
                             </form>
                         </div>
                     </div>
                     <div class="multi-step-journal-audit summary" style="display: none; font-family: Poppins;">
                         {{-- style="display: none; font-family: Poppins;" ibalik after --}}
+                        {{-- ibalik ang code diri after --}}
                         <div class="row">
                             <div class="col-sm-6 border">
                                 <div class="row">
                                     <div class="col border">
-                                        <div class="card fo-card rounded-0">
+                                        <div class="card fo-card rounded-0 p-3">
                                             <center>
                                                 <h4 class="h4 fw-bold text-dark">Financial Operation</h4>
                                             </center>
@@ -408,17 +420,21 @@
                                                                 $totalAdjustments = 0;
                                                             @endphp
                                                             @foreach ($journalIncome as $income)
-                                                            @php
-                                                                $preparedAccount = explode('_', $income->account);
-                                                                $totalIncome += $income->amount;
-                                                            @endphp
-                                                            <span class="revenue-accounts float-left">{{$preparedAccount[1]}}</span>
-                                                            <span class="revenue-amount float-right">{{number_format($income->amount, 2)}}</span>
+                                                                @php
+                                                                    // Handle account format with or without an underscore
+                                                                    $preparedAccount = Str::contains($income->account, '_') 
+                                                                                        ? explode('_', $income->account)[1] 
+                                                                                        : $income->account;
+                                                                    $totalIncome += $income->amount;
+                                                                @endphp
+                                                                <span class="revenue-audit-accounts float-left">{{ $preparedAccount }}</span>
+                                                                <span class="revenue-audit-amount float-right">{{ number_format($income->amount, 2) }}</span>
                                                             @endforeach
                                                         </div>
+                                                        
                                                         <div class="col-sm-12 ml-3 append-expense-total">
                                                             <span class="revenue-accounts float-left">Total</span>
-                                                            <span class="revenue-amount float-right">{{number_format($income->amount, 2)}}</span>
+                                                            <span class="revenue-audit-income-total float-right">{{number_format($income->amount, 2)}}</span>
                                                             {{-- <span class="revenue-accounts float-left">Total</span>
                                                             <span class="revenue-amount float-right">00.00</span> --}}
                                                         </div>
@@ -427,7 +443,7 @@
                                                 <div class="col-sm-12">
                                                     <div class="row">
                                                         <span class="float-left fw-bold">Less:Direct Cost</span>
-                                                        <div class="col-sm-12 ml-3 append-ldc">
+                                                        <div class="col-sm-12 ml-3 append-audit-ldc">
                                                             @foreach ($journalExpense as $expense)
                                                             @php
                                                                 $preparedAccount = explode('_', $expense->account);
@@ -448,24 +464,24 @@
                                                         </div>
                                                         <div class="col-sm-12 ml-3">
                                                             <span class="float-left fw-bold">Total Direct Cost</span>
-                                                            <span class="expenses-total float-right fw-bold">{{number_format($totalExpenseLDC, 2)}}</span>
+                                                            <span class="expenses-ldc-audit-total float-right fw-bold">{{number_format($totalExpenseLDC, 2)}}</span>
                                                         </div>
                                                         <div class="col-sm-12 m-3 mt-0 pt-0">
                                                             <span class="float-left fw-bold">Total Gross Income from
                                                                 Engineering Services Cost</span>
-                                                                <span class="gries-total float-right fw-bold">{{number_format($totalIncome - $totalExpenseLDC, 2)}}</span>
+                                                                <span class="gries-audit-total float-right fw-bold">{{number_format($totalIncome - $totalExpenseLDC, 2)}}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <span class="float-left fw-bold">Total Gross Income</span>
-                                                    <span class="float-right fw-bold tgi">{{number_format($totalIncome - $totalExpenseLDC, 2)}}</span>
+                                                    <span class="float-right fw-bold tgi-audit">{{number_format($totalIncome - $totalExpenseLDC, 2)}}</span>
                                                 </div>
                                                 <br>
                                                 <div class="col-sm-12">
                                                     <div class="row">
                                                         <span class="float-left fw-bold mt-5">Less:Operating Expenses</span>
-                                                        <div class="col-sm-12 ml-3 append-oe">
+                                                        <div class="col-sm-12 ml-3 append-audit-oe">
                                                             @foreach ($journalExpense as $expense)
                                                             @php
                                                                 $preparedAccount = explode('_', $expense->account);
@@ -487,13 +503,13 @@
                                                         </div>
                                                         <div class="col-sm-12 fw-bold">
                                                             <span class="float-left fw-bold">Total Operating Expense</span>
-                                                            <span class="float-right fw-bold oe-total">{{number_format($totalExpenseOE, 2)}}</span>
+                                                            <span class="float-right fw-bold oe-audit-total">{{number_format($totalExpenseOE, 2)}}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <span class="net-income fw-bold float-left">Net Income</span>
-                                                    <span class="net-amount fw-bold float-right">{{number_format($totalIncome - $totalExpenseLDC - $totalExpenseOE, 2)}}</span>
+                                                    <span class="net-audit-amount fw-bold float-right">{{number_format($totalIncome - $totalExpenseLDC - $totalExpenseOE, 2)}}</span>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <div class="row">
@@ -521,7 +537,7 @@
                             <div class="col-sm-6 border">
                                <div class="row">
                                 <div class="col border">
-                                    <div class="card fp-card rounded-0">
+                                    <div class="card fp-card rounded-0 p-3">
                                             <center>
                                                 <h4 class="h4 fw-bold text-dark">Financial Position</h4>
                                             </center>
@@ -545,7 +561,7 @@
                                                             <div class="col-sm-12">
                                                                 <span class="fw-bold text-md">Current Assets</span>
                                                             </div>
-                                                            <div class="col-sm-12 ml-3 append-ca">
+                                                            <div class="col-sm-12 ml-3 append-ca-audit">
                                                                 @php
                                                                 $hasCurrentAssets = false;
                                                                 @endphp
@@ -572,14 +588,14 @@
                                                         </div>
                                                         <div class="col-sm-12 text-sm" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
                                                             <span class="fw-bold text-md float-left ml-3">Total Current Assets</span>
-                                                            <span class="fw-normal text-md float-right total-ca">{{$tca ? number_format($tca, 2) : '-'}}</span>
+                                                            <span class="fw-normal text-md float-right total-audit-ca">{{$tca ? number_format($tca, 2) : '-'}}</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6 m-3"></div>
                                                     <div class="row">
                                                         <div class="col-sm-12">
                                                             <span class="fw-bold text-md float-left">Non-Current Assets</span><br>
-                                                            <div class="col-sm-12 ml-3 append-nca">
+                                                            <div class="col-sm-12 ml-3 append-audit-nca">
                                                                 @php
                                                                 $hasNonCurrentAssets = false;
                                                                 @endphp
@@ -606,7 +622,7 @@
                                                         </div>
                                                         <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;">
                                                             <span class="fw-bold text-md float-left ml-3">Total Non-Current Assets</span>
-                                                                   <span class="fw-bold text-md float-right tnca-amount">{{$tnca ? number_format($tnca, 2) : '-'}}</span>
+                                                                   <span class="fw-bold text-md float-right tnca-audit-amount">{{$tnca ? number_format($tnca, 2) : '-'}}</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6 m-3"></div>
@@ -616,7 +632,7 @@
                                                                 <div class="col-sm-12">
                                                                     <span class="fw-bold text-md float-left">Fixed Assets</span>
                                                                 </div>
-                                                                <div class="col-sm-12 ml-3 append-fa">
+                                                                <div class="col-sm-12 ml-3 append-audit-fa">
                                                                     @php
                                                                     $hasFixedtAssets = false;
                                                                     @endphp
@@ -647,7 +663,7 @@
                                                     <div class="row">
                                                         <div class="col-sm-12" style="border-top: 1px solid #063D58; border-bottom: 1px solid #063D58;"s>
                                                             <span class="fw-bold text-md float-left">Total Assets</span>
-                                                            <span class="fw-normal text-sm float-right total-assets">{{number_format($fa + $tnca + $tca, 2)}}</span>
+                                                            <span class="text-sm float-right total-audit-assets fw-bold">{{number_format($fa + $tnca + $tca, 2)}}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row">
@@ -656,7 +672,7 @@
                                                                 <div class="col-sm-12">
                                                                     <span class="fw-bold text-md float-left">Current Liabilities</span>
                                                                 </div>
-                                                                <div class="col-sm-12 ml-3 append-cl">
+                                                                <div class="col-sm-12 ml-3 append-audit-cl">
                                                                     @foreach ($journalLiability as $liabilities)
                                                                     @php
                                                                         $totalLiability += $liabilities->amount;
@@ -677,7 +693,7 @@
                                                                 <div class="col-sm-12">
                                                                     <span class="fw-bold text-md float-left"><i>Owner's Equity / Net Worth</i></span>
                                                                 </div>
-                                                                <div class="col-sm-12 ml-3 append-oenw">
+                                                                <div class="col-sm-12 ml-3 append-audit-oenw">
                                                                     @foreach ($journalOE as $oe)
                                                                     @php
                                                                         $totaloe += $oe->amount;
@@ -701,24 +717,24 @@
                                                         </div>
                                                         <div class="col-sm-12">
                                                             <span class="fw-normal float-left ml-3">Additional Capital</span>
-                                                            <span class="fw-normal float-right additional-capital fw-bold">{{number_format($journaladjustment->owners_contribution, 2)}}</span>
+                                                            <span class="fw-normal float-right additional-audit-capital fw-bold">{{number_format($journaladjustment->owners_contribution, 2)}}</span>
                                                         </div>
                                                         <div class="col-sm-12" style="border-bottom: 1px solid #063D58;">
                                                             <span class="fw-normal float-left ml-3">Net Income</span>
-                                                            <span class="fw-normal float-right fp-nc fw-bold">{{number_format($totalIncome - $totalExpenseLDC - $totalExpenseOE, 2)}}</span>
+                                                            <span class="fw-normal float-right fp-audit-nc fw-bold">{{number_format($totalIncome - $totalExpenseLDC - $totalExpenseOE, 2)}}</span>
                                                         </div>
                                                         <div class="col-sm-12">
                                                             <span class="fw-normal float-left">Appraisal Capital</span>
-                                                            <span class="fw-normal float-right appraisal-capital fw-bold">{{number_format($net + $journaladjustment->owners_withdrawal, 2)}}</span>
+                                                            <span class="fw-normal float-right appraisal-audit-capital fw-bold">{{number_format($net + $journaladjustment->owners_withdrawal, 2)}}</span>
                                                         </div>
                                                         
                                                         <div class="col-sm-12">
                                                             <span class="fw-normal float-left">Less Drawings</span>
-                                                            <span class="fw-normal float-right less-drawings fw-bold">{{number_format($journaladjustment->owners_withdrawal, 2)}}</span>
+                                                            <span class="fw-normal float-right audit-less-drawings fw-bold">{{number_format($journaladjustment->owners_withdrawal, 2)}}</span>
                                                         </div>
                                                         <div class="col-sm-12">
                                                             <span class="fw-normal float-left">Capital End</span>
-                                                            <span class="fw-normal float-right capital-end fw-bold">{{number_format($appraisal - $journaladjustment->owners_withdrawal, 2)}}</span>
+                                                            <span class="fw-normal float-right audit-capital-end fw-bold">{{number_format($appraisal - $journaladjustment->owners_withdrawal, 2)}}</span>
                                                         </div>
                                                     </div>
             
@@ -726,7 +742,7 @@
                                                     <div class="row">
                                                         <div class="col-sm-12">
                                                             <span class="fw-bold text-md float-left">Total Liabilities & Capital</span>
-                                                            <span class="fw-normal text-md float-right tlc">{{number_format($totaloe + $totalLiability, 2)}}</span>
+                                                            <span class="fw-normal text-md float-right tlc-audit">{{number_format($totaloe + $totalLiability, 2)}}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -742,7 +758,7 @@
                         <button class="btn btn-secondary audit-prev-btn" style="font-weight: bold;">Previous</button>
                         <button class="btn audit-next-btn"
                             style="background: #063D58; font-weight: bold; color: whitesmoke;">Next</button>
-                        <button class="btn btn-primary audit-save-btn save-journal-btn" id="audit-save-journal-btn_{{$client->id}}" style="display:none;">Update</button>
+                        <button class="btn btn-primary audit-save-btn save-audit-journal-btn" id="{{$client->id}}_{{$journal->journal_id}}" style="display:none;">Update</button>
                     </div>
                 </div>
             </div>

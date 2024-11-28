@@ -664,8 +664,22 @@ public function AuditPage(Request $request){
     ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
     ->get();
     $journalAsset = journal_assets::where('journal_id', $request->id)->get();
-    $journalLiability = journal_liabilities::where('journal_id', $request->id)->get();
-    $journalOE = journal_owners_equity::where('journal_id', $request->id)->get();
+    $journalLiability = journal_liabilities::where('journal_liabilities.journal_id', $request->id)
+    ->select(
+        'journal_liabilities.account', 'journal_liabilities.amount',
+        'accounts.accountType', 'account_types.id', 'account_types.AccountType'
+        )
+    ->join('accounts', 'accounts.AccountName', '=', 'journal_liabilities.account')
+    ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')
+    ->get();
+    $journalOE = journal_owners_equity::where('journal_owners_equities.journal_id', $request->id)
+    ->select(
+        'journal_owners_equities.account', 'journal_owners_equities.amount',
+        'accounts.accountType', 'account_types.id', 'account_types.AccountType'
+        )
+    ->join('accounts', 'accounts.AccountName', '=', 'journal_owners_equities.account')
+    ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')
+    ->get();
     $journaladjustment = journal_adjustments::where('journal_id', $request->id)->first();
     
     $journal = ClientJournal::where('journal_id', $request->id)->first();
@@ -678,11 +692,49 @@ public function AuditPage(Request $request){
     $lts = AccountType::where('isVisible', true)->where('Category', 'Liability')->get();
     $oets = AccountType::where('isVisible', true)->where('Category', 'Equity')->get();
     $ets = AccountType::where('isVisible', true)->where('Category', 'Expenses')->get();
+    Log::info($journalIncome);
     return view('pages.journal-audit', compact(
         'client', 'accounts', 'ats', 'lts', 'oets', 'ets', 'journal' ,'journalAsset',
         'journalExpense', 'journalExpense', 'journalLiability', 'journalOE', 'journaladjustment', 'journalIncome', 
     ));
 }
+
+    public function AuditClientJournal(Request $request){
+        if(Auth::check()){
+            try {
+                // Log::info($request);
+                $references = $request['references'];
+                $prepRef = explode('_', $references);
+                $income = $request['incomeObj'];
+                $expense = $request['expenseObj'];
+                $asset = $request['assetObj'];
+                $liability = $request['liabilityObj'];
+                $oe = $request['oeObj'];
+                $adjustment = $request['adjustmentObj'];
+                $incomeID = journal_income::where('journal_id', $prepRef[1])->first();
+                foreach ($income as $key => $value) {
+                    $prepKey = explode('_', $key);  
+                    // Log::info($value['endDate']);
+                    // return;
+                    journal_income::where('journal_id', $prepRef[1])->update([
+                    'account' =>  $prepKey[1],
+                    'start_date' => $value['startDate'],
+                    'end_date' => $value['startDate']
+                    ]);
+                    foreach ($value['months'] as $months) {
+                        journal_income_months::where('income_id', $incomeID->id)->update([
+                            'month' => $months['incomeMonthName'],
+                            'amount' => $months['value']
+                        ]);
+                    }
+                }
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(500, 'unauthorized access');
+        }
+    }
 
 public function BookkeeperJournalView(Request $request){
     if(Auth::check()){

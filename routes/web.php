@@ -75,5 +75,5 @@ Route::middleware('authenticated')->group(function(){
     Route::post('remove/coa/{id}', [Controller::class, 'RemoveCOA']);
     // Route::get('journal/audit', [ClientController::class, 'AuditPage']);
     Route::get('journal-audit', [ClientController::class, 'AuditPage'])->name('journal-audit');
-
+    Route::post('client/journal/audit', [ClientController::class, 'AuditClientJournal']);
 });
