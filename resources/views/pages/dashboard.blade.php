@@ -17,8 +17,8 @@
       <div class="info-box">
         <span class="info-box-icon bg-success"><i class="fas fa-edit"></i></span>
         <div class="info-box-content">
-          <span class="info-box-text">Bookkeping Sales</span>
-          <span class="info-box-number">410</span>
+          <span class="info-box-text">Income</span>
+          <span class="info-box-number">{{number_format($income, 2)}}</span>
         </div>
       </div>
     </div>
@@ -26,8 +26,8 @@
       <div class="info-box">
         <span class="info-box-icon bg-warning"><i class="far fa-copy text-light"></i></span>
         <div class="info-box-content">
-          <span class="info-box-text">External Services Sales</span>
-          <span class="info-box-number">13,648</span>
+          <span class="info-box-text">Expenses</span>
+          <span class="info-box-number">{{number_format($expenses, 2)}}</span>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
         <span class="info-box-icon bg-danger"><i class="ion ion-stats-bars"></i></span>
         <div class="info-box-content">
           <span class="info-box-text">Total Sales</span>
-          <div class="infor-box-number">{{number_format($totalSales)}}</div>
+          <div class="infor-box-number">{{number_format($totalSales + $income, 2)}}</div>
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('start_date');
             $table->string('end_date');
             $table->string('journal_id');
+            $table->boolean('isAltered')->default(false);
             $table->timestamps();
         });
     }

@@ -16,7 +16,10 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title fw-bold mt-2">Billings</div>
-                        <div class="card-tools"><button class="btn btn-transparent text-light" id="{{$client->id}}" onclick="window.location.href='{{ route('generate-client-billing', ['id' => $client->id]) }}'"><i class="fas fa-plus"></i></button></div>
+                        <div class="card-tools">
+                            <button class="btn btn-transparent text-light" id="{{$client->id}}" onclick="window.location.href='{{ route('generate-client-billing', ['id' => $client->id]) }}'"><i class="fas fa-plus"></i></button>
+                            <button class="btn btn-transparent text-light" title="generate-pdf"><i class="fas fa-file"></i></button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <table class="table table-hover client-billing-table">

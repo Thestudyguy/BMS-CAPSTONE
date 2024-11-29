@@ -24,19 +24,20 @@ $(document).ready(function () {
     var adjustmentObj = {};
 
     $.each(income, (index, income) => {
-        const incomeMonths = [];
-        incomeMonths.push({
+        if (!incomeObj[income.account]) {
+            incomeObj[income.account] = {
+                months: [],
+                startDate: income.start_date,
+                endDate: income.end_date
+            };
+        }
+        incomeObj[income.account].months.push({
             incomeMonthName: income.month,
             value: income.amount
         });
-
-        incomeObj[income.account] = {
-            months: incomeMonths,
-            startDate: income.start_date,
-            endDate: income.end_date
-        }
     });
-
+    console.log(incomeObj);
+    
     $.each(expense, (index, expense) => {
         const expenseMonths = [];
         expenseMonths.push({

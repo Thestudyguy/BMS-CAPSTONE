@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('account');
             $table->decimal('amount', 15);
             $table->string('journal_id');
+            $table->boolean('isAltered')->default(false);
             $table->timestamps();
         });
     }

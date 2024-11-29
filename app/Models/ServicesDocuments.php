@@ -5,18 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClientServices extends Model
+class ServicesDocuments extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'Client',                
-        'ClientService',
-        'ClientServiceProgress',
+        'service_id',
+        'ReqName',
         'getClientOriginalName',
         'getClientMimeType',
         'getSize',
         'getRealPath',
         'dataEntryUser',
-        'isVisible', 'serviceCategory'
+        'isVisible',
+        'category',
+        
     ];
 }

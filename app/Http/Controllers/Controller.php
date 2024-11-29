@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\BillingAddedDescriptions;
+use App\Models\BillingDescriptions;
 use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\ClientServices;
+use App\Models\ServiceRequirement;
 use App\Models\services;
+use App\Models\ServicesDocuments;
 use App\Models\ServicesSubTable;
+use App\Models\SubServiceDocuments;
+use App\Models\SubServiceRequirement;
 use App\Models\SystemProfile;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -128,7 +134,51 @@ class Controller extends BaseController
             $client = Clients::where('isVisible', true)->get();
             $clientCount = count($client);
 
-            return view('pages.dashboard', compact('clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales'));
+            $incomeBD = DB::table('billing_descriptions')
+            ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
+            ->select(
+                'account_descriptions.Category',
+                'billing_descriptions.amount'
+                )
+            ->get();
+
+            $incomeABD = DB::table('billing_added_descriptions')
+            ->join('account_descriptions', 'billing_added_descriptions.description', '=', 'account_descriptions.id')
+            ->select(
+                'account_descriptions.Category',
+                'billing_added_descriptions.amount', 'billing_added_descriptions.account'
+                )
+            ->get();
+            $expenses = 0;
+            $income = 0;
+            $totalDB = 0;
+            $totalADB = 0;
+            foreach ($incomeABD as $value) {
+                if($value->Category === 'Internal'){
+                    $totalADB += $value->amount;
+                }
+            }
+            foreach ($incomeBD as $value) {
+                if($value->Category === 'Internal'){
+                    $totalDB += $value->amount;
+                }
+            }
+
+            $income = $totalDB + $totalADB;
+
+            $clients = Clients::where('clients.accountCategory', true)
+            ->select(
+                'journal_expense_months.amount'
+            )
+            ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
+            ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+            ->get();
+
+            $expenses = 0;
+            foreach ($clients as $value) {
+                $expenses += $value->amount;
+            }
+            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales'));
 
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
@@ -583,6 +633,172 @@ class Controller extends BaseController
         }
     }
 
+
+    public function AddServiceReq(Request $request){
+        if(Auth::check()){
+            try {
+                Log::info($request);
+                foreach ($request['form'] as $value) {
+                    ServiceRequirement::create([
+                        'service_id' => $request['idref'],
+                        'req_name' => $value['value']
+                    ]);
+                }
+                return response()->json(['service_name' => 'added'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+
+        }
+    }
+
+    public function AddSubServiceReq(Request $request){
+        if(Auth::check()){
+            try {
+                Log::info($request);
+                SubServiceRequirement::create([
+                    'req_name' => $request['reqName'],
+                    'sub_service_id' => $request['idRef']
+                ]);
+                return response()->json(['service_name' => 'added'], 200);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+
+        }
+    }
+
+    public function GetServiceReq($id){
+        if(Auth::check()){
+            try {
+                $prepID = explode('_', $id);
+                Log::info($prepID[0]);
+                if($prepID[1] === 'subservice'){
+                    $subServiceReq = SubServiceRequirement::where('sub_service_id', $prepID[2])->get();
+                    Log::info($subServiceReq);
+                    return response()->json(['serviceReqs' => $subServiceReq, 'category' => 'subservice']);
+                }
+                if($prepID[1] === 'service'){
+                    $serviceReq = ServiceRequirement::where('service_id', $prepID[2])->get();
+                    return response()->json(['serviceReqs' => $serviceReq, 'category' => 'service']);
+                }
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(403, 'unauthorized access');
+        }
+    }
+
+    public function NewServiceDocument(Request $request)
+{
+    if (Auth::check()) {
+        try {
+            $fileIds = $request->input('file_ids', []);
+            $category = $request->input('category');
+            $files = $request->file('files', []);
+
+            // Log to confirm request data
+            Log::info('File IDs: ' . json_encode($fileIds));
+            Log::info('Category: ' . $category);
+
+            if (empty($files)) {
+                return response()->json(['message' => 'No files uploaded.'], 400);
+            }
+
+            foreach ($files as $index => $file) {
+                $fileId = $fileIds[$index] ?? null;
+                if ($fileId) {
+                    $ids = explode('_', $fileId);
+                    $serviceId = $ids[1] ?? null;
+                    $originalName = $file->getClientOriginalName();
+                    $filePath = $file->store('client-files', 'public');
+
+                    $data = [
+                        'service_id' => $serviceId,
+                        'ReqName' => $originalName,
+                        'getClientOriginalName' => $originalName,
+                        'getClientMimeType' => $file->getMimeType(),
+                        'getSize' => $file->getSize(),
+                        'getRealPath' => $filePath,
+                        'dataEntryUser' => Auth::user()->id,
+                        'isVisible' => true,
+                    ];
+
+                    if ($category === 'subservice') {
+                        SubServiceDocuments::create($data);
+                    } elseif ($category === 'service') {
+                        ServicesDocuments::create($data);
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Files uploaded successfully.']);
+
+        } catch (\Throwable $th) {
+            Log::error('Error uploading files: ' . $th->getMessage());
+            return response()->json(['message' => 'An error occurred while uploading files.'], 500);
+        }
+    }
+
+    return response()->json(['message' => 'Unauthorized'], 401);
+}
+
+    public function Income(){
+        if(Auth::check()){
+            try {
+                $incomeData = DB::table('clients')
+                ->select(
+                    'clients.CompanyName', 'clients.CEO',
+                    'billings.billing_id', 'billings.created_at',
+                    'billing_descriptions.amount',
+                    'billing_added_descriptions.amount as addedAmount'
+                )
+                ->join('billings', 'billings.client_id', '=', 'clients.id')
+                ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
+                ->join('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+                ->get();
+                Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
+                return view('pages.income', compact('incomeData'));
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(403, 'unauthorized access');
+        }
+    }
+
+
+    public function Expenses() {
+        if (Auth::check()) {
+            try {
+                // Aggregate expenses by journal_id
+                $expenses = DB::table('clients')
+                    ->where('clients.accountCategory', true)
+                    ->select(
+                        'client_journals.journal_id', 'client_journals.created_at',
+                        // DB::raw('DATE(client_journals.created_at) as created_at'),
+                        DB::raw('SUM(journal_expense_months.amount) as total_expense')
+                    )
+                    ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+                    ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
+                    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+                    ->groupBy('client_journals.journal_id', 'created_at')
+                    ->get();
+    
+                Log::info(json_encode($expenses, JSON_PRETTY_PRINT));
+    
+                return view('pages.expenses', compact('expenses'));
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            abort(403, 'unauthorized access');
+        }
+    }
+    
 }
 
 // try {

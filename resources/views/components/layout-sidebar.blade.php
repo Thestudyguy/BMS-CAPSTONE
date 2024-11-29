@@ -40,6 +40,28 @@
                     
                 </li>
                 <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
+                    <a href="{{route('income')}}" class="nav-link">
+                        <i class="nav-icon fas fa-table"></i>
+                        <p class="text-sm">
+                            {{ __('Income') }}
+                        </p>
+                    </a>
+                    @endif
+                    
+                </li>
+                <li class="nav-item">
+                    @if (Auth::check() && Auth::user()->Role !== 'Accountant')
+                    <a href="{{route('expenses')}}" class="nav-link">
+                        <i class="nav-icon fas fa-bars"></i>
+                        <p class="text-sm">
+                            {{ __('Expenses') }}
+                        </p>
+                    </a>
+                    @endif
+                    
+                </li>
+                <li class="nav-item">
                     <a href="{{route('journals')}}" class="nav-link">
                         <i class="nav-icon fas fa-book"></i>
                         <p class="text-sm">

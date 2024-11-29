@@ -22,7 +22,7 @@
                         <div class="card-body d-flex flex-column">
                             <ul style="list-style: none;">
                                 @foreach ($services as $service)
-                                <li><input class="services" type="radio" value="{{$service->Service}}-{{$service->Price}}" name="Service" id="{{$service->id}}">{{$service->Service}}</li>
+                                <li><input class="services" type="radio" value="{{$service->Service}}_{{$service->Price}}_service_{{$service->id}}" name="Service" id="{{$service->id}}">{{$service->Service}}</li>
                                 @endforeach
                             </ul>
                         </div>

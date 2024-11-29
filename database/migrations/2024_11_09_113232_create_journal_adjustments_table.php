@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('owners_contribution', 15);
             $table->decimal('owners_withdrawal', 15);
             $table->string('journal_id');
+            $table->boolean('isAltered')->default(false);
             $table->timestamps();
         });
     }

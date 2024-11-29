@@ -40,14 +40,13 @@ class MailerController extends Controller
     public function NewClientBilling(Request $request){
         if(Auth::check()){
             try {
-                // Log::info($request);
-                // return;
                 $client = $request['refID'];
                 $service = $request['serviceObj'];
                 $subService = $request['subServiceObj'];
                 $descriptions = $request['accountDescriptions'];
                 $billingID = $request['billingId'];
                 $dueDate = $request['dueDate'];
+                
                 foreach ($service as $key => $items) {
                     foreach ($items as $key => $value) {
                         foreach ($value as $key => $values) {

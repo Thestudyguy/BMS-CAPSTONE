@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('CompanyName');
             $table->string('CompanyAddress');
-            $table->string('TIN');
+            $table->string('TIN')->nullable();
             $table->string('CompanyEmail');
             $table->string('CEO');
             $table->string('CEODateOfBirth');
             $table->string('CEOContactInformation');//phone number or email
             $table->string(column: 'dataEntryUser');
-            $table->string(column: 'account_type');
+            $table->boolean(column: 'AccountCategory')->default(false);
             $table->boolean('isVisible')->default(true);
             $table->timestamps();
         });

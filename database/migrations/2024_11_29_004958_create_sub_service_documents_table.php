@@ -11,20 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_services', function (Blueprint $table) {
+        Schema::create('sub_service_documents', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('Client')->nullable();
-            $table->foreign('Client')->references('id')->on('clients')->nullOnDelete();
-            $table->string('ClientService');
-            $table->string('ClientServiceProgress');
+            $table->unsignedBigInteger('service_id')->nullable();
+            $table->foreign('service_id')->references('id')->on('sub_service_requirements')->nullOnDelete();
+            $table->string('ReqName');
             $table->string('getClientOriginalName')->nullable();
             $table->string('getClientMimeType')->nullable();
             $table->string('getSize')->nullable();
             $table->string('getRealPath')->nullable();
             $table->string('dataEntryUser');
-            $table->string('isClientNotified')->default(false);
             $table->boolean('isVisible')->default(true);
-            $table->string('serviceCategory');
             $table->timestamps();
         });
     }
@@ -34,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_services');
+        Schema::dropIfExists('sub_service_documents');
     }
 };

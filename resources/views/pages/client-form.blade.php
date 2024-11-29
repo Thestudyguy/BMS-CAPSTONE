@@ -82,6 +82,16 @@
                   <input type="text" name="CEOContactInformation" id="ceoContactInfo" class="form-control">
                 </div>
               </div>
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  <label class="form-label">Account Category</label>
+                  <select name="AccountCategory" id="" class="form-control">
+                    <option value="" selected hidden>Select Category</option>
+                    <option value="Client">Client</option>
+                    <option value="Firm">Firm</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </form>
 

@@ -28,6 +28,8 @@ use App\Models\journal_liabilities;
 use App\Models\journal_owners_equity;
 use App\Models\services;
 use App\Models\ServicesSubTable;
+use App\Models\SubServiceDocuments;
+use App\Models\SubServiceRequirement;
 use App\Models\SystemProfile;
 use Date;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +57,8 @@ class ClientController extends Controller
     {
         if (Auth::check()) {
             try {
+                //firm = true
+                //client = false
                 $services = services::where('isVisible', true)->get();
                 $clients = Clients::where('isVisible', true)->get();
                 return view('pages.clients', compact('services', 'clients'));
@@ -85,7 +89,6 @@ class ClientController extends Controller
             'RepresentativeAddress' => 'required|string|max:255',
             'profile' => 'nullable|file|image|max:2048',
         ]);
-
         try {
             DB::beginTransaction();
             $client = new Clients();
@@ -96,6 +99,7 @@ class ClientController extends Controller
             $client->CEO = $validatedData['CEO'];
             $client->CEODateOfBirth = $validatedData['CEODateOfBirth'];
             $client->CEOContactInformation = $validatedData['CEOContactInformation'];
+            $client->AccountCategory = $request['AccountCategory'] === 'Firm';
             $client->dataEntryUser = Auth::user()->id;
             $client->save();
             $representative = new ClientRepresentative();
@@ -109,14 +113,8 @@ class ClientController extends Controller
             $representative->save();
             if ($request->hasFile('profile')) {
                 $profile = $request->file('profile');
-            
-                // Generate a custom file name (e.g., including a timestamp or client ID for uniqueness)
                 $fileName = 'client_' . $client->id . '_' . time() . '.' . $profile->getClientOriginalExtension();
-            
-                // Store the file with a custom name in the 'client-files' directory under the 'public' disk
                 $profilePath = $profile->storeAs('client-files', $fileName, 'public');
-            
-                // Save the file information to the database
                 $companyProfile = new CompanyProfile();
                 $companyProfile->company = $client->id;
                 $companyProfile->image_path = $profilePath;
@@ -140,8 +138,9 @@ class ClientController extends Controller
             try {
                 $clientId = $request->input('client_id');
                 foreach ($request['services'] as $services) {
-                    $serviceName = $services['serviceName'];
-
+                    $serviceName = explode('_', $services['serviceName']);
+                    Log::info($request);
+                    // return;
                     $isServiceExisting = ClientServices::where('isVisible', true)
                     ->where('Client', $clientId)
                     ->where('ClientService', $serviceName)
@@ -151,39 +150,35 @@ class ClientController extends Controller
                         return response()->json(['Conflict' => "Service '{$serviceName}' already exists for this client."], 409);
                     }
 
-                    $file = $services['serviceFile'] ?? null;
+                    // $file = $services['serviceFile'] ?? null;
 
-                    $fileName = 'none';
-                    $mimeType = null;
-                    $size = null;
-                    $realPath = null;
-                    $path = null;
-                    if ($file instanceof \Illuminate\Http\UploadedFile) {
-                        // $storagePath = $file->store('client-services', 'public'); 
-                        $fileName = $file->getClientOriginalName();
-                        $mimeType = $file->getClientMimeType();
-                        $size = $file->getSize();
-                        $realPath = $file->getRealPath();
-                        $path = $file->storeAs('client-files', $fileName, 'public');
-                    }
+                    // $fileName = 'none';
+                    // $mimeType = null;
+                    // $size = null;
+                    // $realPath = null;
+                    // $path = null;
+                    // if ($file instanceof \Illuminate\Http\UploadedFile) {
+                    //     $fileName = $file->getClientOriginalName();
+                    //     $mimeType = $file->getClientMimeType();
+                    //     $size = $file->getSize();
+                    //     $realPath = $file->getRealPath();
+                    //     $path = $file->storeAs('client-files', $fileName, 'public');
+                    // }
 
-                    Log::info("{
-                        Service: {$services['serviceName']} \n
-                        Price: {$services['servicePrice']} \n
-                        File: $fileName
-                    }");
+                    // Log::info("{
+                    //     Service: {$services['serviceName']} \n
+                    //     Price: {$services['servicePrice']} \n
+                    //     File: $fileName
+                    // }");
 
                     
-
+                    
                     ClientServices::create([
                         'Client' => $clientId,
-                        'ClientService' => $services['serviceName'],
+                        'ClientService' => $serviceName[0],
                         'ClientServiceProgress' => 'Pending',
-                        'getClientOriginalName' => $path,
-                        'getClientMimeType' => $mimeType,
-                        'getSize' => $size,
-                        'getRealPath' => $realPath,
                         'dataEntryUser' => Auth::user()->id,
+                        'serviceCategory' => "$serviceName[2]_$serviceName[3]",
                         'isVisible' => true,
                     ]);
                     $this->MailNewServiceToClient($request['client_id'], $request['services']);
@@ -227,10 +222,51 @@ class ClientController extends Controller
                 ->first();
             $repInfo = ClientRepresentative::where('CompanyRepresented', $request->id)->get();
             $user = User::where('id', $dataEntryUserId)->select('FirstName', 'LastName', 'role', 'id')->first();
-
             return view('pages.client-profile', compact('client', 'clientServices', 'clientProfile', 'repInfo', 'user'));
         } else {
             return redirect()->route('login')->with('error', 'Unauthorized access');
+        }
+    }
+
+    public function ViewServiceDocuments($id){
+        if(Auth::check()){
+            try {
+                Log::info($id);
+                $prepID = explode('_', $id);
+
+                if($prepID[1] === 'subservice'){
+                    $subServiceDocs = SubServiceRequirement::where('sub_service_requirements.sub_service_id', $prepID[2])
+                    ->select(
+                        'sub_service_requirements.req_name',
+                        'sub_service_documents.getClientOriginalName',
+                        'sub_service_documents.ReqName',
+                        'sub_service_documents.getSize',
+                        'sub_service_documents.getRealPath',
+                        'sub_service_documents.getClientMimeType'
+                        )
+                        ->leftJoin('sub_service_documents', 'sub_service_documents.service_id', '=', 'sub_service_requirements.id')
+                    ->get();
+                    Log::info($subServiceDocs);
+                    return response()->json(['docsData' => $subServiceDocs]);
+                }
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(403, 'unauthorized access');
+        }
+    }
+
+    public function RemoveClientService($id){
+        if(Auth::check()){
+            try {
+                ClientServices::where('id', $id)->update(['isVisible' => false]);
+                return response()->json(['service' => 'removed']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(403, 'unauthorized access');
         }
     }
 
@@ -410,6 +446,7 @@ class ClientController extends Controller
                 $ownersEquity = $request['oeObj'];
                 $adjustments = $request['adjustmentObj'];
                 $client = $request['client_id'];
+                DB::beginTransaction();
                 foreach ($income as $key => $value) {
                     $jie = journal_income::create([
                         'client_id' => $client,
@@ -505,8 +542,10 @@ class ClientController extends Controller
                     'journal_id' => $uniqueId,
                     'dataUserEntry' => Auth::user()->id
                 ]);
+                DB::commit();
                 return response()->json(['journal' => 'new journal entry saved successfully']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }

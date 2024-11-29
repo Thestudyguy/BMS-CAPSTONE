@@ -12,6 +12,6 @@ class ClientJournal extends Model
         'client_id',
         'year_ended',
         'journal_id',
-        'dataUserEntry'
+        'dataUserEntry',
     ];
 }

@@ -82,6 +82,9 @@
                                                 <span class="badge bg-warning text-sm float-right text-sm remove-service-icon action-icons" id="{{$service->id}}" data-bs-target='#remove-service-modal-{{$service->id}}' data-bs-toggle="modal" title="remove {{$service->Service}}">
                                                     <i style="font-size: .8em;" class="fas fa-trash"></i>
                                                 </span>
+                                                <span class="badge bg-warning text-sm mx-2 float-right text-sm remove-service-icon action-icons" id="{{$service->id}}" data-bs-target='#add-service-req-{{$service->id}}' data-bs-toggle="modal" title="remove {{$service->Service}}">
+                                                    <i style="font-size: .8em;" class="fas fa-file"></i>
+                                                </span>
                                             </td>
                                         </tr>
                                         <tr class="expandable-body cheque-expandable-body bg-light">
@@ -93,6 +96,8 @@
                                                 </div>
                                             </td>
                                         </tr>
+                                    @include('modals.add-sub-service-req')
+                                    @include('modals.add-service-req')
                                     @include('modals.sub-service-modal')
                                     @include('modals.edit-service-modal')
                                     @include('modals.edit-sub-service-modal')

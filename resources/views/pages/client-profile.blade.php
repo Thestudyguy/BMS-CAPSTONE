@@ -96,15 +96,14 @@
                                     <div class="lead fw-bold text-light">Services</div>
                                 </div>
                                 <div class="card-body" style="max-height: 400px; overflow: auto;">
-                                    <center>
-                                        <table class="table-hover table-bordered table-striped">
+                                        <table class="table table-hover table-bordered table-striped">
                                             <thead>
                                                 <tr>
                                                     <td class="fw-bold">Service Name</td>
                                                     <td class="fw-bold">Service Progress</td>
-                                                    <td class="fw-bold">Original File Name</td>
+                                                    {{-- <td class="fw-bold">Original File Name</td>
                                                     <td class="fw-bold">MIME Type</td>
-                                                    <td class="fw-bold">File Size</td>
+                                                    <td class="fw-bold">File Size</td> --}}
                                                     <td class="fw-bold">Status</td>
                                                     {{-- <td class="fw-bold">File Path</td> --}}
                                                     <td class="fw-bold">Action</td>
@@ -129,9 +128,9 @@
                                                         <strong>{{ ucfirst($service->ClientServiceProgress) }}</strong>
                                                     </span>
                                                 </td>
-                                                <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
+                                                {{-- <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
                                                 <td>{{ $service->getClientMimeType ?: 'No file provided' }}</td>
-                                                <td>{{ $service->getSize ?: 'No file provided' }}</td>
+                                                <td>{{ $service->getSize ?: 'No file provided' }}</td> --}}
                                                 <td>
                                                     @if ($service->ClientServiceProgress != 'Paid')
                                                         <span class="badge bg-warning" 
@@ -146,7 +145,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($service->getClientOriginalName == null)
+                                                    {{-- @if ($service->getClientOriginalName == null)
                                                         <span class="text-muted">No Action</span>
                                                     @else
                                                         <a href="{{ asset('storage/' . $service->getClientOriginalName) }}" 
@@ -158,15 +157,22 @@
                                                         <span class="badge bg-danger text-light" style="font-size: 10px;">
                                                             <i class="fas fa-trash"></i> Delete
                                                         </span>
-                                                    @endif
+                                                    @endif --}}
+                                                    <span class="badge bg-warning fw-bold get-client-service-req" style="font-size: 10px;"  data-bs-target="#view-service-reqs-{{$service->id}}_{{$service->serviceCategory}}" id="{{$service->id}}_{{$service->serviceCategory}}" data-bs-toggle="modal"><i class="fas fa-file"></i></span>
+                                                    <span class="badge bg-warning fw-bold view-client-service-doc"  data-bs-target="#view-service-docs-{{$service->id}}_{{$service->serviceCategory}}" id="{{$service->id}}_{{$service->serviceCategory}}" data-bs-toggle="modal" style="font-size: 10px;"><i class="fas fa-eye"></i></span>
+                                                    <span class="badge bg-warning fw-bold" data-bs-target="#remove-client-service-{{$service->id}}" data-bs-toggle="modal"  style="font-size: 10px;"><i class="fas fa-trash"></i></span>
                                                 </td>
                                             </tr>
+                                            @include('modals.remove-client-service')
                                             @include('modals.update-client-service-progress')
                                             @endforeach
                                             @endif
                                             </tbody>
                                         </table>
-                                    </center>
+                                        @foreach ($clientServices as $service)
+                                        @include('modals.view-client-service-reqs', ['service' => $service])
+                                        @include('modals.view-services-docs', ['service' => $service])
+                                        @endforeach
                                 </div>
                             </div>
                         </div>

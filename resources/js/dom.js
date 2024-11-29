@@ -121,6 +121,9 @@ $(document).ready(function () {
                             <span id='${element.id}' data-bs-target='#edit-sub-service-modal' data-bs-toggle='modal' class="badge bg-warning float-right text-sm sub-service-action-icons-edit">
                                 <i class="fas fa-pen" style="font-size: .8em;"></i>
                             </span>
+                            <span id='${element.id}' data-bs-target='#add-sub-service-req' data-bs-toggle='modal' class="mx-2 badge bg-warning float-right text-sm sub-service-action-icons-req">
+                                <i class="fas fa-file" style="font-size: .8em;"></i>
+                            </span>
                             </td>
                         </tr>
                     </tbody>                    
@@ -138,6 +141,29 @@ $(document).ready(function () {
             },
         });
 
+    });
+
+    $(document).on('click', '.sub-service-action-icons-req', function(){
+        var refID = $(this).attr('id');
+        $.ajax({
+            type: 'POST',
+            url: `retrieve-sub-service-data-${refID}`,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(response){
+            console.log(response.sub_service);
+            
+            $('#sub_service_id').attr('id', response.sub_service.id);
+            $('#sub_service_id').val(response.sub_service.id);
+            $('.sub-service-req-service-name').text(response.sub_service.ServiceRequirements);
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Something went wrong',
+                    text: `Translated: ${error}`
+                });
+            }
+        });
     });
 
     $(document).on('click', '.sub-service-action-icons-edit', function(e){

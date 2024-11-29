@@ -98,7 +98,6 @@
                                                 <table class="table" id="saved-audited-income-months">
                                                     @foreach ($journalIncome as $income)
                                                         @php
-                                                            // Handle account format with or without an underscore
                                                             $preparedAccount = Str::contains($income->account, '_') 
                                                                                 ? explode('_', $income->account)[1] 
                                                                                 : $income->account;
@@ -421,7 +420,6 @@
                                                             @endphp
                                                             @foreach ($journalIncome as $income)
                                                                 @php
-                                                                    // Handle account format with or without an underscore
                                                                     $preparedAccount = Str::contains($income->account, '_') 
                                                                                         ? explode('_', $income->account)[1] 
                                                                                         : $income->account;

@@ -8,21 +8,7 @@ var ToastError = Swal.mixin({
     toast: false,
     position: 'bottom-end',
 });
-function previewImage(event, previewId) {
-    const fileInput = event.target;
-    const file = fileInput.files[0];
-    
-    if (file) {
-        const reader = new FileReader();
 
-        reader.onload = function (e) {
-            const previewElement = document.getElementById(previewId);
-            previewElement.src = e.target.result; // Update the image src
-        };
-
-        reader.readAsDataURL(file); // Read the file
-    }
-}
 $(document).ready(function() {
     $('.update-client-service-progress-btn').on('click', function() {
         var serviceId = $(this).attr('id');
@@ -69,7 +55,6 @@ $(document).ready(function() {
                     text: 'Please fill all fields'
                 });
             }
-            $(`.edit-company-info-${$(this).attr('id')} [name='${input.name}']`).removeClass('is-invalid');
             CompanyInfoObj[input.name] = input.value;
         });
 
@@ -95,89 +80,26 @@ $(document).ready(function() {
         
     });
 
-    $('.edit-ceo').on('click', function(e){
-        var form = $(`.edit-ceo-${$(this).attr('id')}`).serializeArray();
-        var UpdatedCEOobj = {};
-        var callFlag = true;
-        var formID = $(this).attr('id');
-        $.each(form, (index, input)=>{
-            if(input.value === ''){
-                callFlag = false;
-                $(`[name='${input.name}']`).addClass('is-invalid');
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Fields',
-                    text: 'Please fill all fields'
+    $('.remove-client-service').on('click', function(){
+        $.ajax({
+            type: 'POST',
+            url: `client-profile/service/remove/${$(this).attr('id')}`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                localStorage.setItem('service', 'removed');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Translated: ' + error
                 });
             }
-            $(`[name='${input.name}']`).removeClass('is-invalid');
-            UpdatedCEOobj[input.name] = input.value;
         });
-
-        if(callFlag){
-            $.ajax({
-                type: "POST",
-                url: 'edit-ceo',
-                data: UpdatedCEOobj,
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
-                success: function(response){
-                    localStorage.setItem('company-ceo', 'updated');
-                    location.reload();
-                },
-                error: function(error, statusm, jqXHR){
-                    ToastError.fire({
-                        icon: 'error',
-                        title: 'Oops! Something went wrong',
-                        text: 'Translated: ' + error
-                    });
-                }
-            });
-        }
-    });
-
-    $('.edit-company-rep').on('click', function(){
-        var formID = $(this).attr('id');
-        var repForm = $(`.edit-rep-${formID}`).serializeArray();
-        var callFlag = true;
-        var updatedRepObj = {};
-        $.each(repForm, (index, input)=>{
-                if(input.value === ''){
-                    callFlag = false;
-                    $(`[name='${input.name}']`).addClass('is-invalid');
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'Please fill all fields'
-                    });
-                }
-                $(`[name='${input.name}']`).removeClass('is-invalid');
-                updatedRepObj[input.name] = input.value;
-        });
-
-        if(callFlag){
-            $.ajax({
-                type: "POST",
-                url: 'edit-rep',
-                data: updatedRepObj,
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
-                success: function(response){
-                    localStorage.setItem('company-rep', 'updated');
-                    location.reload();
-                },
-                error: function(error, statusm, jqXHR){
-                    ToastError.fire({
-                        icon: 'error',
-                        title: 'Oops! Something went wrong',
-                        text: 'Translated: ' + error
-                    });
-                }
-            });
-        }
     });
 
     var companyInfo = localStorage.getItem('company-info');
-    var companyCEO = localStorage.getItem('company-ceo');
-    var companyRep = localStorage.getItem('company-rep');
     var serviceStatus = localStorage.getItem('service');
     if(serviceStatus === 'updated'){
         Toast.fire({
@@ -186,26 +108,20 @@ $(document).ready(function() {
         });
         localStorage.removeItem('service');
     }
+    if(serviceStatus === 'removed'){
+        Toast.fire({
+            icon: 'success',
+            text: 'Client Service Removed',
+        });
+        localStorage.removeItem('service');
+    }
     if(companyInfo === 'updated'){
+        localStorage.removeItem('company-info');
         Toast.fire({
             icon: 'success',
             text: 'Company Info Updated',
         });
-        localStorage.removeItem('company-info');
-    }
-    if(companyCEO === 'updated'){
-        Toast.fire({
-            icon: 'success',
-            text: 'Company CEO Updated',
-        });
-        localStorage.removeItem('company-ceo');
-    }
-    if(companyRep === 'updated'){
-        Toast.fire({
-            icon: 'success',
-            text: 'Company Representative Updated',
-        });
-        localStorage.removeItem('company-rep');
+        // localStorage.removeItem('service');
     }
     
 });

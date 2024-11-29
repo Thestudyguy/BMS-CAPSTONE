@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('expense_id')->references('id')->on('journal_expenses')->nullOnDelete();
             $table->string('month');
             $table->decimal('amount', 15);
+            $table->boolean('isAltered')->default(false);
             $table->timestamps();
         });
     }

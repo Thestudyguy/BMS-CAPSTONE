@@ -76,4 +76,12 @@ Route::middleware('authenticated')->group(function(){
     // Route::get('journal/audit', [ClientController::class, 'AuditPage']);
     Route::get('journal-audit', [ClientController::class, 'AuditPage'])->name('journal-audit');
     Route::post('client/journal/audit', [ClientController::class, 'AuditClientJournal']);
+    Route::post('client-profile/service/remove/{id}', [ClientController::class, 'RemoveClientService']);
+    Route::post('service/requirement/', [Controller::class, 'AddServiceReq']);
+    Route::post('sub-service/requirement/', [Controller::class, 'AddSubServiceReq']);
+    Route::post('client/service/requirements/{id}', [Controller::class, 'GetServiceReq']);
+    Route::post('/service/requirement/document', [Controller::class, 'NewServiceDocument']);
+    Route::post('/service/requirement/documents/{id}', [ClientController::class, 'ViewServiceDocuments']);
+    Route::get('/income', [Controller::class, 'Income'])->name('income');
+    Route::get('/expenses', [Controller::class, 'Expenses'])->name('expenses');
 });

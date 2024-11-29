@@ -10,6 +10,7 @@ import './pdf';
 import './journal-pin-entry';
 import './accountant';
 import './edit-journal';
+import './service-req';
 //global functions
 $(document).ready(function(){
     

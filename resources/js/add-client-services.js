@@ -18,9 +18,9 @@ var servicesData = [];
 $(document).ready(function() {
     $('.services').on('change', function() {
         var serviceID = $(this).attr('id');
-        var serviceValue = $(this).val().split('-');
+        var serviceValue = $(this).val().split('_');
         var serviceName = serviceValue[0];
-        
+        var parentService = $(this).val();
         var servicePrice = parseFloat(serviceValue[1]);
         servicesData = [];
         
@@ -42,7 +42,7 @@ $(document).ready(function() {
         );
 
         servicesData.push({
-            serviceName: serviceName,
+            serviceName: parentService,
             servicePrice: servicePrice,
             serviceFile: null
         });
@@ -56,7 +56,7 @@ $(document).ready(function() {
             $('.sub-services-append').append(
                 `<li>
                     <input class='sub-service-item' type='checkbox' name='SubService' id='${element.id}' 
-                    value='${element.ServiceRequirements}_${element.ServiceRequirementPrice}' 
+                    value='${element.ServiceRequirements}_${element.ServiceRequirementPrice}_subservice_${element.id}' 
                     style='font-size: 5px;'>${element.ServiceRequirements}
                 </li>`
             );
@@ -74,6 +74,7 @@ $(document).ready(function() {
 
     $(document).on('click', '.sub-service-item', function() {
         var subService = $(this).val().split('_');
+        var sub_service = $(this).val();
         var isSubServiceAlreadySelected = $(this).attr('id');
         var subServiceName = subService[0];
         var subServicePrice = parseFloat(subService[1]);
@@ -91,13 +92,13 @@ $(document).ready(function() {
             totalAmount += subServicePrice;
             totalServices++;
             servicesData.push({
-                serviceName: subServiceName,
+                serviceName: sub_service,
                 servicePrice: subServicePrice,
                 serviceFile: null
             });
         } else {
-            const removeSubServiceIndex = servicesData.findIndex(service => service.serviceName === subServiceName);
-            console.log(subServiceName ,'unchecked');
+            const removeSubServiceIndex = servicesData.findIndex(service => service.serviceName === sub_service);
+            console.log(sub_service ,'unchecked');
             $(`#row-${isSubServiceAlreadySelected}`).remove();
             totalAmount -= subServicePrice;
             totalServices--;

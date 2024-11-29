@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('dataUserEntry');
             $table->boolean('isVisible')->default(true);
             $table->string('JournalStatus')->default('Pending');
-            $table->string('Comment');
             $table->boolean('isAltered')->default(false);
             $table->timestamps();
         });
