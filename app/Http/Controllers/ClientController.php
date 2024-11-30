@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\MailClientNewServices;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\ActivityLog;
 use App\Models\BillingAddedDescriptions;
 use App\Models\Billings;
 use App\Models\ClientBilling;
@@ -420,6 +422,7 @@ class ClientController extends Controller
             Log::info($clientID);
             $services = ClientServices::where('Client', $clientID)->get();
             $client = Clients::where('id', $clientID)->pluck('CompanyEmail', 'CEO')->first();
+            
             FacadesMail::to($client)->send(new MailClientServices($services, testemail: $client));
         } catch (\Throwable $th) {
             throw $th;
@@ -541,6 +544,21 @@ class ClientController extends Controller
                     'client_id' => $client,
                     'journal_id' => $uniqueId,
                     'dataUserEntry' => Auth::user()->id
+                ]);
+                $clients = Clients::where('id', $client)->first();
+                $userAgent = $request->header('User-Agent');
+                // $browserDetails = $this->getBrowserDetails($userAgent);
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'New Journal Entry',
+                    'activity' => 'New journal entry, journal ID ' . $uniqueId . ' client ' . $clients->CEO.''.', '.''.$clients->CompanyName,
+                    'description' => 'New income, expense, asset, liability, owners equity, and adjustments for journal ID ' . $uniqueId . ' for client'. $clients->CEO.''.', '.''.$clients->CompanyName,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
                 DB::commit();
                 return response()->json(['journal' => 'new journal entry saved successfully']);
@@ -688,22 +706,64 @@ class ClientController extends Controller
 }
 
 public function AuditPage(Request $request){
+    // $journalIncomes = journal_income::where('journal_incomes.journal_id', $request->id)
+    // ->select(
+    //     'journal_incomes.*', 'journal_income_months.*',
+    //     'journal_incomes.id as jiID', 'journal_income_months.id as jimID',
+    // )
+    // ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
+    // ->get();
+    // $journalExpenses = journal_expense::where('journal_expenses.journal_id', $request->id)
+    // ->select(
+    //     'journal_expenses.*', 'journal_expense_months.*',
+    //     'journal_expenses.id as jeID', 'journal_expense_months.id as jemID'
+    // )
+    // ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+    // ->get();
     $journalIncome = journal_income::where('journal_incomes.journal_id', $request->id)
+    ->where('journal_incomes.isAltered', false)
     ->select(
-        'journal_incomes.*', 'journal_income_months.*',
-        'journal_incomes.id as jiID', 'journal_income_months.id as jimID',
+       'journal_incomes.*', 'journal_income_months.*',
+        'journal_incomes.id as jeID', 'journal_income_months.id as jemID'
     )
     ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
     ->get();
+    $groupedIncomeData = $journalIncome->groupBy('account')->map(function ($items, $account) {
+        return [
+            'months' => $items->map(function ($item) {
+                return [
+                    'incomeMonthName' => $item->month,
+                    'value' => number_format($item->amount, 2, '.', '')
+                ];
+            })->values(),
+            'startDate' => $items->first()->start_date,
+            'endDate' => $items->first()->end_date
+        ];
+    })->toArray();
     $journalExpense = journal_expense::where('journal_expenses.journal_id', $request->id)
+    ->where('journal_expenses.isAltered', false)
     ->select(
         'journal_expenses.*', 'journal_expense_months.*',
-        'journal_expenses.id as jeID', 'journal_expense_months.id as jemID'
-    )
-    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+        'journal_expenses.id as jeID', 'journal_expense_months.id as jemID',
+        )
+        ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
     ->get();
-    $journalAsset = journal_assets::where('journal_id', $request->id)->get();
+    $groupedExpenseData = $journalExpense->groupBy('account')->map(function ($items, $account) {
+        return [
+            'months' => $items->map(function ($item) {
+                return [
+                    'expenseMonthName' => $item->month,
+                    'value' => number_format($item->amount, 2, '.', '')
+                ];
+            })->values(),
+            'startDate' => $items->first()->start_date,
+            'endDate' => $items->first()->end_date
+        ];
+    })->toArray();
+    Log::info(json_encode($groupedExpenseData, JSON_PRETTY_PRINT));
+    $journalAsset = journal_assets::where('journal_id', $request->id)->where('isAltered', false)->get();
     $journalLiability = journal_liabilities::where('journal_liabilities.journal_id', $request->id)
+    ->where('journal_liabilities.isAltered', false)
     ->select(
         'journal_liabilities.account', 'journal_liabilities.amount',
         'accounts.accountType', 'account_types.id', 'account_types.AccountType'
@@ -712,6 +772,7 @@ public function AuditPage(Request $request){
     ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')
     ->get();
     $journalOE = journal_owners_equity::where('journal_owners_equities.journal_id', $request->id)
+    ->where('journal_owners_equities.isAltered', false)
     ->select(
         'journal_owners_equities.account', 'journal_owners_equities.amount',
         'accounts.accountType', 'account_types.id', 'account_types.AccountType'
@@ -719,7 +780,7 @@ public function AuditPage(Request $request){
     ->join('accounts', 'accounts.AccountName', '=', 'journal_owners_equities.account')
     ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')
     ->get();
-    $journaladjustment = journal_adjustments::where('journal_id', $request->id)->first();
+    $journaladjustment = journal_adjustments::where('journal_id', $request->id)->where('isAltered', false)->first();
     
     $journal = ClientJournal::where('journal_id', $request->id)->first();
     $client = Clients::where('id', $journal->client_id)->first();
@@ -731,43 +792,145 @@ public function AuditPage(Request $request){
     $lts = AccountType::where('isVisible', true)->where('Category', 'Liability')->get();
     $oets = AccountType::where('isVisible', true)->where('Category', 'Equity')->get();
     $ets = AccountType::where('isVisible', true)->where('Category', 'Expenses')->get();
-    Log::info($journalIncome);
+    Log::info($groupedIncomeData);
     return view('pages.journal-audit', compact(
         'client', 'accounts', 'ats', 'lts', 'oets', 'ets', 'journal' ,'journalAsset',
-        'journalExpense', 'journalExpense', 'journalLiability', 'journalOE', 'journaladjustment', 'journalIncome', 
+        'journalExpense', 'journalExpense', 'journalLiability', 'journalOE', 'journaladjustment', 'journalIncome', 'groupedIncomeData', 'groupedExpenseData'
     ));
 }
 
     public function AuditClientJournal(Request $request){
         if(Auth::check()){
             try {
-                // Log::info($request);
+                DB::beginTransaction();
                 $references = $request['references'];
-                $prepRef = explode('_', $references);
                 $income = $request['incomeObj'];
                 $expense = $request['expenseObj'];
                 $asset = $request['assetObj'];
                 $liability = $request['liabilityObj'];
                 $oe = $request['oeObj'];
                 $adjustment = $request['adjustmentObj'];
-                $incomeID = journal_income::where('journal_id', $prepRef[1])->first();
+                $prepRef = explode('_', $references);
+                $clients = Clients::where('id', $prepRef[0])->first();
+                $alteredIncome = journal_income::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                $alteredExpense = journal_expense::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                $alteredasset = journal_assets::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                $alteredlias = journal_liabilities::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                $alteredoe = journal_owners_equity::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                $alteredadjustment = journal_adjustments::where('journal_id', $prepRef[1])->update(['isAltered' => true]);
+                
+                // //alteration 
+                DB::table('journal_income_months')
+                ->join('journal_incomes', 'journal_incomes.id', '=', 'journal_income_months.income_id')
+                ->where('journal_incomes.journal_id', $prepRef[1])
+                ->update(['journal_income_months.isAltered' => true]);
+
+                DB::table('journal_expense_months')
+                ->join('journal_expenses', 'journal_expenses.id', '=', 'journal_expense_months.expense_id')
+                ->where('journal_expenses.journal_id', $prepRef[1])
+                ->update(['journal_expense_months.isAltered' => true]);
+                // //end of alteration
+                
                 foreach ($income as $key => $value) {
                     $prepKey = explode('_', $key);  
-                    // Log::info($value['endDate']);
-                    // return;
-                    journal_income::where('journal_id', $prepRef[1])->update([
-                    'account' =>  $prepKey[1],
+                   $incomeID = journal_income::where('journal_id', $prepRef[1])->create([
+                    'journal_id' => $prepRef[1],
+                    'account' =>  $key,
                     'start_date' => $value['startDate'],
-                    'end_date' => $value['startDate']
+                    'end_date' => $value['startDate'],
+                    'client_id' => $prepRef[0]
                     ]);
                     foreach ($value['months'] as $months) {
-                        journal_income_months::where('income_id', $incomeID->id)->update([
+                        $sanitizeAmount = str_replace(',','',$months['value']);
+                        $prepAmount = floatval($sanitizeAmount);
+                        journal_income_months::create([
                             'month' => $months['incomeMonthName'],
-                            'amount' => $months['value']
+                            'amount' => $prepAmount,
+                            'income_id' => $incomeID->id
                         ]);
                     }
                 }
+                foreach ($expense as $key => $value) {
+                    $prepKey = explode('_', $key);  
+                   $expenseID = journal_expense::where('journal_id', $prepRef[1])->create([
+                    'journal_id' => $prepRef[1],
+                    'account' =>  $key,
+                    'start_date' => $value['startDate'],
+                    'end_date' => $value['startDate'],
+                    'client_id' => $prepRef[0]
+                    ]);
+                    foreach ($value['months'] as $months) {
+                        $sanitizeAmount = str_replace(',','',$months['value']);
+                        $prepAmount = floatval($sanitizeAmount);
+                        journal_expense_month::create([
+                            'month' => $months['expenseMonthName'],
+                            'amount' => $prepAmount,
+                            'expense_id' => $expenseID->id
+                        ]);
+                    }
+                }
+                foreach ($asset as $key => $value) {
+                    foreach ($value['accounts'] as $assets) {
+                        $sanitizeAmount = str_replace(',', '', $assets['amount']);
+                        $prepAmount = floatval($sanitizeAmount);
+                        journal_assets::create([
+                            'client_id' => $prepRef[0],
+                            'journal_id' => $prepRef[1],
+                            'account' => $assets['assetAccount'],
+                            'amount' => $prepAmount,
+                            'asset_category' => $key,
+                        ]);
+                    }
+                }
+                foreach ($liability as $key => $value) {
+                    foreach ($value['accounts'] as $lias) {
+                        $sanitizeAmount = str_replace(',', '', $lias['amount']);
+                        $prepAmount = floatval($sanitizeAmount);
+                        journal_liabilities::create([
+                            'client_id' => $prepRef[0],
+                            'journal_id' => $prepRef[1],
+                            'account' => $lias['liabilityAccount'],
+                            'amount' => $prepAmount,
+                        ]);
+                    }
+                }
+                foreach ($oe as $key => $value) {
+                    foreach ($value['accounts'] as $oes) {
+                        $sanitizeAmount = str_replace(',', '', $oes['amount']);
+                        $prepAmount = floatval($sanitizeAmount);
+                        journal_owners_equity::create([
+                            'client_id' => $prepRef[0],
+                            'journal_id' => $prepRef[1],
+                            'account' => $oes['oeAccount'],
+                            'amount' => $prepAmount,
+                        ]);
+                    }
+                }
+                $sanitizeOC = str_replace(',', '', $adjustment['audit-owners_contribution']);
+                $sanitizeOW = str_replace(',', '', $adjustment['audit-owners_withdrawal']);
+                $prepOC = floatval($sanitizeOC);
+                $prepOW = floatval($sanitizeOW);
+                journal_adjustments::create([
+                    'owners_contribution' => $prepOC,
+                    'owners_withdrawal' => $prepOW,
+                    'journal_id' => $prepRef[1],
+                    'client_id' => $prepRef[0]
+                ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Journal Updated',
+                    'activity' => 'Updated journal entries, journal ID ' . $prepRef[0] . ' client ' . $clients->CEO.''.', '.''.$clients->CompanyName,
+                    'description' => 'Updated income, expense, asset, liability, owners equity, and adjustments for journal ID ' . $prepRef[1] . ' for client'. $clients->CEO.''.', '.''.$clients->CompanyName,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->header('User-Agent'),
+                    'browser' => $this->getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
+                    'platform' => $this->getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
+                    'platform_version' => $this->getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
+                ]);
+                DB::commit();
+                return response()->json(['journal' => 'updated']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -781,12 +944,12 @@ public function BookkeeperJournalView(Request $request){
             $journal = ClientJournal::where('id', $request['journalID'])->first();
             if ($journal->journal_id === $request['journal_id']) {
                 $client = Clients::where('isVisible', true)->where('id', $request['client_id'])->first();
-                $income = journal_income::where('journal_id', $request['journal_id'])->get();
-                $expense = journal_expense::where('journal_id', $request['journal_id'])->get();
-                $assets = journal_assets::where('journal_id', $request['journal_id'])->get();
-                $liabilities = journal_liabilities::where('journal_id', $request['journal_id'])->get();
-                $ownersEquity = journal_owners_equity::where('journal_id', $request['journal_id'])->get();
-                $adjustments = journal_adjustments::where('journal_id', $request['journal_id'])->first();
+                $income = journal_income::where('journal_id', $request['journal_id'])->where('isAltered', false)->get();
+                $expense = journal_expense::where('journal_id', $request['journal_id'])->where('isAltered', false)->get();
+                $assets = journal_assets::where('journal_id', $request['journal_id'])->where('isAltered', false)->get();
+                $liabilities = journal_liabilities::where('journal_id', $request['journal_id'])->where('isAltered', false)->get();
+                $ownersEquity = journal_owners_equity::where('journal_id', $request['journal_id'])->where('isAltered', false)->get();
+                $adjustments = journal_adjustments::where('journal_id', $request['journal_id'])->where('isAltered', false)->first();
                 $netIncome = 0;
                 
                 $this->fpdf->AddPage();

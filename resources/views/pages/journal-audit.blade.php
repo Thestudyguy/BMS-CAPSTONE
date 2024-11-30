@@ -2,10 +2,10 @@
 
 @section('content')
     <div class="container-fluid p-5 mt-5">
+        <div class="audit-client-journal-loader visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
+            <div class="loader"></div>
+        </div>
         <div class="container">
-            <div class="audit-client-journal-loader visually-hidden" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content:center; align-items: center;">
-                <div class="loader"></div>
-            </div>
             <div class="card">
                 <div class="card-body">
                     <h6 class="h4 fw-bold">Edit Journal</h6>
@@ -96,16 +96,16 @@
                                         <div class="col-sm-6">
                                             <div class="saved-audited-months-table text-sm">
                                                 <table class="table" id="saved-audited-income-months">
-                                                    @foreach ($journalIncome as $income)
+                                                    @foreach ($groupedIncomeData as $account => $data)
                                                         @php
-                                                            $preparedAccount = Str::contains($income->account, '_') 
-                                                                                ? explode('_', $income->account)[1] 
-                                                                                : $income->account;
+                                                            $preparedAccount = explode('_', $account);
                                                         @endphp
-                                                        <tr id="{{$income->jiID}}" class="client-journal-accounts text-sm" data-widget="expandable-table" aria-expanded="true">
-                                                            <td>{{ $preparedAccount }}</td>
+                                                        <tr id="{{ $account }}" class="client-journal-accounts text-sm" data-widget="expandable-table" aria-expanded="true">
+                                                            <td>{{ $preparedAccount[1] }}</td>
                                                             <td>
-                                                                <span class="fw-bold text-dark remove-audit-income" id="{{ $income->account }}"><i class="fas fa-times"></i></span>
+                                                                <span class="fw-bold text-dark remove-audit-income" id="{{ $account }}">
+                                                                    <i class="fas fa-times"></i>
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                         <tr class="expandable-body bg-light">
@@ -119,10 +119,12 @@
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            <tr>
-                                                                                <td>{{ $income->month }}</td>
-                                                                                <td>{{ number_format($income->amount, 2) }}</td>
-                                                                            </tr>
+                                                                            @foreach ($data['months'] as $month)
+                                                                                <tr>
+                                                                                    <td>{{ $month['incomeMonthName'] }}</td>
+                                                                                    <td>{{ number_format($month['value'], 2) }}</td>
+                                                                                </tr>
+                                                                            @endforeach
                                                                         </tbody>
                                                                     </table>
                                                                 </div>
@@ -130,6 +132,7 @@
                                                         </tr>
                                                     @endforeach
                                                 </table>
+                                                
                                                 
                                             </div>
                                         </div>
@@ -183,14 +186,17 @@
                                         <div class="col-sm-6">
                                             <div class="saved-months-table text-sm">
                                                 <table class="table" id="saved-audited-expense-months">
-                                                    @foreach ($journalExpense as $expense)
-                                                    @php
-                                                        $preparedAccount = explode('_', $expense->account);
-                                                    @endphp
-                                                        <tr id="{{$expense->jiID}}" class="client-journal-accounts text-sm" data-widget="expandable-table" aria-expanded="true">
-                                                            <td>{{$preparedAccount[1]}} - {{$preparedAccount[2]}}</td>
+                                                    @foreach ($groupedExpenseData as $account => $data)
+                                                        @php
+                                                            $preparedAccount = explode('_', $account);
+                                                        @endphp
+                                                        <tr id="{{ $account }}" class="client-journal-accounts text-sm" data-widget="expandable-table" aria-expanded="true">
+                                                            <td>{{ $preparedAccount[1] }}</td>
                                                             <td>
-                                                                <span class="fw-bold text-dark remove-audit-expense" id="{{$expense->account}}"><i class="fas fa-times"></i></span>
+                                                                <span class="fw-bold text-dark remove-audit-expense" id="{{ $account }}">
+                                                                    <i class="fas fa-times"></i>
+                                                                    {{-- {{$groupedExpenseData}} --}}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                         <tr class="expandable-body bg-light">
@@ -204,10 +210,12 @@
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            <tr>
-                                                                                <td>{{$expense->month}}</td>
-                                                                                <td>{{number_format($expense->amount, 2)}}</td>
-                                                                            </tr>
+                                                                            @foreach ($data['months'] as $month)
+                                                                                <tr>
+                                                                                    <td>{{ $month['expenseMonthName'] }}</td>
+                                                                                    <td>{{ $month['value'] }}</td>
+                                                                                </tr>
+                                                                            @endforeach
                                                                         </tbody>
                                                                     </table>
                                                                 </div>
@@ -215,6 +223,7 @@
                                                         </tr>
                                                     @endforeach
                                                 </table>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -763,8 +772,8 @@
             
         </div>
         <script>
-            window.journalIncome = @json($journalIncome);
-            window.journalExpense = @json($journalExpense);
+            window.journalIncome = @json($groupedIncomeData);
+            window.journalExpense = @json($groupedExpenseData);
             window.journalAssets = @json($journalAsset);
             window.journalLiability = @json($journalLiability);
             window.journalOE = @json($journalOE);

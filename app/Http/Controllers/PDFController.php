@@ -38,12 +38,12 @@ class PDFController extends Controller
                 Log::info("asdasd");
                 $preparedJournalID = explode('_', $id);
                 $client = Clients::where('isVisible', true)->where('id', $id)->first();
-                $income = journal_income::where('journal_id', $preparedJournalID[1])->get();
-                $expense = journal_expense::where('journal_id', $preparedJournalID[1])->get();
-                $assets = journal_assets::where('journal_id', $preparedJournalID[1])->get();
-                $liabilities = journal_liabilities::where('journal_id', $preparedJournalID[1])->get();
-                $ownersEquity = journal_owners_equity::where('journal_id', $preparedJournalID[1])->get();
-                $adjustments = journal_adjustments::where('journal_id', $preparedJournalID[1])->first();
+                $income = journal_income::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->get();
+                $expense = journal_expense::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->get();
+                $assets = journal_assets::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->get();
+                $liabilities = journal_liabilities::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->get();
+                $ownersEquity = journal_owners_equity::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->get();
+                $adjustments = journal_adjustments::where('journal_id', $preparedJournalID[1])->where('isAltered', false)->first();
                 $netIncome = 0;
                 // foreach ($expense as $expenses) {
                 //     $expenseTotal = journal_expense_month::where('expense_id', $expenses->id)->get();

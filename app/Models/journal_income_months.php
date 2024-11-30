@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class journal_income_months extends Model
 {
     use HasFactory;
-    protected $fillable = ['income_id', 'month', 'amount'];
+    protected $fillable = ['income_id', 'month', 'amount', 'isAltered'];
 }

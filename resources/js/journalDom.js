@@ -155,7 +155,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -210,7 +210,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -242,6 +242,7 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-months').append(tableHTML);
         });
+console.log(expensesObj);
 
     });
 
@@ -375,7 +376,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-saved-account" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -459,10 +460,11 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-income-months').append(tableHTML);
         });
-
+        console.log(incomeObj);
+        
     });
     //income
-
+    
     //asset 
     $(document).on('change', '#asset_account', function () {
         let at = $(this).val();
@@ -556,6 +558,7 @@ $('.save-asset-info').on('click', function(e) {
     var accountType = ''; 
     var assetAccount = '';
     var assetAmount = '';
+    let isAccountExisting = false;
 
     $('.journal-asset-form input, .journal-asset-form select').removeClass('is-invalid');
 
@@ -572,7 +575,23 @@ $('.save-asset-info').on('click', function(e) {
             assetAmount = data.value;
         }
     });
-
+    $.each(assetObj, (index, accounts) => {
+        $.each(accounts.accounts, (index, assets) => {
+            if (assets.assetAccount === assetAccount) {
+                isAccountExisting = true;
+                return false;
+            }
+        });
+        if (isAccountExisting) return false;
+    });
+    if (isAccountExisting) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Existing Account',
+            text: 'Account Already Exists!'
+        });
+        return false;
+    }
     if (hasErrors) {
         Toast.fire({
             icon: 'warning',
@@ -605,7 +624,7 @@ $('.save-asset-info').on('click', function(e) {
                     <td style="font-size: 0.8em;">${account.assetAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                     <td style="font-size: 0.8em;">
-                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.assetAccount}" data-type="${key}">
+                        <span class="badge fw-normal text-danger remove-asset" id="${account.assetAccount}" data-type="${key}">
                             <div class="fas fa-times"></div>
                         </span>
                     </td>
@@ -621,6 +640,34 @@ $('.save-asset-info').on('click', function(e) {
 
 });
 
+//remove asset from obj
+$(document).on('click', '.remove-asset', function (e) {
+    e.preventDefault();
+    $(this).closest('tr').remove();
+    var table = '<tbody class="append-audit-asset-accounts">';
+    for (let category in assetObj) {
+        if (assetObj[category].accounts) {
+            assetObj[category].accounts = assetObj[category].accounts.filter(
+                item => item.assetAccount !== $(this).attr('id')
+            );
+        }
+        if (assetObj[category].accounts.length === 0) {
+            delete assetObj[category];
+        }
+    }
+    console.log(assetObj);
+    
+    // $.each(assetObj, (index, asset)=>{
+    //     table += `<td>${index}</td>`
+    //     $.each(asset.assetAccount, (index, account)=>{
+    //     table += `<td>${account.account}</td>`
+    //     table += `<td>${account.amount.toLocaleString()}</td>`
+    //     });
+    // });
+    // table += '</tbody>';
+    // $('.append-audit-asset-accounts').html(table);
+});
+
     $('.save-liability-info').on('click', function(e){
         e.preventDefault();
         var hasErrors = false; 
@@ -628,6 +675,7 @@ $('.save-asset-info').on('click', function(e) {
     var accountType = ''; 
     var liabilityAccount = '';
     var liabilityAmount = '';
+    let isAccountExisting = false;
 
     $('.journal-liability-form input, .journal-liability-form select').removeClass('is-invalid');
 
@@ -644,6 +692,26 @@ $('.save-asset-info').on('click', function(e) {
             liabilityAmount = data.value;
         }
     });
+
+    $.each(liabilityObj, (index, accounts) => {
+        $.each(accounts.accounts, (index, lias) => {
+            if (lias.liabilityAccount === liabilityAccount) {
+                isAccountExisting = true;
+                return false;
+            }
+        });
+        if (isAccountExisting) return false;
+    });
+
+
+    if (isAccountExisting) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Existing Account',
+            text: 'Account Already Exists!'
+        });
+        return false;
+    }
 
     if (hasErrors) {
         Toast.fire({
@@ -676,7 +744,7 @@ $('.save-asset-info').on('click', function(e) {
                     <td style="font-size: 0.8em;">${account.liabilityAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                     <td style="font-size: 0.8em;">
-                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.liabilityAccount}" data-type="${key}">
+                        <span class="badge fw-normal text-danger remove-liability" id="${account.liabilityAccount}" data-type="${key}">
                             <div class="fas fa-times"></div>
                         </span>
                     </td>
@@ -691,6 +759,29 @@ $('.save-asset-info').on('click', function(e) {
     $('#liability_account_name').html('<option value="" selected hidden>Select an asset type first</option>');
     });
 
+    //remove liability item from obj
+    $(document).on('click', '.remove-liability', function (e) {
+        e.preventDefault();
+        $(this).closest('tr').remove();
+    
+        var table = '<tbody class="append-audit-liability-accounts">';
+        
+        for (let category in liabilityObj) {
+            if (liabilityObj[category].accounts) {
+                liabilityObj[category].accounts = liabilityObj[category].accounts.filter(
+                    item => item.liabilityAccount !== $(this).attr('id')
+                );
+                if (liabilityObj[category].accounts.length === 0) {
+                    delete liabilityObj[category];
+                }
+            }
+        }
+    
+        console.log(liabilityObj);
+    });
+    //remove liability item from obj
+
+
     $('.save-oe-info').on('click', function(e){
         e.preventDefault();
         var hasErrors = false; 
@@ -698,7 +789,7 @@ $('.save-asset-info').on('click', function(e) {
     var accountType = ''; 
     var oeAccount = '';
     var oeAmount = '';
-
+    var isAccountExisting = false;
     $('.journal-oe-form input, .journal-oe-form select').removeClass('is-invalid');
 
     $.each(assetForm, function(index, data) {
@@ -714,6 +805,25 @@ $('.save-asset-info').on('click', function(e) {
             oeAmount = data.value;
         }
     });
+
+    $.each(oeObj, (index, accounts) => {
+        $.each(accounts.accounts, (index, lias) => {
+            if (lias.oeAccount === oeAccount) {
+                isAccountExisting = true;
+                return false;
+            }
+        });
+        if (isAccountExisting) return false;
+    });
+
+    if (isAccountExisting) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Existing Account',
+            text: 'Account Already Exists!'
+        });
+        return false;
+    }
 
     if (hasErrors) {
         Toast.fire({
@@ -746,7 +856,7 @@ $('.save-asset-info').on('click', function(e) {
                     <td style="font-size: 0.8em;">${account.oeAccount.split('_')[0]}</td>
                     <td style="font-size: 0.8em;">${account.amount}</td>
                     <td style="font-size: 0.8em;">
-                        <span class="badge fw-normal text-danger remove-asset" data-account="${account.oeAccount}" data-type="${key}">
+                        <span class="badge fw-normal text-danger remove-oe" id="${account.oeAccount}" data-type="${key}">
                             <div class="fas fa-times"></div>
                         </span>
                     </td>
@@ -761,6 +871,35 @@ $('.save-asset-info').on('click', function(e) {
     $('#oe_account_name').html('<option value="" selected hidden>Select an account type first</option>');
     console.log("oeObj Object:", oeObj);
     });
+
+    //remove owners equity item from obj
+    $(document).on('click', '.remove-oe', function (e) {
+        e.preventDefault();
+        $(this).closest('tr').remove();
+        var table = '<tbody class="append-audit-liability-accounts">';
+        for (let category in oeObj) {
+            if (oeObj[category].accounts) {
+                oeObj[category].accounts = oeObj[category].accounts.filter(
+                    item => item.oeAccount !== $(this).attr('id')
+                );
+            }
+            if (oeObj[category].accounts.length === 0) {
+                delete oeObj[category];
+            }
+        }
+        // $.each(liabilityObj, (index, lias)=>{
+        //     table += `<td>${index}</td>`
+        //     $.each(lias.liabilityAccount, (index, account)=>{
+        //     table += `<td>${lias.account}</td>`
+        //     table += `<td>${lias.amount.toLocaleString()}</td>`
+        //     });
+        // });
+        // table += '</tbody>';
+        console.log(oeObj);
+        
+    });
+    //remove owners equity item from obj
+
     
     let assetFlag = true;
     let liabilityFlag = true;
@@ -902,8 +1041,14 @@ $('.save-asset-info').on('click', function(e) {
             var totalGTI = incometotal - expensetotal;
             var totalGI = totalGTI - oetotal;
             netIncome = totalGI;
-            $('.gries-total').text(totalGTI.toLocaleString());
-            $('.tgi').text(totalGTI.toLocaleString());
+            $('.gries-total').text(totalGTI.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+            $('.tgi').text(totalGTI.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
             $('.expenses-total').text(expensetotal.toLocaleString());
             $('.append-ldc').append(expenseHTML);
             $('.append-oe').append(operatingExpenseHTML);

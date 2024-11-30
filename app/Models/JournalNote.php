@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class journal_expense extends Model
+class JournalNote extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'account', 'start_date', 'end_date', 'journal_id', 'isAltered'];
+    protected $fillable = ['journal_id', 'note', 'user'];
 }

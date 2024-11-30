@@ -16,40 +16,42 @@ $(document).ready(function () {
     var liability = window.journalLiability;
     var oe = window.journalOE;
     var adjustment = window.journalOE;
-    var incomeObj = {}
-    var expenseObj = {};
+    var incomeObj = income;
+    var expenseObj = expense;
     var assetObj = {};
     var liabilityObj = {};
     var oeObj = {};
     var adjustmentObj = {};
-
-    $.each(income, (index, income) => {
-        if (!incomeObj[income.account]) {
-            incomeObj[income.account] = {
-                months: [],
-                startDate: income.start_date,
-                endDate: income.end_date
-            };
-        }
-        incomeObj[income.account].months.push({
-            incomeMonthName: income.month,
-            value: income.amount
-        });
-    });
-    console.log(incomeObj);
     
-    $.each(expense, (index, expense) => {
-        const expenseMonths = [];
-        expenseMonths.push({
-            expenseMonthName: expense.month,
-            value: expense.amount
-        });
-        expenseObj[expense.account] = {
-            months: expenseMonths,
-            startDate: expense.start_date,
-            endDate: expense.end_date
-        };
-    });
+//     $.each(income, (index, income) => {
+//         if (!incomeObj[income.account]) {
+//             incomeObj[income.account] = {
+//                 months: [],
+//                 startDate: income.start_date,
+//                 endDate: income.end_date
+//             };
+//         }
+//         incomeObj[income.account].months.push({
+//             incomeMonthName: income.month,
+//             value: income.amount
+//         });
+//     });
+
+//     console.log('income', incomeObj);
+    
+//     $.each(expense, (index, expense) => {
+//         const expenseMonths = [];
+//         expenseMonths.push({
+//             expenseMonthName: expense.month,
+//             value: expense.amount
+//         });
+//         expenseObj[expense.account] = {
+//             months: expenseMonths,
+//             startDate: expense.start_date,
+//             endDate: expense.end_date
+//         };
+//     });
+// console.log('expense', expenseObj);
 
     $.each(asset, (index, assets) => {
         const accounts = [];
@@ -174,11 +176,15 @@ $(document).ready(function () {
             $('.audit-income-end-date').val('');
             $('.audit-income-start-date').val('');
             $('.audit-income-months-container').empty();
+            console.log(true);
+            
             return;
         }
 
         $('.audit-income-month-input').each(function () {
             var incomeMonthName = $(this).attr('name');
+            console.log(incomeMonthName);
+            
             var monthVal = $(this).val();
             if (monthVal !== '') {
                 hasValue = false;
@@ -206,7 +212,7 @@ $(document).ready(function () {
         incomeObj[selectedAccount] = {
             months: selectedMonths,
             startDate: $('.audit-income-start-date').val(),
-            endDate: $('.auditincome-end-date').val()
+            endDate: $('.audit-income-end-date').val()
         };
         $('#saved-audited-income-months').empty();
         $.each(incomeObj, (account, element) => {
@@ -215,7 +221,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-audit-income" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -253,6 +259,8 @@ $(document).ready(function () {
         $('.audit-income-start-date').val('');
         selectedAccount = '';
         hasValue = true;
+        console.log(incomeObj);
+        
     });
     //end of income
 
@@ -375,7 +383,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-audit-expense" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -464,14 +472,14 @@ $(document).ready(function () {
         });
 
 
-        // if (isAccountExisting) {
-        //     Toast.fire({
-        //         icon: 'warning',
-        //         title: 'Existing Account',
-        //         text: 'Account Already Exists!'
-        //     });
-        //     return false;
-        // }
+        if (isAccountExisting) {
+            Toast.fire({
+                icon: 'warning',
+                title: 'Existing Account',
+                text: 'Account Already Exists!'
+            });
+            return false;
+        }
 
         var trimmedCat = accountType.split('_');
 
@@ -733,7 +741,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-audit-income" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -751,7 +759,7 @@ $(document).ready(function () {
             $.each(element.months, (index, month) => {
                 tableHTML += `
                     <tr>
-                        <td>${month.expenseMonthName}</td>
+                        <td>${month.incomeMonthName}</td>
                         <td>${month.value}</td>
                     </tr>
                 `;
@@ -765,6 +773,7 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-audited-income-months').append(tableHTML);
         });
+        console.log(incomeObj);
     });
 
     $(document).on('click', '.remove-audit-expense', function (e) {
@@ -777,7 +786,7 @@ $(document).ready(function () {
             tableHTML += `
                 <tr class="client-journal-accounts" data-widget="expandable-table" aria-expanded="false">
                     <td>
-                        ${accountParts[1]} - ${element.startDate} - ${element.endDate}
+                        ${accountParts[1]}
                         <span class="text-sm fw-bold float-right remove-audit-expense" id="${account}"><i class="fas fa-times"></i></span>
                     </td>
                 </tr>
@@ -809,6 +818,7 @@ $(document).ready(function () {
             tableHTML += `</table>`;
             $('#saved-audited-expense-months').append(tableHTML);
         });
+        
     });
 
     $(document).on('click', '.remove-audited-asset', function (e) {
@@ -820,6 +830,9 @@ $(document).ready(function () {
                 assetObj[category].accounts = assetObj[category].accounts.filter(
                     item => item.assetAccount !== $(this).attr('id')
                 );
+            }
+            if (assetObj[category].accounts.length === 0) {
+                delete assetObj[category];
             }
         }
 
@@ -844,6 +857,9 @@ $(document).ready(function () {
                     item => item.liabilityAccount !== $(this).attr('id')
                 );
             }
+            if (liabilityObj[category].accounts.length === 0) {
+                delete liabilityObj[category];
+            }
         }
         // $.each(liabilityObj, (index, lias)=>{
         //     table += `<td>${index}</td>`
@@ -864,6 +880,9 @@ $(document).ready(function () {
                 oeObj[category].accounts = oeObj[category].accounts.filter(
                     item => item.oeAccount !== $(this).attr('id')
                 );
+            }
+            if (oeObj[category].accounts.length === 0) {
+                delete oeObj[category];
             }
         }
         // $.each(liabilityObj, (index, lias)=>{
@@ -891,6 +910,8 @@ $(document).ready(function () {
     var totalAssets = 0;
     var totalLiability = 0;
     var totalOE = 0;
+    console.log(expenseObj);
+    
     $('.audit-next-btn').on('click', function () {
         if (currentStep === 1) {
             $('#append-audit-expenses-choy').empty();
@@ -904,17 +925,27 @@ $(document).ready(function () {
                 return;
             }
             var appendIncome = '<div class="col-sm-12 ml-3 text-dark" id="append-audit-expenses-choy">';
+            var preAuditTotal = 0;
             $.each(incomeObj, (index, data) => {
                 appendIncome += `<div class="row mb-2">`;
-                appendIncome += `<div class="col-6 revenue-audit-accounts">${index.split('_')[1]}</div>`;
+            
+                // Use ternary operator to handle prefixed or standalone account names
+                const accountName = index.includes('_') ? index.split('_')[1] : index;
+            
+                appendIncome += `<div class="col-6 revenue-audit-accounts">${accountName}</div>`;
+                console.log(index);
+            
                 $.each(data.months, (month, values) => {
                     var prepAmount = values.value.replace(/,/g, '');
                     var amountToFloat = parseFloat(prepAmount);
                     incometotal += amountToFloat;
-                    appendIncome += `<div class="col-6 text-right revenue-audit-amount">${amountToFloat.toLocaleString()}</div>`;
+                    preAuditTotal += amountToFloat;
                 });
+                appendIncome += `<div class="col-6 text-right revenue-audit-amount">${preAuditTotal.toLocaleString()}</div>`;
+            
                 appendIncome += `</div>`;
             });
+            
             appendIncome += '</div>';
             $('#append-audit-expenses-choy').html(appendIncome);
             $('.revenue-audit-income-total').text(incometotal.toLocaleString());
@@ -1331,12 +1362,17 @@ $(document).ready(function () {
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response){
                 $('.audit-client-journal-loader').addClass('visually-hidden');
-                console.log(response);
-                
+                localStorage.setItem('journal', 'updated');
+                window.location.href = 'clients';
             },
             error: function(errThrown, status, jqXHR){
-                console.log(errThrown);
                 $('.audit-client-journal-loader').addClass('visually-hidden');
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Something went wrong',
+                    text: `Translated: ${errThrown} \n if issue persist try reloading the page or contact developer`
+                });
+                return;
             }
         });
         // console.log($(this).attr('id'));
@@ -1348,5 +1384,13 @@ $(document).ready(function () {
         // console.log(adjustmentObj);
         
     });
-
+    var journal = localStorage.getItem('journal');
+    if(journal === 'updated'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Journal Update',
+            text: 'Journal Updated Successfully'
+        });
+        localStorage.removeItem('journal');
+    }
 });

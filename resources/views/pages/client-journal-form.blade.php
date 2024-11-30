@@ -355,13 +355,13 @@
                                                         <div class="col-sm-12 m-3 mt-0 pt-0">
                                                             <span class="float-left fw-bold">Total Gross Income from
                                                                 Engineering Services Cost</span>
-                                                                <span class="gries-total float-right fw-bold"></span>
+                                                                <span class="gries-total float-right fw-bold mr-3"></span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <span class="float-left fw-bold">Total Gross Income</span>
-                                                    <span class="float-right fw-bold tgi"></span>
+                                                    <span class="float-right fw-bold tgi mr-3"></span>
                                                 </div>
                                                 <br>
                                                 <div class="col-sm-12">

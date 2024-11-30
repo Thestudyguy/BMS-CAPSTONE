@@ -14,6 +14,8 @@
                     <option value="Approved">Approved</option>
                 </select>
                 <input type="hidden" name="journal_id" value="{{$journal->journal_id}}">
+                <input type="hidden" name="journalID" value="{{$journal->id}}">
+                <textarea name="journal-draft-note" class="form-control my-2 visually-hidden journal-draft-note" placeholder="Note..." id="" cols="30" rows="10"></textarea>
               </form>
             </div>
             <div class="modal-footer"> 

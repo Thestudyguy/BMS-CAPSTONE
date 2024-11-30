@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CustomHelper;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
+use App\Models\ActivityLog;
 use App\Models\BillingAddedDescriptions;
 use App\Models\BillingDescriptions;
 use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\ClientServices;
+use App\Models\JournalNote;
 use App\Models\ServiceRequirement;
 use App\Models\services;
 use App\Models\ServicesDocuments;
@@ -72,7 +75,10 @@ class Controller extends BaseController
     {
         if (auth::check()) {
             try {
-                return view('pages.admin-hub');
+                $logs = DB::table('activity_logs')
+                ->join('users', 'users.id', '=', 'activity_logs.user_id')
+                ->get();
+                return view('pages.admin-hub', compact('logs'));
             } catch (\Exception $exception) {
                 throw $exception;
             }
@@ -170,6 +176,7 @@ class Controller extends BaseController
             ->select(
                 'journal_expense_months.amount'
             )
+            ->where('journal_expense_months.isAltered', false)
             ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
             ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
             ->get();
@@ -242,34 +249,83 @@ class Controller extends BaseController
     }
 
 
-    public function NewAccount(Request $request)
-    {
-        try {
-            if (Auth::check()) {
-                $request->validate([
-                    'AccountName' => 'required|string|unique:accounts,AccountName',
-                    // 'Category' => 'required|string|in:Asset,Liability,Equity,Expenses',
-                ]);
+    // public function NewAccount(Request $request)
+    // {
+    //     try {
+    //         if (Auth::check()) {
+    //             $request->validate([
+    //                 'AccountName' => 'required|string|unique:accounts,AccountName',
+    //                 // 'Category' => 'required|string|in:Asset,Liability,Equity,Expenses',
+    //             ]);
                 
-                Accounts::create([
-                    'AccountName' => $request['AccountName'],
-                    'AccountType' => $request['AccountType'],
-                    'dataUserEntry' => Auth::user()->id,
-                ]);
+    //             Accounts::create([
+    //                 'AccountName' => $request['AccountName'],
+    //                 'AccountType' => $request['AccountType'],
+    //                 'dataUserEntry' => Auth::user()->id,
+    //             ]);
+    //             ActivityLog::create([]);
+    //             return response()->json(['success' => 'Data saved successfully']);
+    //         } else {
+    //             return response()->json(['error' => 'Unauthorized Access'], 403);
+    //         }
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         if ($e->validator->errors()->has('AccountName')) {
+    //             return response()->json(['error' => 'Account already exists'], 409);
+    //         }
+    //         return response()->json(['error' => $e->validator->errors()], 422);
+    //     } catch (\Throwable $th) {
+    //         return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
+    //     }
+    // }
+    public function NewAccount(Request $request)
+{
+    try {
+        if (Auth::check()) {
+            DB::beginTransaction();
+            $request->validate([
+                'AccountName' => 'required|string|unique:accounts,AccountName',
+                'AccountType' => 'required|string',
+            ]);
 
-                return response()->json(['success' => 'Data saved successfully']);
-            } else {
-                return response()->json(['error' => 'Unauthorized Access'], 403);
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            if ($e->validator->errors()->has('AccountName')) {
-                return response()->json(['error' => 'Account already exists'], 409);
-            }
-            return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Throwable $th) {
-            return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
+            Accounts::create([
+                'AccountName' => $request['AccountName'],
+                'AccountType' => $request['AccountType'],
+                'dataUserEntry' => Auth::user()->id,
+            ]);
+
+            $userAgent = $request->header('User-Agent');
+            // $browserDetails = $this->getBrowserDetails($userAgent);
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Account Created',
+                'activity' => 'Created a new account',
+                'description' => 'New account ' . $request['AccountName'] . ''. 'was created.',
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+            Log::info('Client IP: ' . $userAgent);
+            DB::commit();
+            return response()->json(['success' => 'Data saved successfully']);
+        } else {
+            return response()->json(['error' => 'Unauthorized Access'], 403);
         }
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        if ($e->validator->errors()->has('AccountName')) {
+            DB::rollBack();
+            return response()->json(['error' => 'Account already exists'], 409);
+        }
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
     }
+}
+
     public function Users(){
     try {
         if(Auth::check()){
@@ -490,16 +546,47 @@ class Controller extends BaseController
     public function AccountantInterface(){
         if(Auth::check()){
             try {
+    //             $journals = ClientJournal::where('client_journals.isVisible', true)
+    // ->select(
+    //     'clients.CEO', 
+    //     'clients.CompanyName', 
+    //     'clients.id as client_id',
+    //     'client_journals.journal_id', 
+    //     'client_journals.JournalStatus', 
+    //     'client_journals.dataUserEntry',
+    //     'users_entry.FirstName as EntryFirstName', 
+    //     'users_entry.LastName as EntryLastName', 
+    //     'users_entry.Role as EntryRole', 
+    //     'client_journals.id', 
+    //     'journal_notes.note', 
+    //     'users_note.FirstName as NoteFirstName', 
+    //     'users_note.LastName as NoteLastName', 
+    //     'users_note.Role as NoteRole'
+    // )
+    // ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
+    // ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user') // Alias for users in journal_notes
+    // ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+    // ->join('users as users_entry', 'users_entry.id', '=', 'client_journals.dataUserEntry') // Alias for users in dataUserEntry
+    // ->get();
+
                 $journals = ClientJournal::where('client_journals.isVisible', true)
                 ->select(
                     'clients.CEO', 'clients.CompanyName', 'clients.id as client_id',
                     'client_journals.journal_id', 'client_journals.JournalStatus', 'client_journals.dataUserEntry',
-                    'users.FirstName', 'users.LastName', 'users.Role'
+                    'users.FirstName', 'users.LastName', 'users.Role', 'client_journals.id', 
+                    'journal_notes.note', 
+                    'users_note.FirstName as accountantFname', 
+                    'users_note.LastName as accountantLname', 
+                    'users_note.Role as accountantRole', 'users_note.created_at as NoteTimeStamp'
                 )
+                ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
+                // ->leftJoin('users', 'users.id', '=', 'journal_notes.user')
+                ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user')
                 ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                 ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
                 ->get();
-                // Log::info($journals);
+                Log::info($journals);
+                    
                 return view('pages.journals', compact('journals'));
             } catch (\Throwable $th) {
                 throw $th;
@@ -512,6 +599,13 @@ class Controller extends BaseController
         if(Auth::check()){
             try {
                 ClientJournal::where('journal_id', $request['journal_id'])->update(['JournalStatus' => $request['JournalStatus']]);
+                // if (!empty($request['journal-draft-note']) && trim($request['journal-draft-note']) !== '') {
+                    JournalNote::create([
+                        'journal_id' => $request['journalID'],
+                        'note' => $request['journal-draft-note'],
+                        'user' => Auth::user()->id
+                    ]);
+                // }
                 return response()->json(['journal-status', 'updated']);
             } catch (\Throwable $th) {
                 throw $th;
@@ -746,35 +840,34 @@ class Controller extends BaseController
     return response()->json(['message' => 'Unauthorized'], 401);
 }
 
-    public function Income(){
-        if(Auth::check()){
-            try {
-                $incomeData = DB::table('clients')
-                ->select(
-                    'clients.CompanyName', 'clients.CEO',
-                    'billings.billing_id', 'billings.created_at',
-                    'billing_descriptions.amount',
-                    'billing_added_descriptions.amount as addedAmount'
-                )
-                ->join('billings', 'billings.client_id', '=', 'clients.id')
-                ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
-                ->join('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
-                ->get();
-                Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
-                return view('pages.income', compact('incomeData'));
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-        }else{
-            abort(403, 'unauthorized access');
+public function Income(){
+    if(Auth::check()){
+        try {
+            $incomeData = DB::table('clients')
+            ->select(
+                'clients.CompanyName', 'clients.CEO',
+                'billings.billing_id', 'billings.created_at',
+                'billing_descriptions.amount',
+                'billing_added_descriptions.amount as addedAmount'
+            )
+            ->join('billings', 'billings.client_id', '=', 'clients.id')
+            ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
+            ->join('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+            ->get();
+            Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
+            return view('pages.income', compact('incomeData'));
+        } catch (\Throwable $th) {
+            throw $th;
         }
+    }else{
+        abort(403, 'unauthorized access');
     }
+}
 
 
     public function Expenses() {
         if (Auth::check()) {
             try {
-                // Aggregate expenses by journal_id
                 $expenses = DB::table('clients')
                     ->where('clients.accountCategory', true)
                     ->select(
@@ -782,6 +875,7 @@ class Controller extends BaseController
                         // DB::raw('DATE(client_journals.created_at) as created_at'),
                         DB::raw('SUM(journal_expense_months.amount) as total_expense')
                     )
+                    ->where('journal_expense_months.isAltered', false)
                     ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
                     ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
                     ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')

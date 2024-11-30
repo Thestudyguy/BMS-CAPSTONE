@@ -9,9 +9,29 @@ var ToastError = Swal.mixin({
     position: 'bottom-end',
 });
 $(document).ready(function(){
+
+    $('#serviceprogress').on('change', function(){
+        if($(this).val() === 'Rejected' || $(this).val() === 'Canceled'){
+            $('.journal-draft-note').removeClass('visually-hidden')
+        }else{
+            $('.journal-draft-note').addClass('visually-hidden').val('');
+        }
+    });
    $('.update-journal-status').on('click', function(){
     console.log($(this).attr('id'));
+    var selectedStatus = $('#serviceprogress').val();
+    var textarea = $('.journal-draft-note');
+    if ((selectedStatus === 'Canceled' || selectedStatus === 'Rejected') && textarea.val().trim() === '') {
+            Toast.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please provide a note when the status is "Canceled" or "Rejected".'
+            });
+            textarea.addClass('is-invalid');
+            return;
+        }
     var form = $(`.update-journal-status-${$(this).attr('id')}`).serializeArray();
+    
     $.ajax({
         type: 'POST',
         url: `/update-journal-status`,
@@ -39,3 +59,4 @@ $(document).ready(function(){
     localStorage.removeItem('journal-status');
    }
 });
+

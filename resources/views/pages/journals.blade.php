@@ -22,13 +22,13 @@
                             <tr id="{{$journal->id}}">
                                 <td>{{$journal->CEO}}, {{$journal->CompanyName}}</td>
                                 <td class="fw-bold">{{$journal->journal_id}}</td>
-                                <td><span class="badge 
-                                    @if($journal->JournalStatus === 'Rejected') badge-danger
-                                    @elseif($journal->JournalStatus === 'Canceled') badge-warning
-                                    @elseif($journal->JournalStatus === 'Approved') badge-success
+                                <td><span style="font-size: 12px;" class="badge fw-bold
+                                    @if($journal->JournalStatus === 'Rejected') text-danger
+                                    @elseif($journal->JournalStatus === 'Canceled') text-warning
+                                    @elseif($journal->JournalStatus === 'Approved') text-success
                                     @else badge-secondary
                                     @endif" id="{{$journal->id}}_{{$journal->journal_id}}"
-                                    @if ($journal->JournalStatus !== 'Approved')
+                                    @if ($journal->JournalStatus === 'Pending')
                                         data-bs-target='#update-journal-status-{{$journal->journal_id}}' 
                                         data-bs-toggle='modal'
                                     @endif>
@@ -47,9 +47,13 @@
                               </span>
                                     <span class="badge fw-bold bg-warning text-dark" id="{{$journal->client_id}}_{{$journal->journal_id}}" data-bs-target="#remove-journal-entry-{{$journal->journal_id}}" data-bs-toggle='modal'><i class="fas fa-trash"></i></span>
                                     <span class="badge fw-bold bg-warning text-dark view-journal-btn" id="{{$journal->client_id}}_{{$journal->journal_id}}"><i class="fas fa-eye"></i></span>
+                                    @if ($journal->note)
+                                    <span class="badge fw-bold bg-warning text-dark" id="{{$journal->client_id}}_{{$journal->journal_id}}" data-bs-target="#journal-note-{{$journal->id}}" data-bs-toggle="modal"><i class="fas fa-book"></i></span>
+                                    @endif
                                 </td>
                             </tr>
 
+                            @include('modals.view-journal-note')
                             @include('modals.remove-journal-entry')
                             @include('modals.update-journal-status')
                         @endforeach

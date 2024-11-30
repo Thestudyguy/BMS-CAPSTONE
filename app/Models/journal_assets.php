@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class journal_assets extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'asset_category', 'account', 'amount', 'journal_id'];
+    protected $fillable = ['client_id', 'asset_category', 'account', 'amount', 'journal_id', 'isAltered'];
 }
