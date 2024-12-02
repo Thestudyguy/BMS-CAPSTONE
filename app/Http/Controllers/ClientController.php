@@ -149,82 +149,94 @@ class ClientController extends Controller
 
 
     public function ClientServices(Request $request)
-    {
-        if (Auth::check()) {
-            try {
-                DB::beginTransaction();
-                $clientId = $request->input('client_id');
-                foreach ($request['services'] as $services) {
-                    $serviceName = explode('_', $services['serviceName']);
-                    Log::info($request);
-                    // return;
-                    $isServiceExisting = ClientServices::where('isVisible', true)
+{
+    if (Auth::check()) {
+        try {
+            DB::beginTransaction();
+
+            // Validate incoming request data
+            $request->validate([
+                'client_id' => 'required|integer|exists:clients,id',
+                'services' => 'required|array',
+                'services.*.serviceName' => 'required|string',
+                'services.*.servicePrice' => 'required|numeric',
+                // Add validation for any other fields in services if necessary
+            ]);
+
+            $clientId = $request->input('client_id');
+            
+            // Loop through each service in the request
+            foreach ($request['services'] as $services) {
+                // Handle serviceName and split it correctly
+                $serviceName = explode('_', $services['serviceName']);
+                
+                if (count($serviceName) < 4) {
+                    // Handle case where serviceName is not split correctly
+                    return response()->json(['error' => 'Invalid service name format.'], 400);
+                }
+
+                Log::info("Processing service: " . $services['serviceName']); // Log the service name
+                
+                // Check if the service already exists for the client
+                $isServiceExisting = ClientServices::where('isVisible', true)
                     ->where('Client', $clientId)
-                    ->where('ClientService', $serviceName)
+                    ->where('ClientService', $serviceName[0])
                     ->first();
 
-                    if($isServiceExisting){
-                        return response()->json(['Conflict' => "Service '{$serviceName}' already exists for this client."], 409);
-                    }
-
-                    // $file = $services['serviceFile'] ?? null;
-
-                    // $fileName = 'none';
-                    // $mimeType = null;
-                    // $size = null;
-                    // $realPath = null;
-                    // $path = null;
-                    // if ($file instanceof \Illuminate\Http\UploadedFile) {
-                    //     $fileName = $file->getClientOriginalName();
-                    //     $mimeType = $file->getClientMimeType();
-                    //     $size = $file->getSize();
-                    //     $realPath = $file->getRealPath();
-                    //     $path = $file->storeAs('client-files', $fileName, 'public');
-                    // }
-
-                    // Log::info("{
-                    //     Service: {$services['serviceName']} \n
-                    //     Price: {$services['servicePrice']} \n
-                    //     File: $fileName
-                    // }");
-
-                    
-                    
-                    ClientServices::create([
-                        'Client' => $clientId,
-                        'ClientService' => $serviceName[0],
-                        'ClientServiceProgress' => 'Pending',
-                        'dataEntryUser' => Auth::user()->id,
-                        'serviceCategory' => "$serviceName[2]_$serviceName[3]",
-                        'isVisible' => true,
-                    ]);
-                    
-                    $this->MailNewServiceToClient($request['client_id'], $request['services']);
+                if ($isServiceExisting) {
+                    // Prepare a string from the service name array
+                    $serviceNameString = implode('', $serviceName);
+                    return response()->json(['Conflict' => "Service $serviceName[0] already exists for this client."], 409);
                 }
-                    $userAgent = $request->header('User-Agent');
-                    $browserDetails = CustomHelper::getBrowserDetails($userAgent);
-                    $client = Clients::where('id', $clientId)->first();
-                    ActivityLog::create([
-                        'user_id' => Auth::user()->id,
-                        'action' => 'New Services Created',
-                        'activity' => 'Added a new Service to client',
-                        'description' => "Added services to client $client->CEO - $client->CompanyName",
-                        'ip_address' => $request->ip(),
-                        'user_agent' => $userAgent,
-                        'browser' => $browserDetails['browser'] ?? null,
-                        'platform' => $browserDetails['platform'] ?? null,
-                        'platform_version' => $browserDetails['platform_version'] ?? null,
-                    ]);
-                    DB::commit();
-            } catch (\Throwable $th) {
-                DB::rollBack();
-                Log::error($th);
-                throw $th;
+
+                // Optionally handle file uploads here if needed
+                // Example:
+                // $file = $services['serviceFile'] ?? null;
+                // if ($file instanceof \Illuminate\Http\UploadedFile) {
+                //     $filePath = $file->storeAs('client-files', $file->getClientOriginalName(), 'public');
+                // }
+
+                // Create the service entry for the client
+                ClientServices::create([
+                    'Client' => $clientId,
+                    'ClientService' => $serviceName[0], // Assuming serviceName[0] is the key you need
+                    'ClientServiceProgress' => 'Pending',
+                    'dataEntryUser' => Auth::user()->id,
+                    'serviceCategory' => "{$serviceName[2]}_{$serviceName[3]}", // Example service category
+                    'isVisible' => true,
+                ]);
+
+                // Send an email to the client about the new service
+                $this->MailNewServiceToClient($request['client_id'], $request['services']);
             }
-        } else {
-            dd('Unauthorized Access');
+
+            // Log the activity for adding new services to the client
+            $userAgent = $request->header('User-Agent');
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+            $client = Clients::where('id', $clientId)->first();
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'New Services Created',
+                'activity' => 'Added a new Service to client',
+                'description' => "Added services to client {$client->CEO} - {$client->CompanyName}",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Services added successfully.'], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Error occurred: ' . $th->getMessage());
+            return response()->json(['error' => 'An error occurred while processing the services.'], 500);
         }
+    } else {
+        return response()->json(['error' => 'Unauthorized Access'], 401);
     }
+}
 
     public function MailNewServiceToClient($client, $services){
         if(Auth::check()){
