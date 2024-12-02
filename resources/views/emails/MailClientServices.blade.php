@@ -79,8 +79,11 @@
                 </thead>
                 <tbody>
                     @foreach ($services as $service)
+                    @php
+                        $serviceName = explode('_', $service['serviceName']);
+                    @endphp
                         <tr>
-                            <td>{{ $service['serviceName'] }}</td>
+                            <td>{{ $serviceName[0] }}</td>
                             <td>{{ number_format($service['servicePrice'], 2) }}</td>
                         </tr>
                     @endforeach
