@@ -9,6 +9,13 @@ use App\Http\Controllers\ServicesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 Auth::routes();
+Route::get('/foo', function () {
+    if (request()->ip() !== 'your_ip_address') {
+        abort(403, 'Unauthorized action.');
+    }
+    Artisan::call('storage:link');
+    return 'Symlink created successfully!';
+});
 Route::get('/', function () {return view('auth.login');});
 Route::middleware('authenticated')->group(function(){
     Route::get('/dashboard', [Controller::class, 'dashboard'])->name('dashboard');
