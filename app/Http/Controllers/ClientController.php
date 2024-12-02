@@ -123,6 +123,20 @@ class ClientController extends Controller
                 $companyProfile->dataUserEntry = Auth::user()->id;
                 $companyProfile->save();
             }
+            $userAgent = $request->header('User-Agent');
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'New Client Created',
+                'activity' => 'Created a new client',
+                'description' => "New Client $validatedData[CompanyName]- $validatedData[CEO]",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
             DB::commit();
             return response()->json(['success' => 'Client, representative, and profile saved successfully'], 200);
 
@@ -138,6 +152,7 @@ class ClientController extends Controller
     {
         if (Auth::check()) {
             try {
+                DB::beginTransaction();
                 $clientId = $request->input('client_id');
                 foreach ($request['services'] as $services) {
                     $serviceName = explode('_', $services['serviceName']);
@@ -183,9 +198,26 @@ class ClientController extends Controller
                         'serviceCategory' => "$serviceName[2]_$serviceName[3]",
                         'isVisible' => true,
                     ]);
+                    
                     $this->MailNewServiceToClient($request['client_id'], $request['services']);
                 }
+                    $userAgent = $request->header('User-Agent');
+                    $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                    $client = Clients::where('id', $clientId)->first();
+                    ActivityLog::create([
+                        'user_id' => Auth::user()->id,
+                        'action' => 'New Services Created',
+                        'activity' => 'Added a new Service to client',
+                        'description' => "Added services to client $client->CEO - $client->CompanyName",
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $userAgent,
+                        'browser' => $browserDetails['browser'] ?? null,
+                        'platform' => $browserDetails['platform'] ?? null,
+                        'platform_version' => $browserDetails['platform_version'] ?? null,
+                    ]);
+                    DB::commit();
             } catch (\Throwable $th) {
+                DB::rollBack();
                 Log::error($th);
                 throw $th;
             }
@@ -288,97 +320,118 @@ class ClientController extends Controller
     public function ClientBilling(Request $request)
     {
             if (Auth::check()) {
-                // $uniqueId = Str::random(6);
-                $clientId = $request->id;
-                function generateAlphanumericId($length = 6)
-            {
-                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                $uniqueId = '';
-                for ($i = 0; $i < $length; $i++) {
-                    $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+            try {
+                DB::beginTransaction();
+                    // $uniqueId = Str::random(6);
+                    $clientId = $request->id;
+                    function generateAlphanumericId($length = 6)
+                {
+                    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    $uniqueId = '';
+                    for ($i = 0; $i < $length; $i++) {
+                        $uniqueId .= $characters[rand(0, strlen($characters) - 1)];
+                    }
+                    return $uniqueId;
                 }
-                return $uniqueId;
-            }
-
-            $uniqueId = generateAlphanumericId();
-            $ads = AccountDescription::where('account_descriptions.isVisible', true)
-            ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
-            ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
-            ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
-            ->select(
-                'account_descriptions.Category',
-                'account_descriptions.Description',
-                'account_descriptions.TaxType',
-                'account_descriptions.FormType',
-                'account_descriptions.Price',
-                'account_descriptions.id',
-                'account_descriptions.Category as adCategory',
-                'services_sub_tables.ServiceRequirements',
-                'services.Category', 'services.Service', 'services.Price', 'services.id as ParentServiceID'
-            )
-            ->get();
-            $currentDate = date('Y-m-d');
-            $client = Clients::where('id', $clientId)->first();
-            $systemProfile = SystemProfile::all();
-
-            $clientServicesData = DB::table('client_services as cs_parent')
-                ->join('services as s', 'cs_parent.ClientService', '=', 's.Service')
-                ->where('cs_parent.Client', $clientId)
-                ->where('cs_parent.isVisible', true)
+    
+                $uniqueId = generateAlphanumericId();
+                $ads = AccountDescription::where('account_descriptions.isVisible', true)
+                ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
+                ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+                ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
                 ->select(
-                    'cs_parent.ClientService as ParentService',
-                    's.id as ServiceID', 's.Price as ParentServicePrice',
-                    'cs_parent.id as ParentServiceID'
+                    'account_descriptions.Category',
+                    'account_descriptions.Description',
+                    'account_descriptions.TaxType',
+                    'account_descriptions.FormType',
+                    'account_descriptions.Price',
+                    'account_descriptions.id',
+                    'account_descriptions.Category as adCategory',
+                    'services_sub_tables.ServiceRequirements',
+                    'services.Category', 'services.Service', 'services.Price', 'services.id as ParentServiceID'
                 )
                 ->get();
-
-            $result = [];
-
-            foreach ($clientServicesData as $service) {
-                // $result[$clientId]['Service'][$service->ParentService] = [
-                //     'sub_service' => [],
-                // ];
-                $result[$clientId]['Service'][$service->ParentService]['parent_service_id'][$service->ServiceID] = [
-                    // 'sub_service' => [],
-                    'parentServicePrice' => $service->ParentServicePrice
-                ];
-                $subServices = DB::table('client_services as cs_sub')
-                    ->join('services_sub_tables as ss', 'cs_sub.ClientService', '=', 'ss.ServiceRequirements')
-                    ->where('cs_sub.Client', $clientId)
-                    ->where('ss.BelongsToService', $service->ServiceID)
-                    ->where('cs_sub.isVisible', true)
+                $currentDate = date('Y-m-d');
+                $client = Clients::where('id', $clientId)->first();
+                $systemProfile = SystemProfile::all();
+    
+                $clientServicesData = DB::table('client_services as cs_parent')
+                    ->join('services as s', 'cs_parent.ClientService', '=', 's.Service')
+                    ->where('cs_parent.Client', $clientId)
+                    ->where('cs_parent.isVisible', true)
                     ->select(
-                        'ss.ServiceRequirements', 'ss.ServiceRequirementPrice',
-                        'ss.id as SubServiceID',
-                        'cs_sub.ClientService as SubServiceName'
+                        'cs_parent.ClientService as ParentService',
+                        's.id as ServiceID', 's.Price as ParentServicePrice',
+                        'cs_parent.id as ParentServiceID'
                     )
                     ->get();
-
-                foreach ($subServices as $subService) {
-                    $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID] = [
-                        'sub_service_price' => $subService->ServiceRequirementPrice,
-                        // 'account_descriptions' => [],
+    
+                $result = [];
+    
+                foreach ($clientServicesData as $service) {
+                    // $result[$clientId]['Service'][$service->ParentService] = [
+                    //     'sub_service' => [],
+                    // ];
+                    $result[$clientId]['Service'][$service->ParentService]['parent_service_id'][$service->ServiceID] = [
+                        // 'sub_service' => [],
+                        'parentServicePrice' => $service->ParentServicePrice
                     ];
-
-                    $accountDescriptions = AccountDescription::where('account', $subService->SubServiceID)
-                        ->where('isVisible', true)
+                    $subServices = DB::table('client_services as cs_sub')
+                        ->join('services_sub_tables as ss', 'cs_sub.ClientService', '=', 'ss.ServiceRequirements')
+                        ->where('cs_sub.Client', $clientId)
+                        ->where('ss.BelongsToService', $service->ServiceID)
+                        ->where('cs_sub.isVisible', true)
+                        ->select(
+                            'ss.ServiceRequirements', 'ss.ServiceRequirementPrice',
+                            'ss.id as SubServiceID',
+                            'cs_sub.ClientService as SubServiceName'
+                        )
                         ->get();
-
-                    foreach ($accountDescriptions as $accountDescription) {
-                        $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID]['account_descriptions'][] = [
-                            'Category' => $accountDescription->Category,
-                            'Description' => $accountDescription->Description,
-                            'TaxType' => $accountDescription->TaxType,
-                            'FormType' => $accountDescription->FormType,
-                            'Price' => $accountDescription->Price,
-                            'adID' => $accountDescription->id,
+    
+                    foreach ($subServices as $subService) {
+                        $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID] = [
+                            'sub_service_price' => $subService->ServiceRequirementPrice,
+                            // 'account_descriptions' => [],
                         ];
+    
+                        $accountDescriptions = AccountDescription::where('account', $subService->SubServiceID)
+                            ->where('isVisible', true)
+                            ->get();
+    
+                        foreach ($accountDescriptions as $accountDescription) {
+                            $result[$clientId]['Service'][$service->ParentService]['sub_service'][$subService->ServiceRequirements]['sub_service_id'][$subService->SubServiceID]['account_descriptions'][] = [
+                                'Category' => $accountDescription->Category,
+                                'Description' => $accountDescription->Description,
+                                'TaxType' => $accountDescription->TaxType,
+                                'FormType' => $accountDescription->FormType,
+                                'Price' => $accountDescription->Price,
+                                'adID' => $accountDescription->id,
+                            ];
+                        }
                     }
                 }
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Billing Created',
+                    'activity' => 'Created a new billing',
+                    'description' => "New Billing for $client->CEO - $client->CompanyName",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                Log::info('Client IP: ' . $userAgent);
+                DB::commit();
+                // Log::info(json_encode($result, JSON_PRETTY_PRINT));
+                response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
+                return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                throw $th;
             }
-            // Log::info(json_encode($result, JSON_PRETTY_PRINT));
-            response()->json(['services' => $result, 'current_date' => $currentDate, 'ads' => $ads]);
-            return view('pages.billings', compact('clientId', 'result', 'systemProfile', 'client', 'currentDate', 'ads', 'uniqueId'));
         } else {
             dd('unauthorized access');
         }
@@ -655,14 +708,31 @@ class ClientController extends Controller
     public function UpdateClientCompanyInfo(Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 Clients::where('id', $request['client_id'])->update([
                     'CompanyName' => $request['CompanyName'],
                     'CompanyAddress' => $request['CompanyAddress'],
                     'CompanyEmail' => $request['CompanyEmail'],
                     'TIN' => $request['TIN'],
                 ]);
+                $client = Clients::where('id', $request['client_id'])->first();
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Updated Company Info',
+                    'activity' => 'Updated Company Info',
+                    'description' => "Company Info Updated $client->CEO - $client->CompanyName",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                DB::commit();
                 return response()->json(['company-info' => 'updated']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -677,6 +747,7 @@ class ClientController extends Controller
     // return;
     if(Auth::check()){
         try {
+            DB::beginTransaction();
             $request->validate([
                 'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -695,9 +766,24 @@ class ClientController extends Controller
                 $clientProfile->image_path = $filePath;
                 $clientProfile->save();
             }
-        
+            $client = Clients::where('id', $request['client_id'])->first();
+            $userAgent = $request->header('User-Agent');
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Updated Company Profile',
+                'activity' => 'Updated Company Profile',
+                'description' => "Company Profile Updated $client->CEO - $client->CompanyName",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+            DB::commit();
             return redirect()->back()->with('success', 'Profile updated successfully!');
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }else{
@@ -1392,6 +1478,19 @@ public function BookkeeperJournalView(Request $request){
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
                 $this->fpdf->Output('I', 'example.pdf');
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'View Client Journal',
+                'activity' => 'View Client Journal',
+                'description' => "View Client Journal $client->CEO - $client->CompanyName",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
                 exit;
             }else{
                 return response()->json(['message' => 'Incorrect PIN'], 400);

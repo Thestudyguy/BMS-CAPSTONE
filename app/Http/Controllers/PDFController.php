@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\BillingAddedDescriptions;
 use App\Models\Billings;
+use App\Models\ClientBilling;
 use App\Models\Clients;
 use App\Models\journal_adjustments;
 use App\Models\journal_assets;
@@ -728,6 +729,178 @@ class PDFController extends Controller
         dd('Unauthorized access');
     }
 }
+
+public function GenerateExpensePDF(Request $request)
+{
+    if (Auth::check()) {
+        try {
+            date_default_timezone_set('Asia/Manila');
+            $expenses = DB::table('clients')
+                ->where('clients.accountCategory', true)
+                ->select(
+                    'client_journals.journal_id',
+                    DB::raw("DATE_FORMAT(client_journals.created_at, '%M %d, %Y at %h:%i %p') as created_at"),
+                    DB::raw('SUM(journal_expense_months.amount) as total_expense')
+                )
+                ->where('journal_expense_months.isAltered', false)
+                ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+                ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
+                ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+                ->groupBy('client_journals.journal_id', 'created_at')
+                ->get();
+
+            // Initialize FPDF
+            $this->fpdf->AddPage();
+            $this->fpdf->SetFont('Arial', 'B', 14);
+
+            // Header
+            $this->fpdf->Cell(0, 10, 'Expense Report', 0, 1, 'C');
+            $this->fpdf->Ln(5);
+            
+            // Table Headers
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->SetFillColor(200, 220, 255);
+            $this->fpdf->Cell(60, 10, 'Journal ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(80, 10, 'Date', 1, 0, 'C', true);
+            $this->fpdf->Cell(50, 10, 'Total Expense (PHP)', 1, 1, 'C', true);
+
+            // Table Content
+            $this->fpdf->SetFont('Arial', '', 10);
+            foreach ($expenses as $expense) {
+                $this->fpdf->Cell(60, 10, $expense->journal_id, 1, 0, 'C');
+                $this->fpdf->Cell(80, 10, $expense->created_at, 1, 0, 'C');
+                $this->fpdf->Cell(50, 10, number_format($expense->total_expense, 2), 1, 1, 'R');
+            }
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
+            $this->fpdf->Ln(5);
+            // Output PDF
+            $this->fpdf->Output();
+            exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
+public function GenerateIncomePDF(Request $request)
+{
+    if (Auth::check()) {
+        try {
+            date_default_timezone_set('Asia/Manila');
+
+            $incomeData = DB::table('clients')
+                ->select(
+                    'clients.CompanyName',
+                    'clients.CEO',
+                    'billings.billing_id',
+                    DB::raw("DATE_FORMAT(billings.created_at, '%M %d, %Y at %h:%i %p') as created_at"),
+                    'billing_descriptions.amount as baseAmount',
+                    'billing_added_descriptions.amount as addedAmount'
+                )
+                ->join('billings', 'billings.client_id', '=', 'clients.id')
+                ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
+                ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+                ->get();
+
+            $this->fpdf->AddPage();
+            $this->fpdf->SetFont('Arial', 'B', 14);
+
+            $this->fpdf->Cell(0, 10, 'Income Report', 0, 1, 'C');
+            $this->fpdf->Ln(2);
+
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->SetFillColor(200, 220, 255);
+            $this->fpdf->Cell(30, 10, 'Client', 1, 0, 'C', true);
+            $this->fpdf->Cell(50, 10, 'Company Name', 1, 0, 'C', true);
+            $this->fpdf->Cell(50, 10, 'Date', 1, 0, 'C', true);
+            $this->fpdf->Cell(30, 10, 'Billing ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(30, 10, 'Total Income', 1, 1, 'C', true);
+
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetFillColor(245, 245, 245);
+            foreach ($incomeData as $income) {
+                $totalIncome = $income->baseAmount + $income->addedAmount;
+
+                $this->fpdf->Cell(30, 10, $income->CEO, 1, 0, 'C');
+                $this->fpdf->Cell(50, 10, $income->CompanyName, 1, 0, 'C');
+                $this->fpdf->SetFont('Arial', '', 8);
+                $this->fpdf->Cell(50, 10, $income->created_at, 1, 0, 'C');
+                $this->fpdf->SetFont('Arial', '', 10);
+                $this->fpdf->Cell(30, 10, $income->billing_id, 1, 0, 'C');
+                $this->fpdf->Cell(30, 10, number_format($totalIncome, 2), 1, 1, 'R');
+            }
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
+            $this->fpdf->Ln(5);
+            $this->fpdf->Output();
+            exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
+public function GenerateClientBillingTable($id)
+{
+    if (Auth::check()) {
+        try {
+            // Ensure correct timezone
+            date_default_timezone_set('Asia/Manila');
+
+            // Fetch client billings
+            $billings = Billings::select(
+                'billing_id',
+                DB::raw("DATE_FORMAT(due_date, '%Y-%m-%d') as due_date") // Ensure due date formatting
+            )
+            ->where('client_id', $id)
+            ->get();
+
+            // Log the billings data for debugging
+            Log::info($billings);
+
+            // Initialize FPDF
+            $this->fpdf->AddPage();
+            $this->fpdf->SetFont('Arial', 'B', 14);
+
+            // Header
+            $this->fpdf->Cell(0, 10, 'Client Billing Table', 0, 1, 'C');
+            $this->fpdf->Ln(2);
+
+            // Date Generated
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
+            $this->fpdf->Ln(5);
+
+            // Table Headers (No Action Column)
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->SetFillColor(200, 220, 255);
+            $this->fpdf->Cell(90, 10, 'Billing #ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(90, 10, 'Due Date', 1, 1, 'C', true);
+
+            // Table Content
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetFillColor(245, 245, 245);
+            foreach ($billings as $billing) {
+                $this->fpdf->Cell(90, 10, $billing->billing_id, 1, 0, 'C');
+                $this->fpdf->Cell(90, 10, $billing->due_date, 1, 1, 'C');
+            }
+
+            // Output PDF
+            $this->fpdf->Output();
+            exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
 
 
 }

@@ -5,7 +5,7 @@
         <div class="card">
             <div class="card-header">
                 <span class="fw-bold text-lg text-light">Firm Expense</span>
-                <div class="card-tools"><button class="btn bg-transparent fw-bold text-light"><i class="fas fa-file"></i></button></div>
+                <div class="card-tools"><button class="btn bg-transparent gen-expense-pdf fw-bold text-light"><i class="fas fa-file"></i></button></div>
             </div>
                 <div>
             </div>

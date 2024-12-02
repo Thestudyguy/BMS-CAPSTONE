@@ -20,6 +20,7 @@ use App\Models\ServicesSubTable;
 use App\Models\SubServiceDocuments;
 use App\Models\SubServiceRequirement;
 use App\Models\SystemProfile;
+use Date;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use \App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Carbon;
 
 class Controller extends BaseController
 {
@@ -134,7 +136,8 @@ class Controller extends BaseController
 
             $clientPaymentStatus = Clients::where('clients.isVisible', true)
                 ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
-                ->select('clients.CompanyName', 'company_profiles.image_path')
+                ->join('client_services', 'client_services.Client', '=', 'clients.id')
+                ->select('clients.CompanyName', 'company_profiles.image_path', 'client_services.ClientService')
                 ->get();
 
             $client = Clients::where('isVisible', true)->get();
@@ -180,12 +183,51 @@ class Controller extends BaseController
             ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
             ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
             ->get();
-
+            
             $expenses = 0;
             foreach ($clients as $value) {
                 $expenses += $value->amount;
             }
-            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales'));
+            $incomeData = DB::table('clients')
+    ->select(
+        DB::raw('MONTH(billings.created_at) as month'),
+        DB::raw('SUM(billing_descriptions.amount) as base_amount'),
+        DB::raw('SUM(billing_added_descriptions.amount) as added_amount')
+    )
+    ->join('billings', 'billings.client_id', '=', 'clients.id')
+    ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
+    ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+    ->groupBy(DB::raw('MONTH(billings.created_at)'))
+    ->get();
+
+    $monthlyIncome = array_fill(0, 12, 0); // Initialize array for each month
+
+    foreach ($incomeData as $incomes) {
+        $month = $incomes->month - 1; // Convert 1-based month to 0-based index
+        $totalIncome = ($incomes->base_amount ?? 0) + ($incomes->added_amount ?? 0);
+        $monthlyIncome[$month] += $totalIncome;
+    }
+            $expensesData = DB::table('clients')
+    ->where('clients.accountCategory', true)
+    ->select(
+        DB::raw('MONTH(journal_expense_months.created_at) as month'),
+        DB::raw('SUM(journal_expense_months.amount) as total_expense')
+    )
+    ->where('journal_expense_months.isAltered', false)
+    ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+    ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
+    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+    ->groupBy(DB::raw('MONTH(journal_expense_months.created_at)'))
+    ->get();
+
+    $monthlyExpenses = array_fill(0, 12, 0);
+
+    foreach ($expensesData as $expense) {
+        $month = $expense->month - 1;
+        $monthlyExpenses[$month] += $expense->total_expense;
+    }
+    $activityLog = ActivityLog::whereDate('created_at', Carbon::today())->get();
+            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog'));
 
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
@@ -221,6 +263,7 @@ class Controller extends BaseController
     {
         try {
             if (Auth::check()) {
+                DB::beginTransaction();
                 // Validate the request
                 $request->validate([
                     'AccountType' => 'required|string|unique:account_types,AccountType',
@@ -233,17 +276,33 @@ class Controller extends BaseController
                     'Category' => $request['Category'],
                     'dataUserEntry' => Auth::user()->id,
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'New Account Type Created',
+                'activity' => 'Created a new account type',
+                'description' => 'New account type' . $request['AccountType'] . ''. 'was created.',
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['success' => 'Data saved successfully']);
             } else {
                 return response()->json(['error' => 'Unauthorized Access'], 403);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             if ($e->validator->errors()->has('AccountType')) {
                 return response()->json(['error' => 'Account Type already exists'], 409);
             }
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
         }
     }
@@ -294,7 +353,6 @@ class Controller extends BaseController
             ]);
 
             $userAgent = $request->header('User-Agent');
-            // $browserDetails = $this->getBrowserDetails($userAgent);
             $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
             ActivityLog::create([
@@ -342,6 +400,7 @@ class Controller extends BaseController
 
     public function NewUser(Request $request){
             try {
+                DB::beginTransaction();
         if(Auth::check()){
             Log::info($request);
              $request->validate([
@@ -362,25 +421,59 @@ class Controller extends BaseController
                     'PIN' => $request['PIN'],
                     'password' => $request['password'],
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'New User Created',
+                    'activity' => 'Created a new user',
+                    'description' => 'New user ' . $request['FirstName']. ' - ' .$request['LastName']. ' - '. $request['Role'].''. 'was created.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                DB::commit();
                 return response()->json(['response'=>'user saved succesfully']);
         }else{
             dd('unauthorized access');
         }
         
     } catch (\Throwable $th) {
+        DB::rollBack();
         throw $th;
     }
     }
 
-    public function RemoveUser($id){
+    public function RemoveUser($id, Request $request){
                 try {
+                    DB::beginTransaction();
             if(Auth::check()){
+                $user = User::where('id', $id)->first();
                 User::where('id', $id)->update(['isVisible' => 0]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'User Removed',
+                'activity' => 'User Removed',
+                'description' => 'User ' . $user->FirstName . ' - '. $user->LastName . "- $user->Role"  .''. 'was removed.',
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['response' => 'User removed successfully']);
             }else{
                 dd('Unauthorized Access');
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }
@@ -388,6 +481,7 @@ class Controller extends BaseController
     public function UpdateUser(Request $request){
         if (Auth::check()) {
             try {
+                DB::beginTransaction();
                 $request->validate([
                     'FirstName' => 'required|string|max:255',
                     'LastName'  => 'required|string|max:255',
@@ -405,9 +499,24 @@ class Controller extends BaseController
                     'Role' => $request->Role,
                     'PIN' => $request->PIN,
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'User Removed',
+                    'activity' => 'User Removed',
+                    'description' => "User {$request->FirstName} {$request->LastName} ({$request->Role}) was updated.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+            DB::commit();
                 return response()->json(['response' => 'User Updated Successfully']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         } else {
@@ -475,6 +584,7 @@ class Controller extends BaseController
 
     public function NewAccountDescription(Request $request){
             try {
+                DB::beginTransaction();
             if(Auth::check()){
                 
                 $request->validate([
@@ -495,11 +605,28 @@ class Controller extends BaseController
                     'account' => $request['Type'],
                     'dataUserEntry' => Auth::user()->id,
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+    
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Account Description Created',
+                    'activity' => 'Created a new account description',
+                    'description' => "New account description $request[Description] $request[TaxType]($request[Category])",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                DB::commit();
                 return response()->json(['account_description', 'created']);
             }else{
+                DB::rollBack();
                 dd('unauthorized access');
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }
@@ -523,6 +650,7 @@ class Controller extends BaseController
     public function EditCOA(Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 $existingAccount = Accounts::where('AccountName', $request['AccountName'])
                 ->where('id', '!=', $request['id'])
                 ->first();
@@ -534,8 +662,24 @@ class Controller extends BaseController
                     'AccountName' => $request['AccountName'],
                     'AccountType' => $request['AccountType']
                 ]);
+                $userAgent = $request->header('User-Agent');
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Account Updated',
+                'activity' => 'updated an account',
+                'description' => "Account '{$request['AccountName']}' was updated.",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['account' => 'Account updated successfully'], 200);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -585,7 +729,7 @@ class Controller extends BaseController
                 ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                 ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
                 ->get();
-                Log::info($journals);
+                // Log::info(json_encode($journals, JSON_PRETTY_PRINT));
                     
                 return view('pages.journals', compact('journals'));
             } catch (\Throwable $th) {
@@ -598,16 +742,34 @@ class Controller extends BaseController
     public function UpdateJournalStatus(Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 ClientJournal::where('journal_id', $request['journal_id'])->update(['JournalStatus' => $request['JournalStatus']]);
-                // if (!empty($request['journal-draft-note']) && trim($request['journal-draft-note']) !== '') {
                     JournalNote::create([
                         'journal_id' => $request['journalID'],
                         'note' => $request['journal-draft-note'],
                         'user' => Auth::user()->id
                     ]);
-                // }
+                $client = ClientJournal::where('client_journals.journal_id', $request['journal_id'])
+                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                ->first();
+                    $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Client Journal Status Updated',
+                'activity' => 'Client Journal Status Updated',
+                'description' => "Journal status updated Journal ID $request[journal_id].",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['journal-status', 'updated']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -615,12 +777,32 @@ class Controller extends BaseController
         }
     }
 
-    public function ArchiveJournalEntry($id){
+    public function ArchiveJournalEntry($id, Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 ClientJournal::where('journal_id', $id)->update(['isVisible' => false]);
+                $client = ClientJournal::where('client_journals.journal_id', $id)
+                ->join('clients', 'clients.id', '=', 'client_journal.client_id')
+                ->first();
+                    $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Client Journal Status Updated',
+                'activity' => 'Client Journal Status Updated',
+                'description' => "Journal status updated for Client: {$client->CEO}, Company: {$client->CompanyName}, Journal ID: {$request['journal_id']}.",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['Journal Entry', 'Move to Archive']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -631,26 +813,59 @@ class Controller extends BaseController
     public function EditSystemProfile(Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 SystemProfile::where('id', 1)->update([
                     'PhoneNumber' => $request['PhoneNumber'],
                     'Email' => $request['Email'],
                     'Address' => $request['Address']
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'System Profile Info Updated',
+                'activity' => 'System Profile Info Updated',
+                'description' => "System Profile was updated",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json(['system-profile' => 'updated']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
             dd('unauthorized access');
         }
     }
-    public function toggleUserLogInPrivilege($id)
+    public function toggleUserLogInPrivilege($id, Request $request)
     {
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 $user = User::findOrFail($id);
                 $user->UserPrivilege = $user->UserPrivilege == 1 ? 0 : 1;
                 $user->save();
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'User Role Updated',
+                'activity' => 'User Role Updated',
+                'description' => "User login privilege for {$user->FirstName} {$user->LastName} (ID: {$user->id}) was " . ($user->UserPrivilege == 1 ? 'enabled' : 'disabled') . ".",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+                DB::commit();
                 return response()->json([
                     'success' => true,
                     'message' => $user->UserPrivilege == 1 
@@ -658,6 +873,7 @@ class Controller extends BaseController
                         : 'User login disabled successfully.'
                 ]);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -665,12 +881,30 @@ class Controller extends BaseController
         }
     }
 
-    public function RemoveSubService($id){
+    public function RemoveSubService($id, Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 ServicesSubTable::where('id', $id)->update(['isVisible' => false]);
+                $sst = ServicesSubTable::where('id', $id)->first();
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Sub-Service Removed',
+                    'activity' => 'Sub-Service Removal',
+                    'description' => "Sub-service {$sst->ServiceRequirements} was removed.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                DB::commit();
                 return response()->json(['sub-service', 'removed']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
         }else{
@@ -681,6 +915,7 @@ class Controller extends BaseController
     public function UpdateDescription(Request $request){
         if(Auth::check()){
             try {
+                DB::beginTransaction();
                 $preparedPrice = (float)str_replace(',', '', $request['price']);
                 AccountDescription::where('id', $request['ad_id'])->update([
                     'Description' => $request['description'],
@@ -691,78 +926,177 @@ class Controller extends BaseController
                     'account' => $request['Type'],
                     'dataUserEntry' => Auth::user()->id,
                 ]);
-                // Log::info("$preparedPrice type = $type");
+    
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+    
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Account Description Updated',
+                    'activity' => 'Updated Account Description',
+                    'description' => "Account description was updated. Description: '{$request['description']}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+    
+                DB::commit();
                 return response()->json(['account_description' => 'updated']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
+    
 
-    public function RemoveDescription($id){
+    public function RemoveDescription($id, Request $request){
         if(Auth::check()){
             try {
-                AccountDescription::where('id', $id)->update(['isVisible' => false]);
+                DB::beginTransaction();
+                $accountDescription = AccountDescription::findOrFail($id);
+                $accountDescription->update(['isVisible' => false]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Account Description Removed',
+                    'activity' => 'Removed Account Description',
+                    'description' => "Account description '{$accountDescription->Description}' was removed",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+    
+                DB::commit();
                 return response()->json(['description' => 'removed']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
+    
 
-    public function RemoveCOA($id){
-        if(Auth::check()){
+    public function RemoveCOA($id, Request $request) {
+        if (Auth::check()) {
             try {
-                Accounts::where('id', $id)->update(['isVisible' => false]);
+                DB::beginTransaction();
+                $account = Accounts::findOrFail($id);
+                $account->update(['isVisible' => false]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+    
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Chart of Accounts Updated',
+                    'activity' => 'Account Visibility Updated',
+                    'description' => "The account '{$account->AccountName}' was removed.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+    
+                DB::commit();
                 return response()->json(['description' => 'removed']);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
+    
 
 
-    public function AddServiceReq(Request $request){
-        if(Auth::check()){
+    public function AddServiceReq(Request $request) {
+        if (Auth::check()) {
             try {
+                DB::beginTransaction();
+    
+                // Log the incoming request data (for debugging purposes)
                 Log::info($request);
+    
+                // Iterate over the form data and create service requirements
                 foreach ($request['form'] as $value) {
                     ServiceRequirement::create([
                         'service_id' => $request['idref'],
                         'req_name' => $value['value']
                     ]);
                 }
+    
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Service Requirement Added',
+                    'activity' => 'New service requirements were added',
+                    'description' => "New requirements were added.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+    
+                DB::commit();
                 return response()->json(['service_name' => 'added'], 200);
             } catch (\Throwable $th) {
+                DB::rollBack();
                 throw $th;
             }
-        }else{
-
+        } else {
+            // Unauthorized access handling
+            dd('Unauthorized access');
         }
     }
+    
 
     public function AddSubServiceReq(Request $request){
-        if(Auth::check()){
-            try {
-                Log::info($request);
-                SubServiceRequirement::create([
-                    'req_name' => $request['reqName'],
-                    'sub_service_id' => $request['idRef']
-                ]);
-                return response()->json(['service_name' => 'added'], 200);
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-        }else{
+    if(Auth::check()){
+        try {
+            DB::beginTransaction();
+            SubServiceRequirement::create([
+                'req_name' => $request['reqName'],
+                'sub_service_id' => $request['idRef']
+            ]);
+            $subServiceName = ServicesSubTable::find($request['idRef'])->name ?? 'Unknown Sub-Service';
+            $userAgent = $request->header('User-Agent');
+            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
+            ActivityLog::create([
+                'user_id' => Auth::user()->id,
+                'action' => 'Sub-Service Requirement Added',
+                'activity' => 'New sub-service requirements were added',
+                'description' => "New requirements were added.",
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'browser' => $browserDetails['browser'] ?? null,
+                'platform' => $browserDetails['platform'] ?? null,
+                'platform_version' => $browserDetails['platform_version'] ?? null,
+            ]);
+
+            DB::commit();
+            return response()->json(['service_name' => 'added'], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
+    } else {
+        dd('Unauthorized access');
     }
+}
 
     public function GetServiceReq($id){
         if(Auth::check()){
@@ -794,7 +1128,6 @@ class Controller extends BaseController
             $category = $request->input('category');
             $files = $request->file('files', []);
 
-            // Log to confirm request data
             Log::info('File IDs: ' . json_encode($fileIds));
             Log::info('Category: ' . $category);
 
@@ -821,11 +1154,19 @@ class Controller extends BaseController
                         'isVisible' => true,
                     ];
 
-                    if ($category === 'subservice') {
-                        SubServiceDocuments::create($data);
-                    } elseif ($category === 'service') {
-                        ServicesDocuments::create($data);
-                    }
+                        $serviceName = services::find($serviceId)->name ?? 'Unknown Service';
+
+                    ActivityLog::create([
+                        'user_id' => Auth::user()->id,
+                        'action' => 'Service Document Uploaded',
+                        'activity' => 'Service Document Uploaded',
+                        'description' => "File '{$originalName}' uploaded for the service '{$serviceName}' (ID: {$serviceId}).",
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->header('User-Agent'),
+                        'browser' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
+                        'platform' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
+                        'platform_version' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
+                    ]);
                 }
             }
 
@@ -840,6 +1181,7 @@ class Controller extends BaseController
     return response()->json(['message' => 'Unauthorized'], 401);
 }
 
+
 public function Income(){
     if(Auth::check()){
         try {
@@ -852,7 +1194,7 @@ public function Income(){
             )
             ->join('billings', 'billings.client_id', '=', 'clients.id')
             ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
-            ->join('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+            ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
             ->get();
             Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
             return view('pages.income', compact('incomeData'));

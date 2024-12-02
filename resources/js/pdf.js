@@ -61,4 +61,72 @@ $(document).ready(function(){
             }
         });
      });
+
+     $('.gen-expense-pdf').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: 'expense/pdf/expense',
+            headers:  { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(response){
+                var blob = new Blob([response], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            },
+            error: function(error, status, jqXHR){
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Fatal Error',
+                        text: 'Something went wrong'
+                    });
+            }
+        });
+     });
+
+     $('.income-gen-pdf').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: 'income/pdf/income',
+            headers:  { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(response){
+                var blob = new Blob([response], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            },
+            error: function(error, status, jqXHR){
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Fatal Error',
+                        text: 'Something went wrong'
+                    });
+            }
+        });
+     });
+     $('.generate-client-billing-pdf').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: `client/billing/pdf/${$(this).attr('id')}`,
+            headers:  { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(response){
+                var blob = new Blob([response], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            },
+            error: function(error, status, jqXHR){
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Fatal Error',
+                        text: 'Something went wrong'
+                    });
+            }
+        });
+     });
 });

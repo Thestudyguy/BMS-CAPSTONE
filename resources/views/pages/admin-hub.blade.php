@@ -17,6 +17,7 @@
                                     <td>User Agent</td>
                                     <td>Activity Type</td>
                                     <td>Activity Description</td>
+                                    <td>Action</td>
                                     <td>Time Stamps</td>
                                     <td>Browser</td>
                                     <td>Platform</td>
@@ -29,6 +30,7 @@
                                         <td>{{$log->user_agent}}</td>
                                         <td>{{$log->action}}</td>
                                         <td>{{$log->activity}}</td>
+                                        <td>{{$log->description}}</td>
                                         <td>{{$log->created_at}}</td>
                                         <td>{{$log->browser}}</td>
                                         <td>{{$log->platform}}/{{$log->platform_version}}</td>

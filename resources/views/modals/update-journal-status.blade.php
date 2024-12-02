@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="color:#063D58;">
-              <form action="" class="update-journal-status-{{$journal->journal_id}}">
+              <form action="" class="update-journal-status-form-{{$journal->journal_id}}">
                 <select name="JournalStatus" class="form-control" id="serviceprogress">
                     <option value="{{$journal->JournalStatus}}" selected hidden>{{$journal->JournalStatus}}</option>
                     <option value="Rejected">Rejected</option>

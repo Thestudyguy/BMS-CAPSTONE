@@ -84,4 +84,7 @@ Route::middleware('authenticated')->group(function(){
     Route::post('/service/requirement/documents/{id}', [ClientController::class, 'ViewServiceDocuments']);
     Route::get('/income', [Controller::class, 'Income'])->name('income');
     Route::get('/expenses', [Controller::class, 'Expenses'])->name('expenses');
+    Route::post('expense/pdf/expense', [PDFController::class, 'GenerateExpensePDF']);
+    Route::post('income/pdf/income', [PDFController::class, 'GenerateIncomePDF']);
+    Route::post('client/billing/pdf/{id}', [PDFController::class, 'GenerateClientBillingTable']);
 });

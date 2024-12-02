@@ -88,7 +88,7 @@
             </table>
 
             <p>If you have any questions or need further assistance, feel free to contact us.</p>
-            <p>Thank you for choosing RAM Law Firm. YOU FUCKING BITCH!!!!</p>
+            <p>Thank you for choosing RAM Law Firm.</p>
         </div>
         <div class="footer">
             <p>&copy; {{ date('Y') }}. All rights reserved.</p>
