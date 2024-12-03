@@ -200,10 +200,10 @@ class Controller extends BaseController
     ->groupBy(DB::raw('MONTH(billings.created_at)'))
     ->get();
 
-    $monthlyIncome = array_fill(0, 12, 0); // Initialize array for each month
+    $monthlyIncome = array_fill(0, 12, 0);
 
     foreach ($incomeData as $incomes) {
-        $month = $incomes->month - 1; // Convert 1-based month to 0-based index
+        $month = $incomes->month - 1;
         $totalIncome = ($incomes->base_amount ?? 0) + ($incomes->added_amount ?? 0);
         $monthlyIncome[$month] += $totalIncome;
     }
@@ -226,7 +226,9 @@ class Controller extends BaseController
         $month = $expense->month - 1;
         $monthlyExpenses[$month] += $expense->total_expense;
     }
-    $activityLog = ActivityLog::whereDate('created_at', Carbon::today())->get();
+    $activityLog = ActivityLog::whereDate('activity_logs.created_at', Carbon::today())
+    ->join('users', 'users.id',  '=', 'activity_logs.user_id')
+    ->get();
             return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog'));
 
         } catch (\Exception $exception) {

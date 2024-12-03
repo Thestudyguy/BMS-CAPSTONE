@@ -497,6 +497,7 @@ $(document).ready(function () {
                 title: 'Missing File',
                 text: 'Please upload a profile picture before proceeding.'
             });
+
         }else {
             var nextForm = currentForm.next('.multi-step');
             if (nextForm.hasClass('data-entry-preview')) {
@@ -522,6 +523,7 @@ $(document).ready(function () {
                     reader.readAsDataURL(fileInput.files[0]);
                 }
             }
+
             if (nextForm.length) {
                 currentForm.fadeOut(300, function() {
                     $(this).hide();
@@ -530,6 +532,11 @@ $(document).ready(function () {
                     });
                 });
             }
+            var currentStep = $(".client-step.active");
+                var currentLine = currentStep.next(".client-form-indicator-line");
+    
+                currentLine.addClass("active");
+                currentLine.next(".client-step").addClass("active");
             $(".previous-form").removeClass('visually-hidden');
             if (!currentForm.next('.multi-step').next('.multi-step').length) {
             $(".next-form").addClass('visually-hidden');
@@ -537,23 +544,37 @@ $(document).ready(function () {
         }
         }
     });
-
-    $('.previous-form').on('click', function () {
-        var currentForm = $('.multi-step:visible');
-        var prevForm = currentForm.prev('.multi-step');
     
-        currentForm.fadeOut(300, function() {
-            $(this).hide();
-            prevForm.fadeIn(300, function() {
-                $(this).show();
+    $(".previous-form").on("click", function () {
+        var currentForm = $(".multi-step:visible");
+        var prevForm = currentForm.prev(".multi-step");
+    
+        if (prevForm.length) {
+            // Transition to the previous form
+            currentForm.fadeOut(300, function () {
+                $(this).hide();
+                prevForm.fadeIn(300, function () {
+                    $(this).show();
+                });
             });
-        });
-        $(".next-form").removeClass('visually-hidden');
-        $(".save").addClass('visually-hidden');
-        if (prevForm.prev('.multi-step').length === 0) {
-            $(".previous-form").addClass('visually-hidden');
+    
+            // Update step indicator
+            var currentStep = $(".client-step.active");
+            var currentLine = currentStep.prev(".client-form-indicator-line");
+    
+            currentStep.removeClass("active");
+            // currentLine.removeClass("active"); // Deactivate the current indicator line
+            currentLine.prev(".client-step").addClass("active"); // Activate the previous step circle
+    
+            // Manage buttons visibility
+            $(".next-form").removeClass("visually-hidden");
+            $(".save").addClass("visually-hidden");
+            if (!prevForm.prev(".multi-step").length) {
+                $(".previous-form").addClass("visually-hidden");
+            }
         }
     });
+    
 
     $('.save').on('click', function() {
         var formData = new FormData();

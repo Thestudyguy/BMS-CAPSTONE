@@ -84,9 +84,6 @@ $(document).ready(function() {
                 `<tr id='row-${isSubServiceAlreadySelected}'>
                     <td>${subServiceName}</td>
                     <td>${subServicePrice.toLocaleString()}</td>
-                    <td>
-                        <input type="file" class="clientDocument" name="clientDocument-${isSubServiceAlreadySelected}" accept='file/*'>
-                    </td>
                 </tr>`
             );
             totalAmount += subServicePrice;
@@ -127,14 +124,12 @@ $(document).ready(function() {
                                 <tr>
                                     <td>Service</td>
                                     <td>Amount</td>
-                                    <td>Document</td>
                                 </tr>
                             </thead>
                             <tbody class='client-service-input'>
                                 <tr>
                                     <td>${serviceName}</td>
                                     <td>${servicePrice.toLocaleString()}</td>
-                                    <td>${excludeFileInput ? 'No file required' : `<input type="file" class="clientDocument" name="clientDocument" accept='file/*'>`}</td>
                                     <td><span class="badge fw-bold text-light bg-danger rounded-1 remove-parent-service" id=${sanitizedServiceRef}><i class="fas fa-trash"></i></span></td>
                                 </tr>
                             </tbody>

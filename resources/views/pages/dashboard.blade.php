@@ -92,7 +92,7 @@
         <h4 class="h6 fw-bold m-3">Recent Activity</h4>
         </div>
         <div class="card-body">
-        <table class="table table-striped">
+        <table class="table table-striped" style="font-size: 0.8em">
           <thead>
             <td>User</td>
             <td>User Agent</td>
