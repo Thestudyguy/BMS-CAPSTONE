@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
             $table->string('billing_id');
             $table->string('account');
+            $table->string('category');
             $table->decimal('amount', 15);
             $table->unsignedBigInteger('sub_service')->nullable();
             $table->foreign('sub_service')->references('id')->on('client_billing_sub_services')->nullOnDelete();

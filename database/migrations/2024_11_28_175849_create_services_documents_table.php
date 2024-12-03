@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('ReqName');
             $table->unsignedBigInteger('client_service')->nullable();
             $table->foreign('client_service')->references('id')->on('client_services')->nullOnDelete();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->foreign('client_id')->references('id')->on('clients')->nullOnDelete();
             $table->string('getClientOriginalName')->nullable();
             $table->string('getClientMimeType')->nullable();
             $table->string('getSize')->nullable();

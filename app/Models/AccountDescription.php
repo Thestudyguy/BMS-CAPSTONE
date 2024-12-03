@@ -9,7 +9,6 @@ class AccountDescription extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'Category',
         'Description',
         'TaxType',
         'FormType',

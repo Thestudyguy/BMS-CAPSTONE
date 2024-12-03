@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('sub_service_id')->nullable();
             $table->foreign('sub_service_id')->references('id')->on('services_sub_tables')->nullOnDelete();
+            
             $table->string('req_name');
             $table->boolean('isVisible')->default(true);
             $table->timestamps();

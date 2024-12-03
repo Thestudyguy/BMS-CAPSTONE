@@ -22,7 +22,7 @@
            </table>
         </div>
         <div class="modal-footer">
-            <button class="btn fw-bold text-md text-light rounded-0 save-req-files" style="background: #063D58;">Save</button>
+            <button class="btn fw-bold text-md text-light rounded-0 save-req-files" id="{{ $service->id }}_{{ $client->id }}" style="background: #063D58;">Save</button>
           <button type="button" class="btn btn-secondary rounded-0" data-bs-dismiss="modal">{{__('Cancel')}}</button>
           </div>
       </div>

@@ -205,11 +205,8 @@ $('.mail-client-bs').click(function(){
     MailClientBilling('mail-client-billing', billingData,
         { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
         function(response){
-            Toast.fire({
-                icon: 'success',
-                title: 'Billing Created',
-                text: 'Billing successfully created'
-            });
+            window.location.href = 'clients';
+            localStorage.setItem('billing', 'created');
         },
         function(jqXHR, textStatus, errorThrown){
             try {
@@ -226,7 +223,15 @@ $('.mail-client-bs').click(function(){
     )
 });
 
-
+    var billing = localStorage.getItem('billing');
+    if(billing === 'created'){
+        Toast.fire({
+            icon: 'success',
+            title: 'Billing Created',
+            text: 'Billing successfully created'
+        });
+        localStorage.removeItem('billing');
+    }
     // $('.view-client-billing').click(function(){
     //     $.ajax({
     //         type: 'POST',

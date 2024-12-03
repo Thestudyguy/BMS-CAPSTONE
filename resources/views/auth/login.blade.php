@@ -76,7 +76,7 @@
                         <center>BMS | LogIn</center>
                     </div>
                     <div class="col-sm-12 login-svg">
-                        <img class="w-100" src="{{ asset('images/login-image.png') }}" alt="">
+                        <center><img class="w-25" src="{{ asset('images/Rams_logo.png') }}" alt=""></center>
                     </div>
                 </div>
             </div>

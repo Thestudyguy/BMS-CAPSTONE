@@ -229,7 +229,24 @@ class Controller extends BaseController
     $activityLog = ActivityLog::whereDate('activity_logs.created_at', Carbon::today())
     ->join('users', 'users.id',  '=', 'activity_logs.user_id')
     ->get();
-            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog'));
+
+    $clientsData = DB::table('clients')
+    ->select(
+        DB::raw('MONTH(created_at) as month'),
+        DB::raw('COUNT(id) as total_clients')
+    )
+    ->groupBy(DB::raw('MONTH(created_at)'))
+    ->get();
+
+// Initialize an array with 0 for all months
+$monthlyClients = array_fill(0, 12, 0);
+
+// Map the data into the array
+foreach ($clientsData as $client) {
+    $month = $client->month - 1; // Adjust for zero-based indexing
+    $monthlyClients[$month] += $client->total_clients;
+}
+            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog', 'monthlyClients'));
 
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
@@ -588,7 +605,6 @@ class Controller extends BaseController
             try {
                 DB::beginTransaction();
             if(Auth::check()){
-                
                 $request->validate([
                     'Description' => 'required|string|max:255|unique:account_descriptions,Description',
                     'TaxType' => 'required|string|max:255',
@@ -596,7 +612,9 @@ class Controller extends BaseController
                     'Price' => 'required|max:255',
                     'Category' => 'required|max:255',
                 ]);
-                $preparedPrice = floatval($request['Price']);
+                Log::info($request['Price']);
+                $sanitizePrice = str_replace(',', '', $request['Price']);
+                $preparedPrice = floatval($sanitizePrice);
                 Log::info($request['Type']);
                 AccountDescription::create([
                     'Description' => $request['Description'],
@@ -1028,7 +1046,7 @@ class Controller extends BaseController
                 DB::beginTransaction();
     
                 // Log the incoming request data (for debugging purposes)
-                Log::info($request);
+                Log::info("Request $request");
     
                 // Iterate over the form data and create service requirements
                 foreach ($request['form'] as $value) {
@@ -1104,16 +1122,20 @@ class Controller extends BaseController
         if(Auth::check()){
             try {
                 $prepID = explode('_', $id);
-                Log::info($prepID[0]);
                 if($prepID[1] === 'subservice'){
-                    $subServiceReq = SubServiceRequirement::where('sub_service_id', $prepID[2])->get();
-                    Log::info($subServiceReq);
-                    return response()->json(['serviceReqs' => $subServiceReq, 'category' => 'subservice']);
+                    $isServiceDocsExisting = Clients::where('clients.id', $prepID[3])
+                    ->join('sub_service_documents', 'sub_service_documents.client_id', '=', 'clients.id')
+                    ->pluck('service_id');
+                $serviceDocs = SubServiceRequirement::whereNotIn('id', $isServiceDocsExisting)->get();
+                return response()->json(['serviceReqs' => $serviceDocs]);
                 }
                 if($prepID[1] === 'service'){
-                    $serviceReq = ServiceRequirement::where('service_id', $prepID[2])->get();
-                    return response()->json(['serviceReqs' => $serviceReq, 'category' => 'service']);
-                }
+                    $isServiceDocsExisting = Clients::where('clients.id', $prepID[3])
+                    ->join('services_documents', 'services_documents.client_id', '=', 'clients.id')
+                    ->pluck('service_id');
+                $serviceDocs = ServiceRequirement::whereNotIn('id', $isServiceDocsExisting)->get();
+                return response()->json(['serviceReqs' => $serviceDocs]);
+            }
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -1126,55 +1148,51 @@ class Controller extends BaseController
 {
     if (Auth::check()) {
         try {
-            $fileIds = $request->input('file_ids', []);
-            $category = $request->input('category');
-            $files = $request->file('files', []);
-
-            Log::info('File IDs: ' . json_encode($fileIds));
-            Log::info('Category: ' . $category);
-
-            if (empty($files)) {
-                return response()->json(['message' => 'No files uploaded.'], 400);
-            }
-
-            foreach ($files as $index => $file) {
-                $fileId = $fileIds[$index] ?? null;
-                if ($fileId) {
-                    $ids = explode('_', $fileId);
-                    $serviceId = $ids[1] ?? null;
-                    $originalName = $file->getClientOriginalName();
-                    $filePath = $file->store('client-files', 'public');
-
-                    $data = [
-                        'service_id' => $serviceId,
-                        'ReqName' => $originalName,
-                        'getClientOriginalName' => $originalName,
-                        'getClientMimeType' => $file->getMimeType(),
-                        'getSize' => $file->getSize(),
-                        'getRealPath' => $filePath,
-                        'dataEntryUser' => Auth::user()->id,
-                        'isVisible' => true,
-                    ];
-
-                        $serviceName = services::find($serviceId)->name ?? 'Unknown Service';
-
-                    ActivityLog::create([
-                        'user_id' => Auth::user()->id,
-                        'action' => 'Service Document Uploaded',
-                        'activity' => 'Service Document Uploaded',
-                        'description' => "File '{$originalName}' uploaded for the service '{$serviceName}' (ID: {$serviceId}).",
-                        'ip_address' => $request->ip(),
-                        'user_agent' => $request->header('User-Agent'),
-                        'browser' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
-                        'platform' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
-                        'platform_version' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
-                    ]);
+            DB::beginTransaction();
+            foreach ($request->file('files', []) as $key => $file) {
+                $prepKey = explode('_', $key);
+                $subServiceID = $prepKey[0];//service requirement id
+                $subServiceReqID = $prepKey[1];//client service id
+                $clientID = $prepKey[3]; //client id
+                $category = $prepKey[2];//category
+                $fileName = uniqid() . '_' . $file->getClientOriginalName();
+                $profilePath = $file->storeAs('client-files', $fileName, 'public');
+                $data = [
+                    'service_id' => $subServiceID,
+                    'client_id' => $clientID,
+                    'client_service' => $subServiceReqID,
+                    'ReqName' => $file->getClientOriginalName(),
+                    'getClientOriginalName' => $file->getClientOriginalName(),
+                    'getClientMimeType' => $file->getMimeType(),
+                    'getSize' => $file->getSize(),
+                    'getRealPath' => $profilePath,
+                    'dataEntryUser' => Auth::user()->id,
+                    'isVisible' => true,
+                ];
+                if($category === 'service'){
+                    ServicesDocuments::create($data);
                 }
+                else{
+                    SubServiceDocuments::create($data);
+                }
+                $service = ClientServices::where('id', $subServiceReqID)->first();
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Service Document Uploaded',
+                    'activity' => 'Service Document Uploaded',
+                    'description' => "File '{$fileName}' uploaded for the service '{$service}'",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->header('User-Agent'),
+                    'browser' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
+                    'platform' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
+                    'platform_version' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
+                ]);
             }
-
+            DB::commit();            
             return response()->json(['message' => 'Files uploaded successfully.']);
 
         } catch (\Throwable $th) {
+            DB::rollBack();
             Log::error('Error uploading files: ' . $th->getMessage());
             return response()->json(['message' => 'An error occurred while uploading files.'], 500);
         }

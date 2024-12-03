@@ -18,6 +18,8 @@ class ServicesDocuments extends Model
         'dataEntryUser',
         'isVisible',
         'category',
+        'client_service',
+        'client_id',
         
     ];
 }

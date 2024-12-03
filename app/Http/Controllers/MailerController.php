@@ -76,6 +76,7 @@ class MailerController extends Controller
                 }
                 
                 if (!empty($descriptions)) {
+                    Log::info($descriptions);
                     foreach ($descriptions as $descriptionGroup) {
                         foreach ($descriptionGroup as $descriptionArray) {
                             foreach ($descriptionArray as $description) {
@@ -86,7 +87,8 @@ class MailerController extends Controller
                                         'billing_id' => $billingID,
                                         'description' => $description['account_id'],
                                         'account' => $description['Account'],
-                                        'amount' => (float) $description['price']
+                                        'amount' => (float) $description['price'],
+                                        'category' => 'not necessary'
                                     ]);
                                 } else {
                                     BillingDescriptions::create([
@@ -94,7 +96,8 @@ class MailerController extends Controller
                                         'billing_id' => $billingID,
                                         'description' => $description['account_id'],
                                         'account' => $description['Account'],
-                                        'amount' => (float) $description['price']
+                                        'amount' => (float) $description['price'],
+                                        'category' => 'not necessary'
                                     ]);
                                 }
                             }

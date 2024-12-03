@@ -95,6 +95,7 @@ $('.add-new-sub-service-req').on('click', function(e){
         serviceCategory = '';
         $('.append-service-req').empty();
         console.log($(this).attr('id'));
+        let client_service = $(this).attr('id');
         $('.service-reqs-loader').removeClass('visually-hidden');
         var reqTable = '';
         $.ajax({
@@ -104,17 +105,30 @@ $('.add-new-sub-service-req').on('click', function(e){
             success: function(response) {
                 serviceCategory = response.category;
                 console.log(response);
+                console.log('this');
+                
+                
                 // localStorage.setItem('req', 'added');
                 // location.reload();
                 $('.service-reqs-loader').addClass('visually-hidden');
-                $.each(response.serviceReqs, (index, reqs)=>{
+                $.each(response.serviceReqs, (index, reqs) => {
+                    let reqContent = '';
+                    if (reqs.gcon) {
+                        reqContent = `<td>${reqs.gcon}</td>`;
+                    } else {
+                        reqContent = `
+                        <td><input type="file" class="req-file" id="${reqs.id}_${client_service}" data-id="${reqs.req_name}_${reqs.id}" name="${reqs.req_name}_${reqs.id}"></td>
+                    `;
+                    }
+                
                     reqTable += `
-                         <tr>
+                        <tr>
                             <td>${reqs.req_name}</td>
-                            <td><input type="file" class="req-file" data-id="${reqs.req_name}_${reqs.id}" name="${reqs.req_name}_${reqs.id}"></td>
+                            ${reqContent}
                         </tr>
-                        `;
+                    `;
                 });
+                
                 $('.append-service-req').append(reqTable);
             },
             error: function(error, status, jqXHR) {
@@ -127,19 +141,29 @@ $('.add-new-sub-service-req').on('click', function(e){
             },
         });
     });
+
     $('.save-req-files').on('click', function() {
         let filesArray = [];
         let hasFile = false;
-        let formData = new FormData(); // Create a FormData object
+        let formData = new FormData();
+        const client_id = $(this).attr('id');
     
         $('.req-file').each(function() {
             if (this.files.length) {
-                hasFile = true; // Found a file
-                const fileId = $(this).data('id');
+                hasFile = true;
+                const serviceRequirementId = $(this).attr('id');
                 const fileCategory = serviceCategory;
-                formData.append('files[]', this.files[0]); 
-                formData.append('file_ids[]', fileId); // Append corresponding file ID
-                formData.append('category', fileCategory); // Append category
+                const file = this.files[0];
+    
+                
+                filesArray.push({
+                    service_id: client_id,
+                    sub_service_req_id: serviceRequirementId,
+                    category: fileCategory,
+                    file: file.name
+                });
+    
+                formData.append(`files[${serviceRequirementId}]`, file);
             }
         });
     
@@ -150,6 +174,9 @@ $('.add-new-sub-service-req').on('click', function(e){
             });
             return;
         }
+    
+        // Add the filesArray as JSON
+        formData.append('metadata', JSON.stringify(filesArray));
     
         $.ajax({
             type: 'POST',
@@ -173,6 +200,7 @@ $('.add-new-sub-service-req').on('click', function(e){
         });
     });
     
+    
 
     $('.view-client-service-doc').on('click', function(){
         $('.service-docs-loader').removeClass('visually-hidden');
@@ -185,13 +213,15 @@ $('.add-new-sub-service-req').on('click', function(e){
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response) {
                 $('.service-docs-loader').addClass('visually-hidden');
+                console.log(response);
+                
                 $.each(response.docsData, (index, docs) => {
                     console.log(docs);
                     let downloadLink = '';
-                    if (docs.getRealPath && docs.getRealPath.trim() !== '') {
+                    if (docs.grp && docs.grp.trim() !== '') {
                         downloadLink = `
-                            <a href="storage/${docs.getRealPath}" 
-                               download="${docs.getClientOriginalName}" 
+                            <a href="storage/${docs.grp}" 
+                               download="${docs.gcon}" 
                                class="badge bg-warning text-dark" 
                                style="font-size: 10px;">
                                 <i class="fas fa-cloud-download-alt"></i> Download
@@ -201,8 +231,8 @@ $('.add-new-sub-service-req').on('click', function(e){
                     docsTable += `
                         <tr>
                             <td>${docs.req_name}</td>
-                            <td>${docs.getClientOriginalName || 'No file name'}</td>
-                            <td>${docs.getClientMimeType}</td>
+                            <td>${docs.gcon || 'No file name'}</td>
+                            <td>${docs.gcmt}</td>
                             <td>${downloadLink}</td>
                         </tr>
                     `;

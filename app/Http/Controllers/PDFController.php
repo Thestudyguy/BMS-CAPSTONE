@@ -631,13 +631,13 @@ class PDFController extends Controller
                 $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal, 2), 1, 1, 'R');
 
 
+                $addedDescriptionsTotal = 0;
                 if ($addedDescriptions->isNotEmpty()) {
                     $this->fpdf->SetFont('Arial', 'B', 10);
                     $this->fpdf->SetX($leftMargin);
                     $this->fpdf->Cell($columnWidth, 10, "Added Descriptions", 1, 0, 'C', true);
                     $this->fpdf->Cell($priceWidth, 10, "Amount", 1, 1, 'C', true);
     
-                    $addedDescriptionsTotal = 0;
                     foreach ($addedDescriptions as $description) {
                         $addedDescriptionsTotal += $description->amount;
     

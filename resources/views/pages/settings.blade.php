@@ -68,6 +68,7 @@
                             <div class="card-tools"><button class="btn btn-transparent fw-bold" data-bs-target='#new-description' data-bs-toggle='modal'><i class="fas fa-plus text-light"></i></button></div>
                         </div>
                         <div class="card-body">
+                            <div class="" style="max-height: 300px; overflow: auto;">
                             <table class="table table-bordered table-hover table-striped" style="font-size: .8em;">
                                 <thead>
                                     <tr>
@@ -81,14 +82,15 @@
                                         <td class="fw-bold">Action</td>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody style="max-height: 400px; overflow: auto;">
+
                                     @foreach ($adac as $ads)
                                         <tr id="{{$ads->id}}">
                                             <td>{{$ads->Service}} {{$ads->AccountName}}</td>
                                             <td>{{$ads->ServiceRequirements}}</td>
                                             <td>{{$ads->adCategory}}</td>
                                             <td>{{$ads->Description}}</td>
-                                            <td>{{$ads->Price}}</td>
+                                            <td>{{number_format($ads->Price, 2)}}</td>
                                             <td>{{$ads->TaxType}}</td>
                                             <td>{{$ads->FormType}}</td>
                                             <td>
@@ -101,6 +103,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
                         </div>
                     </div>
                    </div>

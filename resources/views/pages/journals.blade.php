@@ -40,11 +40,13 @@
                                 </td>
                                 <td>{{$journal->LastName}}, {{$journal->FirstName}} - {{$journal->Role}}</td>
                                 <td>
-                                    <span class="badge fw-bold bg-warning text-dark audit-journal" 
-                                          id="{{$journal->client_id}}_{{$journal->journal_id}}" 
-                                          onclick="window.location.href='{{ route('journal-audit', ['id' => $journal->journal_id]) }}'">
-                                        <i class="fas fa-pen"></i>
-                                    </span>
+                                   @if (Auth::check() && (Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Bookkeeper'))
+                                   <span class="badge fw-bold bg-warning text-dark audit-journal" 
+                                   id="{{$journal->client_id}}_{{$journal->journal_id}}" 
+                                   onclick="window.location.href='{{ route('journal-audit', ['id' => $journal->journal_id]) }}'">
+                                 <i class="fas fa-pen"></i>
+                             </span>
+                                   @endif
                                     <span class="badge fw-bold bg-warning text-dark" 
                                           id="{{$journal->client_id}}_{{$journal->journal_id}}" 
                                           data-bs-target="#remove-journal-entry-{{$journal->journal_id}}" 

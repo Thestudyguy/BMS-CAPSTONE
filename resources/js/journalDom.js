@@ -1331,7 +1331,8 @@ $(document).on('click', '.remove-asset', function (e) {
         function CallSuccess(response){
             console.log(response);
             localStorage.setItem('journal', 'created');
-            location.reload();
+            // location.reload();
+            window.location.href = 'clients';
         }
 
         function CallFailed(error, status, jqXHR){

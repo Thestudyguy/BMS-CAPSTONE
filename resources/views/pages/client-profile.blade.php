@@ -158,7 +158,7 @@
                                                             <i class="fas fa-trash"></i> Delete
                                                         </span>
                                                     @endif --}}
-                                                    <span class="badge bg-warning fw-bold get-client-service-req" style="font-size: 10px;"  data-bs-target="#view-service-reqs-{{$service->id}}_{{$service->serviceCategory}}" id="{{$service->id}}_{{$service->serviceCategory}}" data-bs-toggle="modal"><i class="fas fa-file"></i></span>
+                                                    <span class="badge bg-warning fw-bold get-client-service-req" style="font-size: 10px;"  data-bs-target="#view-service-reqs-{{$service->id}}_{{$service->serviceCategory}}" id="{{$service->id}}_{{$service->serviceCategory}}_{{$client->id}}" data-bs-toggle="modal"><i class="fas fa-file"></i></span>
                                                     <span class="badge bg-warning fw-bold view-client-service-doc"  data-bs-target="#view-service-docs-{{$service->id}}_{{$service->serviceCategory}}" id="{{$service->id}}_{{$service->serviceCategory}}" data-bs-toggle="modal" style="font-size: 10px;"><i class="fas fa-eye"></i></span>
                                                     <span class="badge bg-warning fw-bold" data-bs-target="#remove-client-service-{{$service->id}}" data-bs-toggle="modal"  style="font-size: 10px;"><i class="fas fa-trash"></i></span>
                                                 </td>
@@ -176,8 +176,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-12">
-                            {{-- <h6 class="h5 fw-bold">Journal Entries</h6> --}}
+                        {{-- <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-header">
                                     <div class="lead fw-bold text-light">Journal Entries</div>
@@ -222,9 +221,8 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-12">
-                            {{-- <h6 class="h5 fw-bold">Bookkeeping</h6> --}}
+                        </div> --}}
+                        {{-- <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-header">
                                     <div class="lead fw-bold text-light">Billings</div>
@@ -238,7 +236,6 @@
                                                 <td class="fw-bold">Original File Name</td>
                                                 <td class="fw-bold">MIME Type</td>
                                                 <td class="fw-bold">File Size</td>
-                                                {{-- <td class="fw-bold">File Path</td> --}}
                                                 <td class="fw-bold">Action</td>
                                             </tr>
                                         </thead>
@@ -250,7 +247,6 @@
                                                     <td>{{ $service->getClientOriginalName ?: 'No file provided' }}</td>
                                                     <td>{{ $service->getClientMimeType ?: 'No file provided' }}</td>
                                                     <td>{{ $service->getSize ?: 'No file provided' }}</td>
-                                                    {{-- <td>{{ $service->getRealPath ?: 'No file provided' }}</td> --}}
                                                     <td>
                                                         @if ($service->getClientOriginalName)
                                                             <span class="badge bg-warning text-dark" style="font-size: 10px;">Download File</span>
@@ -269,7 +265,7 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

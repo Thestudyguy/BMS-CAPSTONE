@@ -10,6 +10,7 @@
                         <div class="card-title">Activity Logs</div>
                     </div>
                     <div class="card-body">
+          <div style="overflow-x: auto; max-height: 400px;">
                         <table class="table table-hover activity-log-table" style="font-size: 0.7em">
                             <thead>
                                 <tr>
@@ -70,6 +71,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+          </div>
                     </div>
                 </div>
             </div>

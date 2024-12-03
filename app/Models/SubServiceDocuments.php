@@ -17,6 +17,8 @@ class SubServiceDocuments extends Model
         'getRealPath',
         'dataEntryUser',
         'isVisible',
+        'client_service',
+        'client_id',
         
     ];
 }

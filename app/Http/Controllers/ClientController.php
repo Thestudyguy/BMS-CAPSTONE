@@ -28,7 +28,9 @@ use App\Models\journal_income;
 use App\Models\journal_income_months;
 use App\Models\journal_liabilities;
 use App\Models\journal_owners_equity;
+use App\Models\ServiceRequirement;
 use App\Models\services;
+use App\Models\ServicesDocuments;
 use App\Models\ServicesSubTable;
 use App\Models\SubServiceDocuments;
 use App\Models\SubServiceRequirement;
@@ -156,7 +158,7 @@ class ClientController extends Controller
             DB::beginTransaction();
 
             $clientId = $request->input('client_id');
-            
+            Log::info("request $request");
             foreach ($request['services'] as $services) {
                 $serviceName = explode('_', $services['serviceName']);
                 
@@ -229,7 +231,6 @@ class ClientController extends Controller
     public function viewClientProfile(Request $request)
     {
         if (Auth::check()) {
-            Log::info($request->id);
             $client = Clients::where('id', $request->id)->first();
             if (!$client) {
                 return redirect()->back()->with('error', 'Client not found.');
@@ -251,23 +252,36 @@ class ClientController extends Controller
     public function ViewServiceDocuments($id){
         if(Auth::check()){
             try {
-                Log::info($id);
+                Log::info("asdsad $id");
                 $prepID = explode('_', $id);
-
                 if($prepID[1] === 'subservice'){
-                    $subServiceDocs = SubServiceRequirement::where('sub_service_requirements.sub_service_id', $prepID[2])
+                    $subServiceDocs = SubServiceDocuments::where('sub_service_documents.client_service', $prepID[0])
+                    ->leftJoin('client_services', 'client_services.id', '=', 'sub_service_documents.client_service')
                     ->select(
-                        'sub_service_requirements.req_name',
-                        'sub_service_documents.getClientOriginalName',
-                        'sub_service_documents.ReqName',
-                        'sub_service_documents.getSize',
-                        'sub_service_documents.getRealPath',
-                        'sub_service_documents.getClientMimeType'
-                        )
-                        ->leftJoin('sub_service_documents', 'sub_service_documents.service_id', '=', 'sub_service_requirements.id')
+                        'client_services.ClientService',
+                        'sub_service_documents.ReqName as req_name',
+                        'sub_service_documents.getClientOriginalName as gcon',
+                        'sub_service_documents.getClientMimeType as gcmt',
+                        'sub_service_documents.getSize as size',
+                        'sub_service_documents.getRealPath as grp'
+                    )
                     ->get();
                     Log::info($subServiceDocs);
                     return response()->json(['docsData' => $subServiceDocs]);
+                }
+                if($prepID[1] === 'service'){
+                    $serviceDocs = ServicesDocuments::where('services_documents.client_service',$prepID[0])
+                    ->join('client_services', 'client_services.id', '=', 'services_documents.client_service')
+                    ->select(
+                        'client_services.ClientService',
+                        'services_documents.ReqName as req_name',
+                        'services_documents.getClientOriginalName as gcon',
+                        'services_documents.getClientMimeType as gcmt',
+                        'services_documents.getSize as size',
+                        'services_documents.getRealPath as grp'
+                    )
+                    ->get();
+                    return response()->json(['docsData' => $serviceDocs]);
                 }
             } catch (\Throwable $th) {
                 throw $th;
@@ -988,16 +1002,18 @@ public function AuditPage(Request $request){
                     'journal_id' => $prepRef[1],
                     'client_id' => $prepRef[0]
                 ]);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
                 ActivityLog::create([
                     'user_id' => Auth::user()->id,
                     'action' => 'Journal Updated',
                     'activity' => 'Updated journal entries, journal ID ' . $prepRef[0] . ' client ' . $clients->CEO.''.', '.''.$clients->CompanyName,
                     'description' => 'Updated income, expense, asset, liability, owners equity, and adjustments for journal ID ' . $prepRef[1] . ' for client'. $clients->CEO.''.', '.''.$clients->CompanyName,
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->header('User-Agent'),
-                    'browser' => $this->getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
-                    'platform' => $this->getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
-                    'platform_version' => $this->getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
                 DB::commit();
                 return response()->json(['journal' => 'updated']);
