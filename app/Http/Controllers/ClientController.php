@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller;
+use App\Mail\JournalBilling;
 use App\Mail\MailClientNewServices;
 use App\Mail\MailClientServices;
 use App\Models\AccountDescription;
@@ -614,6 +615,7 @@ class ClientController extends Controller
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
                 DB::commit();
+                
                 return response()->json(['journal' => 'new journal entry saved successfully']);
             } catch (\Throwable $th) {
                 DB::rollBack();

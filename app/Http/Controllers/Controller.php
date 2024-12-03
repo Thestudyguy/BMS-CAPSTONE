@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\CustomHelper;
+use App\Mail\JournalBilling;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
@@ -31,6 +32,7 @@ use Illuminate\Support\Facades\Log;
 use \App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
+use Mail;
 
 class Controller extends BaseController
 {
@@ -786,6 +788,7 @@ foreach ($clientsData as $client) {
                 'platform' => $browserDetails['platform'] ?? null,
                 'platform_version' => $browserDetails['platform_version'] ?? null,
             ]);
+                Mail::to($client->CompanyEmail)->send(new JournalBilling($request['JournalStatus']));
                 DB::commit();
                 return response()->json(['journal-status', 'updated']);
             } catch (\Throwable $th) {

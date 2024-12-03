@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailBilling;
 use App\Mail\MailClientBillingStatement;
 use App\Mail\JournalPINRequest;
 use App\Models\BillingAddedDescriptions;
@@ -46,7 +47,7 @@ class MailerController extends Controller
                 $descriptions = $request['accountDescriptions'];
                 $billingID = $request['billingId'];
                 $dueDate = $request['dueDate'];
-                
+                $clientEmail = Clients::where('id', $client)->pluck('CompanyEmail');
                 foreach ($service as $key => $items) {
                     foreach ($items as $key => $value) {
                         foreach ($value as $key => $values) {
@@ -110,6 +111,7 @@ class MailerController extends Controller
                     'due_date' => $dueDate
                 ]);
                 $this->NotifyClientBilling($billing);
+                Mail::to($clientEmail)->send(new MailBilling());
                 return response()->json(['billing' => 'billing successfully saved']);                
             } catch (\Throwable $th) {
                 throw $th;
