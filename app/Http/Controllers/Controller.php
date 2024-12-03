@@ -806,7 +806,7 @@ foreach ($clientsData as $client) {
                 DB::beginTransaction();
                 ClientJournal::where('journal_id', $id)->update(['isVisible' => false]);
                 $client = ClientJournal::where('client_journals.journal_id', $id)
-                ->join('clients', 'clients.id', '=', 'client_journal.client_id')
+                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                 ->first();
                     $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
