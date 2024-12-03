@@ -1090,6 +1090,7 @@ foreach ($clientsData as $client) {
     if(Auth::check()){
         try {
             DB::beginTransaction();
+            Log::info($request['reqName']);
             SubServiceRequirement::create([
                 'req_name' => $request['reqName'],
                 'sub_service_id' => $request['idRef']
@@ -1113,6 +1114,7 @@ foreach ($clientsData as $client) {
             DB::commit();
             return response()->json(['service_name' => 'added'], 200);
         } catch (\Throwable $th) {
+            Log::info($th);
             DB::rollBack();
             throw $th;
         }

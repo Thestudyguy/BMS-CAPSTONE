@@ -79,7 +79,7 @@ Route::middleware('authenticated')->group(function(){
     Route::post('client/journal/audit', [ClientController::class, 'AuditClientJournal']);
     Route::post('client-profile/service/remove/{id}', [ClientController::class, 'RemoveClientService']);
     Route::post('service/requirement/', [Controller::class, 'AddServiceReq']);
-    Route::post('sub-service/requirement/', [Controller::class, 'AddSubServiceReq']);
+    Route::post('sub-service-requirement', [Controller::class, 'AddSubServiceReq']);
     Route::post('client/service/requirements/{id}', [Controller::class, 'GetServiceReq']);
     Route::post('/service/requirement/document', [Controller::class, 'NewServiceDocument']);
     Route::post('/service/requirement/documents/{id}', [ClientController::class, 'ViewServiceDocuments']);

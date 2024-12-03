@@ -72,7 +72,7 @@ $('.add-new-sub-service-req').on('click', function(e){
         $('#sub-service-req-id').removeClass('is-invalid');
         $.ajax({
             type: 'POST',
-            url: 'sub-service/requirement/',
+            url: 'sub-service-requirement',
             data: {reqName, idRef},
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function(response) {
