@@ -205,7 +205,7 @@ $('.add-new-sub-service-req').on('click', function(e){
     $('.view-client-service-doc').on('click', function(){
         $('.service-docs-loader').removeClass('visually-hidden');
         console.log($(this).attr('id'));
-        $('.append-service-docs').empty();
+        $('.append-service-req').empty();
         let docsTable = '';
         $.ajax({
             type: 'POST',
@@ -250,6 +250,7 @@ $('.add-new-sub-service-req').on('click', function(e){
         });
     });
     
+
 
     var reqdocs = localStorage.getItem('req-docs');
     var req = localStorage.getItem('req');

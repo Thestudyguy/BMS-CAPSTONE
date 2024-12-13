@@ -214,7 +214,8 @@ class MailerController extends Controller
     public function SendJournalPINRequest($ids){
         if(Auth::check()){
             try {
-                $client = Clients::where('id', explode('_', $ids)[1])->first();
+                $client = Clients::where('id', explode('_', $ids)[0])->first();
+                Log::info($client);
                 $sendTo = User::where('id', explode('_', $ids)[2])->first();
                 $requestorFN = Auth::user()->FirstName;
                 $requestorLN = Auth::user()->LastName;

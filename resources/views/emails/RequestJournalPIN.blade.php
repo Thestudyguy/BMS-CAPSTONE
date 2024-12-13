@@ -61,7 +61,7 @@
         <div class="content">
             <p>Hi <span class="highlight">Accountant</span>,</p>
             <p>The bookkeeper <span class="highlight important">{{ $requestorFN }} {{ $requestorLN }}</span> is seeking your PIN to access the journal file of the following client:</p>
-            <p><strong>Client:</strong> <span class="highlight important">{{ $client->CompanyName }}</span></p>
+            {{-- <p><strong>Client:</strong> <span class="highlight important">{{ $client->CompanyName }}</span></p> --}}
             <p><strong>CEO:</strong> <span class="highlight">{{ $client->CEO }}</span></p>
             <p><strong>Journal ID:</strong> <span class="highlight">{{ $journal->journal_id }}</span></p>
             <p>Please provide your PIN to assist in securely generating or downloading this journal file.</p>

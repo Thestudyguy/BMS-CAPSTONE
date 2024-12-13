@@ -22,6 +22,22 @@
                             <tr id="{{$journal->id}}">
                                 <td>{{$journal->CEO}}, {{$journal->CompanyName}}</td>
                                 <td class="fw-bold">{{$journal->journal_id}}</td>
+                                @if (Auth::user()->Role === 'Bookkeeper')
+                                <td>
+                                    <span style="font-size: 12px;" 
+                                          class="badge fw-bold 
+                                          @if($journal->JournalStatus === 'Rejected') text-danger
+                                          @elseif($journal->JournalStatus === 'Canceled') text-warning
+                                          @elseif($journal->JournalStatus === 'Approved') text-success
+                                          @else badge-secondary
+                                          @endif" 
+                                          id="{{$journal->id}}_{{$journal->journal_id}}" 
+                                          @if ($journal->JournalStatus === 'Pending') 
+                                          @endif>
+                                        {{$journal->JournalStatus}}
+                                    </span>
+                                </td>
+                                @else
                                 <td>
                                     <span style="font-size: 12px;" 
                                           class="badge fw-bold 
@@ -38,6 +54,7 @@
                                         {{$journal->JournalStatus}}
                                     </span>
                                 </td>
+                                @endif
                                 <td>{{$journal->LastName}}, {{$journal->FirstName}} - {{$journal->Role}}</td>
                                 <td>
                                    @if (Auth::check() && (Auth::user()->Role === 'Admin' || Auth::user()->Role === 'Bookkeeper'))

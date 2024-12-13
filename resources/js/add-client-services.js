@@ -18,6 +18,7 @@ var servicesData = [];
 $(document).ready(function() {
     $('.services').on('change', function() {
         var serviceID = $(this).attr('id');
+        
         var serviceValue = $(this).val().split('_');
         var serviceName = serviceValue[0];
         var parentService = $(this).val();
@@ -153,20 +154,33 @@ $(document).on('change', '.clientDocument', function() {
     });
 });
 
-$(document).on('click', '.remove-parent-service', function(){
+$(document).on('click', '.remove-parent-service', function() {
     var parentService = $(this).attr('id');
-    var preparedServiceRef = parentService.replace(/_/g, ' ');
-    // console.log(preparedServiceRef);
+    console.log(parentService);
     
-    var serviceToRemove = servicesData.findIndex(service => service.serviceName == preparedServiceRef);
-    if(serviceToRemove > -1){
+    var preparedServiceRef = parentService.replace(/_/g, ' '); // Replace underscores with spaces
+    console.log('Prepared Service Ref:', parentService);
+    return;
+    
+    // Check if the serviceName exists in the servicesData array
+    var serviceToRemove = servicesData.findIndex(service => service.serviceName === preparedServiceRef);
+    console.log('Service to remove index:', serviceToRemove);
+    
+    if (serviceToRemove > -1) {
+        // Check if the serviceName is indeed the correct one
+        console.log('Service to remove:', servicesData[serviceToRemove]);
+        
+        // Remove the service from the array
         servicesData.splice(serviceToRemove, 1);
+    } else {
+        console.log('Service not found in the array!');
     }
-    $(this).closest('tr').remove();
-    // $(`#row-${parentService}`).remove();
-    console.log(servicesData);
     
+    // Remove the closest table row
+    $(this).closest('tr').remove();
+    console.log('Updated Services Data:', servicesData);
 });
+
 function submitServices() {
     $('.add-client-service-loader').removeClass('visually-hidden');
     var clientID = $('.hidden-client-id').attr('id'); 

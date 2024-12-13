@@ -576,6 +576,14 @@ $(document).ready(function () {
     });
     
 
+    $('.get-ceo-info').click(function(){
+        $("#repName").val(clientObj.CEO);
+        $("#repcontact").val(clientObj.CEOContactInformation);
+        $("#repdob").val(clientObj.CEODateOfBirth);
+        $("#position").val('CEO');
+        $("#repaddress").val(clientObj.CompanyAddress);
+    });
+
     $('.save').on('click', function() {
         var formData = new FormData();
         console.log(clientObj);

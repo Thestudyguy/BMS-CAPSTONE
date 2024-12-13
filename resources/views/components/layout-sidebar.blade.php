@@ -59,8 +59,16 @@
                         </a>
                     @endif
                 </li>
-
-
+                <li class="nav-item">
+                    @if (Auth::check() && !in_array(Auth::user()->Role, ['Accountant', 'Bookkeeper']))
+                        <a href="{{ route('billing') }}" class="nav-link">
+                            <i class="nav-icon fas fa-file"></i>
+                            <p class="text-sm">
+                                {{ __('Billings') }}
+                            </p>
+                        </a>
+                    @endif
+                </li>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('journals') }}" class="nav-link">

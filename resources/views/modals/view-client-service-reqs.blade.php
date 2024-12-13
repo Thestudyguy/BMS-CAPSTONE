@@ -17,7 +17,6 @@
                 </tr>
             </thead>
             <tbody class="append-service-req">
-                
             </tbody>
            </table>
         </div>

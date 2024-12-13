@@ -12,7 +12,6 @@ $(document).ready(function(){
     });
     
 
-
     $('.new-user-save').on('click', function(e){
         var userForm = $('.new-user-form').serializeArray();
         var userObj = {};
@@ -80,7 +79,9 @@ $(document).ready(function(){
     });
 
     $('.edit-user-button').on('click', function(){
-        var userUpdateForm = $('.edit-user-form').serializeArray();
+        // var userUpdateForm = $('.edit-user-form').serializeArray();
+        var userUpdateForm = $(this).closest('.modal').find('form').serializeArray();
+        console.log(userUpdateForm);
         var callFlag = true;
         var userUpdatedObj = {};
         $.each(userUpdateForm, (index, elements)=>{

@@ -9,7 +9,6 @@ use App\Http\Controllers\ServicesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 Auth::routes();
-
 Route::get('/', function () {return view('auth.login');});
 Route::middleware('authenticated')->group(function(){
     Route::get('/dashboard', [Controller::class, 'dashboard'])->name('dashboard');
@@ -88,4 +87,10 @@ Route::middleware('authenticated')->group(function(){
     Route::post('expense/pdf/expense', [PDFController::class, 'GenerateExpensePDF']);
     Route::post('income/pdf/income', [PDFController::class, 'GenerateIncomePDF']);
     Route::post('client/billing/pdf/{id}', [PDFController::class, 'GenerateClientBillingTable']);
+    Route::post('view-service-requirements-{id}', [ServicesController::class, 'GetServiceFunction']);
+    Route::post('quarterly-expense-{quarter}', [Controller::class, 'QuarterlyExpense']);
+    Route::post('quarterly-income-{quarter}', [Controller::class, 'QuarterlyIncome']);
+    Route::post('quarterly-client-{quarter}', [Controller::class, 'QuarterlyClient']);
+    Route::post('quarterly-sales-{quarter}', [Controller::class, 'QuarterlyBilling']);
+    Route::get('billings', [Controller::class, 'BillingLists'])->name('billing');
 });

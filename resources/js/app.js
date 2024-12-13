@@ -11,6 +11,7 @@ import './journal-pin-entry';
 import './accountant';
 import './edit-journal';
 import './service-req';
+import './chartFilter';
 //global functions
 $(document).ready(function(){
     

@@ -70,12 +70,20 @@ $(document).ready(function(){
             type: 'POST',
             url: `request-journal-pin_${$(this).attr('id')}`,
             headers:{'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")},
-            success: function(response){
-                console.log(response);
+            success: function(response) {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'User Notified',
+                    text: 'Email has been successfully sent to the user.'
+                });
             },
-            error: function(error, status, jqXHR){
-                console.log(error);
-                
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error:', errorThrown);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Notification Failed',
+                    text: 'Failed to send the email to the user. Please try again later.'
+                });
             }
         });        
     });

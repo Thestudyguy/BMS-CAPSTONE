@@ -84,8 +84,25 @@
               </div>
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Contact Information<sup class="text-danger fw-bold">(phone or email)</sup></label>
-                  <input type="text" name="CEOContactInformation" id="ceoContactInfo" class="form-control">
+                  <label class="form-label">Contact Number
+                    {{-- <sup class="text-danger fw-bold">(phone or email)</sup> --}}
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">+63</span>
+                    <input 
+                      type="text" 
+                      name="CEOContactInformation" 
+                      id="ceoContactInfo" 
+                      class="form-control" 
+                      placeholder="Enter 10-digit phone number or email"
+                      maxlength="10">
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  <label class="form-label">TIN</label>
+                  <input type="number" name="TIN" id="tin" class="form-control">
                 </div>
               </div>
               <div class="col-lg-12">
@@ -102,13 +119,15 @@
           </form>
 
           <form action="" class="client-rep multi-step" style="display: none;">
-            <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Representative Information</h4>
+            <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Representative Information
+            <span class="badge fw-bold bg-warning get-ceo-info" title="Use CEO info"><i class="fas fa-user"></i></span>
+            </h4>
             <div class="mb-3">
               <label class="form-label">Name</label>
               <input type="text" name="RepresentativeName" id="repName" class="form-control">
             </div>
             <div class="mb-3">
-              <label class="form-label">Contact Information</label>
+              <label class="form-label">Contact Information<sup class="text-danger fw-bold">(phone or email)</sup></label>
               <input type="text" name="RepresentativeContactInformation" id="repcontact" class="form-control">
             </div>
             <div class="row">
@@ -243,4 +262,32 @@
        </div>
     </div>
 </div>
+<script>
+  document.getElementById('ceoContactInfo').addEventListener('input', function (e) {
+    const input = e.target;
+    let value = input.value;
+
+    // Allow empty input for validation purposes
+    if (value === "") return;
+
+    // Validate if the first character is '0'
+    if (value[0] === '0') {
+      input.value = value.slice(1); // Remove the '0'
+      // alert("Please do not start the number with '0'. Use a valid 10-digit number.");
+      return;
+    }
+
+    // Allow only numbers (and remove non-digit characters)
+    input.value = value.replace(/[^0-9]/g, '');
+  });
+
+  // Prevent pasting invalid data
+  document.getElementById('ceoContactInfo').addEventListener('paste', function (e) {
+    const paste = (e.clipboardData || window.clipboardData).getData('text');
+    if (!/^[1-9][0-9]*$/.test(paste)) {
+      e.preventDefault();
+      // alert("Please paste only valid 10-digit numbers without leading zeros.");
+    }
+  });
+</script>
 @endsection

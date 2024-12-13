@@ -73,6 +73,7 @@
                                         <tr id="{{$service->id}}" class="external-service" data-widget="expandable-table" aria-expanded="false">
                                             <td>
                                                 {{$service->Service}} <b>|</b> {{number_format($service->Price, 2)}} - {{$service->Category}}
+                                                {{-- <span class="badge bg-warning text-sm float-right action-icons view-requirements mx-2" id="service_{{$service->id}}"><i class="fas fa-eye" style="font-size: .8em;" ></i></span> --}}
                                                 <span class="badge bg-warning text-sm float-right action-icons new-sub-service-icon text-sm" id="{{$service->id}}" data-bs-target='#sub-service-{{$service->id}}' data-bs-toggle="modal" title="create new sub service/requirement for {{$service->Service}}">
                                                     <i style="font-size: .8em;" class="fas fa-plus"></i>
                                                 </span>

@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="color:#063D58;">
-              <form action="" class="edit-user-form">
+              <form action="" class="edit-user-form-{{$user->id}}" id="user-edit-form">
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="form-group">

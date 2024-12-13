@@ -10,6 +10,7 @@ use App\Models\AccountType;
 use App\Models\ActivityLog;
 use App\Models\BillingAddedDescriptions;
 use App\Models\BillingDescriptions;
+use App\Models\Billings;
 use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\ClientServices;
@@ -80,8 +81,8 @@ class Controller extends BaseController
         if (auth::check()) {
             try {
                 $logs = DB::table('activity_logs')
-                ->join('users', 'users.id', '=', 'activity_logs.user_id')
-                ->get();
+                    ->join('users', 'users.id', '=', 'activity_logs.user_id')
+                    ->get();
                 return view('pages.admin-hub', compact('logs'));
             } catch (\Exception $exception) {
                 throw $exception;
@@ -104,161 +105,183 @@ class Controller extends BaseController
     }
 
     public function dashboard()
-{
-    if (auth::check()) {
-        try {
-            $totalSales = 0;
-            $sales = ClientServices::select(
-                'client_services.id as ClientServiceId',
-                'client_services.ClientService as Service',
-                'services.Price as ServicePrice',
-                'services_sub_tables.ServiceRequirementPrice as SubServicePrice',
-                'client_services.created_at'
-            )
-            ->leftJoin('services', 'services.Service', '=', 'client_services.ClientService')
-            ->leftJoin('services_sub_tables', 'services_sub_tables.ServiceRequirements', '=', 'client_services.ClientService')
-            ->whereYear('client_services.created_at', \Carbon\Carbon::now()->year)
-            ->get();
+    {
+        if (auth::check()) {
+            try {
 
-            $monthlySales = array_fill(0, 12, 0);
-
-            foreach ($sales as $sale) {
-                // Log::info("Service: $sale->SubServicePrice");
-                $servicePrice = $sale->ServicePrice ?? 0;
-                $subServicePrice = $sale->SubServicePrice ?? 0;
                 
-                $month = \Carbon\Carbon::parse($sale->created_at)->month - 1; 
 
-                $monthlySales[$month] += $servicePrice + $subServicePrice;
-                $sales = $sale->SubServicePrice += $sale->ServicePrice;
-                $totalSales += $sales;
-            }
-            // Log::info("Start here...");
-            // Log::info("End here...");
 
-            $clientPaymentStatus = Clients::where('clients.isVisible', true)
-                ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
-                ->join('client_services', 'client_services.Client', '=', 'clients.id')
-                ->select('clients.CompanyName', 'company_profiles.image_path', 'client_services.ClientService')
+                $salesBilling = 0;
+                    $data = BillingDescriptions::select(DB::raw('SUM(amount) as total_amount'), DB::raw('MONTH(created_at) as month'))
+                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)')) // Group by month and year
+                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)')) // Order by year and month
+                    ->get();
+
+                // Prepare the data for the chart
+                $labels = [];
+                $amounts = array_fill(0, 12, 0); // Initialize the amounts array for each month
+                Log::info($data);
+                // Loop through the data and assign the amount to the corresponding month
+                foreach ($data as $item) {
+                    $month = $item->month - 1; // Adjust month index (0-11 for JavaScript)
+                    $amounts[$month] = (float) $item->total_amount; // Set the amount for the respective month
+                    $salesBilling += $item->total_amount;
+                }
+                $salesFi = $amounts;
+
+                $totalSales = 0;
+                $sales = ClientServices::select(
+                    'client_services.id as ClientServiceId',
+                    'client_services.ClientService as Service',
+                    'services.Price as ServicePrice',
+                    'services_sub_tables.ServiceRequirementPrice as SubServicePrice',
+                    'client_services.created_at'
+                )
+                    ->leftJoin('services', 'services.Service', '=', 'client_services.ClientService')
+                    ->leftJoin('services_sub_tables', 'services_sub_tables.ServiceRequirements', '=', 'client_services.ClientService')
+                    ->whereYear('client_services.created_at', \Carbon\Carbon::now()->year)
+                    ->get();
+
+                $monthlySales = array_fill(0, 12, 0);
+
+                foreach ($sales as $sale) {
+                    $servicePrice = $sale->ServicePrice ?? 0;
+                    $subServicePrice = $sale->SubServicePrice ?? 0;
+
+                    $month = \Carbon\Carbon::parse($sale->created_at)->month - 1;
+
+                    $monthlySales[$month] += $servicePrice + $subServicePrice;
+                    $sales = $sale->SubServicePrice += $sale->ServicePrice;
+                    $totalSales += $sales;
+                }
+
+                $clientPaymentStatus = Clients::where('clients.isVisible', true)
+                    ->leftJoin('company_profiles', 'clients.id', '=', 'company_profiles.company')
+                    ->join('client_services', 'client_services.Client', '=', 'clients.id')
+                    ->select('clients.CompanyName', 'company_profiles.image_path', 'client_services.ClientService')
+                    ->get();
+
+                $client = Clients::where('isVisible', true)->get();
+                $clientCount = count($client);
+
+                $incomeBD = DB::table('billing_descriptions')
+                    ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
+                    ->select(
+                        'account_descriptions.Category',
+                        'billing_descriptions.amount'
+                    )
+                    ->get();
+
+                $incomeABD = DB::table('billing_added_descriptions')
+                    ->join('account_descriptions', 'billing_added_descriptions.description', '=', 'account_descriptions.id')
+                    ->select(
+                        'account_descriptions.Category',
+                        'billing_added_descriptions.amount',
+                        'billing_added_descriptions.account'
+                    )
+                    ->get();
+                $expenses = 0;
+                $income = 0;
+                $totalDB = 0;
+                $totalADB = 0;
+                foreach ($incomeABD as $value) {
+                    if ($value->Category === 'Internal') {
+                        $totalADB += $value->amount;
+                    }
+                }
+                foreach ($incomeBD as $value) {
+                    if ($value->Category === 'Internal') {
+                        $totalDB += $value->amount;
+                    }
+                }
+
+                $income = $totalDB + $totalADB;
+
+                $clients = Clients::where('clients.accountCategory', true)
+                    ->select(
+                        'journal_expense_months.amount'
+                    )
+                    ->where('journal_expense_months.isAltered', false)
+                    ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
+                    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+                    ->get();
+
+                $expenses = 0;
+                foreach ($clients as $value) {
+                    $expenses += $value->amount;
+                }
+                $incomeData = DB::table('clients')
+                ->where('clients.accountCategory', true)
+                ->select(
+                    DB::raw('MONTH(journal_income_months.created_at) as month'),
+                    DB::raw('SUM(journal_income_months.amount) as total_income')
+                )
+                ->where('journal_income_months.isAltered', false)
+                ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+                ->join('journal_incomes', 'journal_incomes.journal_id', '=', 'client_journals.journal_id')
+                ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
+                ->groupBy(DB::raw('MONTH(journal_income_months.created_at)'))
                 ->get();
 
-            $client = Clients::where('isVisible', true)->get();
-            $clientCount = count($client);
-
-            $incomeBD = DB::table('billing_descriptions')
-            ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
-            ->select(
-                'account_descriptions.Category',
-                'billing_descriptions.amount'
-                )
-            ->get();
-
-            $incomeABD = DB::table('billing_added_descriptions')
-            ->join('account_descriptions', 'billing_added_descriptions.description', '=', 'account_descriptions.id')
-            ->select(
-                'account_descriptions.Category',
-                'billing_added_descriptions.amount', 'billing_added_descriptions.account'
-                )
-            ->get();
-            $expenses = 0;
-            $income = 0;
-            $totalDB = 0;
-            $totalADB = 0;
-            foreach ($incomeABD as $value) {
-                if($value->Category === 'Internal'){
-                    $totalADB += $value->amount;
+                $monthlyIncome = array_fill(0, 12, 0);
+                $incomeInfo = 0;
+                foreach ($incomeData as $income) {
+                    $month = $income->month - 1;
+                    $monthlyIncome[$month] += $income->total_income;
+                    $incomeInfo += $income->total_income;
                 }
-            }
-            foreach ($incomeBD as $value) {
-                if($value->Category === 'Internal'){
-                    $totalDB += $value->amount;
+
+                $expensesData = DB::table('clients')
+                    ->where('clients.accountCategory', true)
+                    ->select(
+                        DB::raw('MONTH(journal_expense_months.created_at) as month'),
+                        DB::raw('SUM(journal_expense_months.amount) as total_expense')
+                    )
+                    ->where('journal_expense_months.isAltered', false)
+                    ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+                    ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
+                    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+                    ->groupBy(DB::raw('MONTH(journal_expense_months.created_at)'))
+                    ->get();
+
+                $monthlyExpenses = array_fill(0, 12, 0);
+
+                foreach ($expensesData as $expense) {
+                    $month = $expense->month - 1;
+                    $monthlyExpenses[$month] += $expense->total_expense;
                 }
+
+
+                $activityLog = ActivityLog::whereDate('activity_logs.created_at', Carbon::today())
+                    ->join('users', 'users.id', '=', 'activity_logs.user_id')
+                    ->get();
+
+                $clientsData = DB::table('clients')
+                    ->select(
+                        DB::raw('MONTH(created_at) as month'),
+                        DB::raw('COUNT(id) as total_clients')
+                    )
+                    ->groupBy(DB::raw('MONTH(created_at)'))
+                    ->get();
+
+                $monthlyClients = array_fill(0, 12, 0);
+
+                foreach ($clientsData as $client) {
+                    $month = $client->month - 1;
+                    $monthlyClients[$month] += $client->total_clients;
+                }
+                return view('pages.dashboard', compact('salesBilling','salesFi', 'expenses', 'incomeInfo', 'income', 'clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog', 'monthlyClients'));
+
+            } catch (\Exception $exception) {
+                Log::error($exception->getMessage());
+                throw $exception;
             }
-
-            $income = $totalDB + $totalADB;
-
-            $clients = Clients::where('clients.accountCategory', true)
-            ->select(
-                'journal_expense_months.amount'
-            )
-            ->where('journal_expense_months.isAltered', false)
-            ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
-            ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
-            ->get();
-            
-            $expenses = 0;
-            foreach ($clients as $value) {
-                $expenses += $value->amount;
-            }
-            $incomeData = DB::table('clients')
-    ->select(
-        DB::raw('MONTH(billings.created_at) as month'),
-        DB::raw('SUM(billing_descriptions.amount) as base_amount'),
-        DB::raw('SUM(billing_added_descriptions.amount) as added_amount')
-    )
-    ->join('billings', 'billings.client_id', '=', 'clients.id')
-    ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
-    ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
-    ->groupBy(DB::raw('MONTH(billings.created_at)'))
-    ->get();
-
-    $monthlyIncome = array_fill(0, 12, 0);
-
-    foreach ($incomeData as $incomes) {
-        $month = $incomes->month - 1;
-        $totalIncome = ($incomes->base_amount ?? 0) + ($incomes->added_amount ?? 0);
-        $monthlyIncome[$month] += $totalIncome;
-    }
-            $expensesData = DB::table('clients')
-    ->where('clients.accountCategory', true)
-    ->select(
-        DB::raw('MONTH(journal_expense_months.created_at) as month'),
-        DB::raw('SUM(journal_expense_months.amount) as total_expense')
-    )
-    ->where('journal_expense_months.isAltered', false)
-    ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
-    ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
-    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
-    ->groupBy(DB::raw('MONTH(journal_expense_months.created_at)'))
-    ->get();
-
-    $monthlyExpenses = array_fill(0, 12, 0);
-
-    foreach ($expensesData as $expense) {
-        $month = $expense->month - 1;
-        $monthlyExpenses[$month] += $expense->total_expense;
-    }
-    $activityLog = ActivityLog::whereDate('activity_logs.created_at', Carbon::today())
-    ->join('users', 'users.id',  '=', 'activity_logs.user_id')
-    ->get();
-
-    $clientsData = DB::table('clients')
-    ->select(
-        DB::raw('MONTH(created_at) as month'),
-        DB::raw('COUNT(id) as total_clients')
-    )
-    ->groupBy(DB::raw('MONTH(created_at)'))
-    ->get();
-
-// Initialize an array with 0 for all months
-$monthlyClients = array_fill(0, 12, 0);
-
-// Map the data into the array
-foreach ($clientsData as $client) {
-    $month = $client->month - 1; // Adjust for zero-based indexing
-    $monthlyClients[$month] += $client->total_clients;
-}
-            return view('pages.dashboard', compact('expenses','income','clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog', 'monthlyClients'));
-
-        } catch (\Exception $exception) {
-            Log::error($exception->getMessage());
-            throw $exception;
         }
+        return redirect()->route('login');
     }
-    return redirect()->route('login');
-}
 
-    
+
 
 
 
@@ -269,8 +292,8 @@ foreach ($clientsData as $client) {
                 $at = AccountType::where('isVisible', true)->get();
                 // $accounts = Accounts::where('isVisible', true)->get();
                 $account = Accounts::where('accounts.isVisible', true)->
-                select('accounts.AccountName', 'accounts.id', 'account_types.AccountType', 'account_types.Category', 'account_types.id as ATid')
-                ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')->get();
+                    select('accounts.AccountName', 'accounts.id', 'account_types.AccountType', 'account_types.Category', 'account_types.id as ATid')
+                    ->join('account_types', 'account_types.id', '=', 'accounts.AccountType')->get();
                 return view('pages.chart-of-account', compact('at', 'account'));
             } else {
             }
@@ -300,17 +323,17 @@ foreach ($clientsData as $client) {
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'New Account Type Created',
-                'activity' => 'Created a new account type',
-                'description' => 'New account type' . $request['AccountType'] . ''. 'was created.',
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'New Account Type Created',
+                    'activity' => 'Created a new account type',
+                    'description' => 'New account type' . $request['AccountType'] . '' . 'was created.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json(['success' => 'Data saved successfully']);
             } else {
@@ -337,7 +360,7 @@ foreach ($clientsData as $client) {
     //                 'AccountName' => 'required|string|unique:accounts,AccountName',
     //                 // 'Category' => 'required|string|in:Asset,Liability,Equity,Expenses',
     //             ]);
-                
+
     //             Accounts::create([
     //                 'AccountName' => $request['AccountName'],
     //                 'AccountType' => $request['AccountType'],
@@ -358,81 +381,82 @@ foreach ($clientsData as $client) {
     //     }
     // }
     public function NewAccount(Request $request)
-{
-    try {
-        if (Auth::check()) {
-            DB::beginTransaction();
-            $request->validate([
-                'AccountName' => 'required|string|unique:accounts,AccountName',
-                'AccountType' => 'required|string',
-            ]);
+    {
+        try {
+            if (Auth::check()) {
+                DB::beginTransaction();
+                $request->validate([
+                    'AccountName' => 'required|string|unique:accounts,AccountName',
+                    'AccountType' => 'required|string',
+                ]);
 
-            Accounts::create([
-                'AccountName' => $request['AccountName'],
-                'AccountType' => $request['AccountType'],
-                'dataUserEntry' => Auth::user()->id,
-            ]);
+                Accounts::create([
+                    'AccountName' => $request['AccountName'],
+                    'AccountType' => $request['AccountType'],
+                    'dataUserEntry' => Auth::user()->id,
+                ]);
 
-            $userAgent = $request->header('User-Agent');
-            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'Account Created',
-                'activity' => 'Created a new account',
-                'description' => 'New account ' . $request['AccountName'] . ''. 'was created.',
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
-            Log::info('Client IP: ' . $userAgent);
-            DB::commit();
-            return response()->json(['success' => 'Data saved successfully']);
-        } else {
-            return response()->json(['error' => 'Unauthorized Access'], 403);
-        }
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        if ($e->validator->errors()->has('AccountName')) {
-            DB::rollBack();
-            return response()->json(['error' => 'Account already exists'], 409);
-        }
-        return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Throwable $th) {
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Account Created',
+                    'activity' => 'Created a new account',
+                    'description' => 'New account ' . $request['AccountName'] . '' . 'was created.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+                Log::info('Client IP: ' . $userAgent);
+                DB::commit();
+                return response()->json(['success' => 'Data saved successfully']);
+            } else {
+                return response()->json(['error' => 'Unauthorized Access'], 403);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($e->validator->errors()->has('AccountName')) {
+                DB::rollBack();
+                return response()->json(['error' => 'Account already exists'], 409);
+            }
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['error' => 'An error occurred: ' . $th->getMessage()], 500);
-    }
-}
-
-    public function Users(){
-    try {
-        if(Auth::check()){
-            $users = User::where('isVisible', true)->get();
-            return view('pages.users', compact('users'));
-        }else{
-            dd('unauthorized access');
         }
-    } catch (\Throwable $th) {
-        throw $th;
     }
+
+    public function Users()
+    {
+        try {
+            if (Auth::check()) {
+                $users = User::where('isVisible', true)->get();
+                return view('pages.users', compact('users'));
+            } else {
+                dd('unauthorized access');
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
 
     }
 
-    public function NewUser(Request $request){
-            try {
-                DB::beginTransaction();
-        if(Auth::check()){
-            Log::info($request);
-             $request->validate([
-                'FirstName' => 'required|string|max:255',
-                'LastName'  => 'required|string|max:255',
-                'UserName'  => 'required|string|max:255|unique:users',
-                'Email'     => 'required|email|max:25|unique:users',
-                'Role'      => 'required|string|max:50',
-                'PIN'       => 'required|string|min:4|max:10|unique:users',
-                'password'  => 'required|string|confirmed|min:8|unique:users',
-            ]);
+    public function NewUser(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            if (Auth::check()) {
+                Log::info($request);
+                $request->validate([
+                    'FirstName' => 'required|string|max:255',
+                    'LastName' => 'required|string|max:255',
+                    'UserName' => 'required|string|max:255|unique:users',
+                    'Role' => 'required|string|max:50',
+                    'PIN' => 'required|string|min:4|max:10|unique:users',
+                    'password' => 'required|string|confirmed|min:8|unique:users',
+                ]);
                 User::create([
                     'FirstName' => $request['FirstName'],
                     'LastName' => $request['LastName'],
@@ -449,7 +473,7 @@ foreach ($clientsData as $client) {
                     'user_id' => Auth::user()->id,
                     'action' => 'New User Created',
                     'activity' => 'Created a new user',
-                    'description' => 'New user ' . $request['FirstName']. ' - ' .$request['LastName']. ' - '. $request['Role'].''. 'was created.',
+                    'description' => 'New user ' . $request['FirstName'] . ' - ' . $request['LastName'] . ' - ' . $request['Role'] . '' . 'was created.',
                     'ip_address' => $request->ip(),
                     'user_agent' => $userAgent,
                     'browser' => $browserDetails['browser'] ?? null,
@@ -457,40 +481,41 @@ foreach ($clientsData as $client) {
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
                 DB::commit();
-                return response()->json(['response'=>'user saved succesfully']);
-        }else{
-            dd('unauthorized access');
+                return response()->json(['response' => 'user saved succesfully']);
+            } else {
+                dd('unauthorized access');
+            }
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
-        
-    } catch (\Throwable $th) {
-        DB::rollBack();
-        throw $th;
-    }
     }
 
-    public function RemoveUser($id, Request $request){
-                try {
-                    DB::beginTransaction();
-            if(Auth::check()){
+    public function RemoveUser($id, Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            if (Auth::check()) {
                 $user = User::where('id', $id)->first();
                 User::where('id', $id)->update(['isVisible' => 0]);
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'User Removed',
-                'activity' => 'User Removed',
-                'description' => 'User ' . $user->FirstName . ' - '. $user->LastName . "- $user->Role"  .''. 'was removed.',
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'User Removed',
+                    'activity' => 'User Removed',
+                    'description' => 'User ' . $user->FirstName . ' - ' . $user->LastName . "- $user->Role" . '' . 'was removed.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json(['response' => 'User removed successfully']);
-            }else{
+            } else {
                 dd('Unauthorized Access');
             }
         } catch (\Throwable $th) {
@@ -499,19 +524,21 @@ foreach ($clientsData as $client) {
         }
     }
 
-    public function UpdateUser(Request $request){
+    public function UpdateUser(Request $request)
+    {
         if (Auth::check()) {
+            Log::info($request);
             try {
                 DB::beginTransaction();
                 $request->validate([
                     'FirstName' => 'required|string|max:255',
-                    'LastName'  => 'required|string|max:255',
-                    'UserName'  => 'required|string|max:255|unique:users,UserName,' . $request->id,
-                    'Email'     => 'required|email|max:25|unique:users,Email,' . $request->id,
-                    'Role'      => 'required|string|max:50',
-                    'PIN'       => 'required|string|min:4|max:10|unique:users,PIN,' . $request->id,//must save for future reference
+                    'LastName' => 'required|string|max:255',
+                    'UserName' => 'required|string|max:255|unique:users,UserName,' . $request->id,
+                    'Email' => 'required|email|max:25|unique:users,Email,' . $request->id,
+                    'Role' => 'required|string|max:50',
+                    'PIN' => 'required|string|min:4|max:10|unique:users,PIN,' . $request->id,//must save for future reference
                 ]);
-                
+
                 User::where('id', $request->id)->update([
                     'FirstName' => $request->FirstName,
                     'LastName' => $request->LastName,
@@ -534,7 +561,7 @@ foreach ($clientsData as $client) {
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-            DB::commit();
+                DB::commit();
                 return response()->json(['response' => 'User Updated Successfully']);
             } catch (\Throwable $th) {
                 DB::rollBack();
@@ -545,57 +572,63 @@ foreach ($clientsData as $client) {
         }
     }
 
-    public function Settings(){
+    public function Settings()
+    {
         try {
-        if(Auth::check()){
-            $users = User::where('isVisible', true)->get();
-            $sysProfile = SystemProfile::first();
-            $accounts = Accounts::where('isVisible', true)->get();
-            $services = services::where('isVisible', true)->get();
-            $ad = AccountDescription::where('isVisible', true)->get();
-            $adac = AccountDescription::where('account_descriptions.isVisible', true)
-            ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
-            ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
-            ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
-            ->join('accounts', 'accounts.id', '=', 'account_descriptions.account')
-            ->select(
-                'account_descriptions.Category',
-                'account_descriptions.Description',
-                'account_descriptions.TaxType',
-                'account_descriptions.FormType',
-                'account_descriptions.Price', 'account_descriptions.id',
-                'account_descriptions.Category as adCategory',
-                'services_sub_tables.ServiceRequirements', 'services_sub_tables.id as sub_service_id',
-                'services.Category', 'services.Service', 'services.id as service_id',
-                'accounts.AccountName'
-            )
-            ->get();
-            // $adac = AccountDescription::where('account_descriptions.isVisible', true)
-            // ->select(
-            //     'account_descriptions.Category', 'account_descriptions.Description', 'account_descriptions.TaxType', 'account_descriptions.FormType', 'account_descriptions.Price',
-            //     'services_sub_tables.ServiceRequirements', 'services_sub_tables.BelongsToService',
-            //     'services.Service' 
-            // )
-            // ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
-            // ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
-            // ->get();
-            return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac'));
-        }else{
-            dd('Unauthorized Access');
+            if (Auth::check()) {
+                $users = User::where('isVisible', true)->get();
+                $sysProfile = SystemProfile::first();
+                $accounts = Accounts::where('isVisible', true)->get();
+                $services = services::where('isVisible', true)->get();
+                $ad = AccountDescription::where('isVisible', true)->get();
+                $adac = AccountDescription::where('account_descriptions.isVisible', true)
+                    ->join('account_types', 'account_types.id', '=', 'account_descriptions.account')
+                    ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+                    ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
+                    ->join('accounts', 'accounts.id', '=', 'account_descriptions.account')
+                    ->select(
+                        'account_descriptions.Category',
+                        'account_descriptions.Description',
+                        'account_descriptions.TaxType',
+                        'account_descriptions.FormType',
+                        'account_descriptions.Price',
+                        'account_descriptions.id',
+                        'account_descriptions.Category as adCategory',
+                        'services_sub_tables.ServiceRequirements',
+                        'services_sub_tables.id as sub_service_id',
+                        'services.Category',
+                        'services.Service',
+                        'services.id as service_id',
+                        'accounts.AccountName'
+                    )
+                    ->get();
+                // $adac = AccountDescription::where('account_descriptions.isVisible', true)
+                // ->select(
+                //     'account_descriptions.Category', 'account_descriptions.Description', 'account_descriptions.TaxType', 'account_descriptions.FormType', 'account_descriptions.Price',
+                //     'services_sub_tables.ServiceRequirements', 'services_sub_tables.BelongsToService',
+                //     'services.Service' 
+                // )
+                // ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
+                // ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
+                // ->get();
+                return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac'));
+            } else {
+                dd('Unauthorized Access');
+            }
+        } catch (\Throwable $th) {
+            throw $th;
         }
-    } catch (\Throwable $th) {
-        throw $th;
-    }
     }
 
-    public function GetAccountTypes($id){
-            try {
-                // Log::info($id);
-                // return;
-            if(Auth::check()){
+    public function GetAccountTypes($id)
+    {
+        try {
+            // Log::info($id);
+            // return;
+            if (Auth::check()) {
                 $serviceTypes = ServicesSubTable::where('isVisible', true)->where('BelongsToService', $id)->get();
                 return response()->json(['account' => $serviceTypes]);
-            }else{
+            } else {
 
             }
         } catch (\Throwable $th) {
@@ -603,10 +636,11 @@ foreach ($clientsData as $client) {
         }
     }
 
-    public function NewAccountDescription(Request $request){
-            try {
-                DB::beginTransaction();
-            if(Auth::check()){
+    public function NewAccountDescription(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            if (Auth::check()) {
                 $request->validate([
                     'Description' => 'required|string|max:255|unique:account_descriptions,Description',
                     'TaxType' => 'required|string|max:255',
@@ -629,7 +663,7 @@ foreach ($clientsData as $client) {
                 ]);
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
-    
+
                 ActivityLog::create([
                     'user_id' => Auth::user()->id,
                     'action' => 'Account Description Created',
@@ -643,7 +677,7 @@ foreach ($clientsData as $client) {
                 ]);
                 DB::commit();
                 return response()->json(['account_description', 'created']);
-            }else{
+            } else {
                 DB::rollBack();
                 dd('unauthorized access');
             }
@@ -654,140 +688,174 @@ foreach ($clientsData as $client) {
     }
 
 
-    public function ReturnAccounts($id){
-        if(Auth::check()){
+    public function ReturnAccounts($id)
+    {
+        if (Auth::check()) {
             try {
-                    $preparedAccount = explode('_', $id);
-                    Log::info($id);
-                    // return;
-                    $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
-                    return response()->json(['assets' => $assetsAT]);
+                $preparedAccount = explode('_', $id);
+                Log::info($id);
+                // return;
+                $assetsAT = Accounts::where('isVisible', true)->where('AccountType', $preparedAccount[1])->get();
+                return response()->json(['assets' => $assetsAT]);
             } catch (\Exception $exception) {
                 throw $exception;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
-    public function EditCOA(Request $request){
-        if(Auth::check()){
+    public function EditCOA(Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 $existingAccount = Accounts::where('AccountName', $request['AccountName'])
-                ->where('id', '!=', $request['id'])
-                ->first();
+                    ->where('id', '!=', $request['id'])
+                    ->first();
 
                 if ($existingAccount) {
-                return response()->json(['message' => 'Account name already exists.'], 400);
+                    return response()->json(['message' => 'Account name already exists.'], 400);
                 }
                 Accounts::where('id', $request['id'])->update([
                     'AccountName' => $request['AccountName'],
                     'AccountType' => $request['AccountType']
                 ]);
                 $userAgent = $request->header('User-Agent');
-            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'Account Updated',
-                'activity' => 'updated an account',
-                'description' => "Account '{$request['AccountName']}' was updated.",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Account Updated',
+                    'activity' => 'updated an account',
+                    'description' => "Account '{$request['AccountName']}' was updated.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json(['account' => 'Account updated successfully'], 200);
             } catch (\Throwable $th) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
 
-    public function AccountantInterface(){
-        if(Auth::check()){
+    public function AccountantInterface()
+    {
+        if (Auth::check()) {
             try {
-    //             $journals = ClientJournal::where('client_journals.isVisible', true)
-    // ->select(
-    //     'clients.CEO', 
-    //     'clients.CompanyName', 
-    //     'clients.id as client_id',
-    //     'client_journals.journal_id', 
-    //     'client_journals.JournalStatus', 
-    //     'client_journals.dataUserEntry',
-    //     'users_entry.FirstName as EntryFirstName', 
-    //     'users_entry.LastName as EntryLastName', 
-    //     'users_entry.Role as EntryRole', 
-    //     'client_journals.id', 
-    //     'journal_notes.note', 
-    //     'users_note.FirstName as NoteFirstName', 
-    //     'users_note.LastName as NoteLastName', 
-    //     'users_note.Role as NoteRole'
-    // )
-    // ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
-    // ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user') // Alias for users in journal_notes
-    // ->join('clients', 'clients.id', '=', 'client_journals.client_id')
-    // ->join('users as users_entry', 'users_entry.id', '=', 'client_journals.dataUserEntry') // Alias for users in dataUserEntry
-    // ->get();
+                //             $journals = ClientJournal::where('client_journals.isVisible', true)
+                // ->select(
+                //     'clients.CEO', 
+                //     'clients.CompanyName', 
+                //     'clients.id as client_id',
+                //     'client_journals.journal_id', 
+                //     'client_journals.JournalStatus', 
+                //     'client_journals.dataUserEntry',
+                //     'users_entry.FirstName as EntryFirstName', 
+                //     'users_entry.LastName as EntryLastName', 
+                //     'users_entry.Role as EntryRole', 
+                //     'client_journals.id', 
+                //     'journal_notes.note', 
+                //     'users_note.FirstName as NoteFirstName', 
+                //     'users_note.LastName as NoteLastName', 
+                //     'users_note.Role as NoteRole'
+                // )
+                // ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
+                // ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user') // Alias for users in journal_notes
+                // ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                // ->join('users as users_entry', 'users_entry.id', '=', 'client_journals.dataUserEntry') // Alias for users in dataUserEntry
+                // ->get();
 
                 $journals = ClientJournal::where('client_journals.isVisible', true)
-                ->select(
-                    'clients.CEO', 'clients.CompanyName', 'clients.id as client_id',
-                    'client_journals.journal_id', 'client_journals.JournalStatus', 'client_journals.dataUserEntry',
-                    'users.FirstName', 'users.LastName', 'users.Role', 'client_journals.id', 
-                    'journal_notes.note', 
-                    'users_note.FirstName as accountantFname', 
-                    'users_note.LastName as accountantLname', 
-                    'users_note.Role as accountantRole', 'users_note.created_at as NoteTimeStamp'
-                )
-                ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
-                // ->leftJoin('users', 'users.id', '=', 'journal_notes.user')
-                ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user')
-                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
-                ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
-                ->get();
-                // Log::info(json_encode($journals, JSON_PRETTY_PRINT));
-                    
+                    ->select(
+                        'clients.CEO',
+                        'clients.CompanyName',
+                        'clients.id as client_id',
+                        'client_journals.journal_id',
+                        'client_journals.JournalStatus',
+                        'client_journals.dataUserEntry',
+                        'users.FirstName',
+                        'users.LastName',
+                        'users.Role',
+                        'client_journals.id',
+                        'journal_notes.note',
+                        'journal_notes.created_at as note_created_at', // Include created_at of the note
+                        'users_note.FirstName as accountantFname',
+                        'users_note.LastName as accountantLname',
+                        'users_note.Role as accountantRole',
+                        'users_note.created_at as NoteTimeStamp'
+                    )
+                    ->join('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
+                    ->join('users as users_note', 'users_note.id', '=', 'journal_notes.user')
+                    ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                    ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
+                    ->get()
+                    ->groupBy('journal_id')
+                    ->map(function ($items) {
+                        $firstItem = $items->first();
+
+                        $notes = $items->map(function ($item) {
+                            return [
+                                'note' => $item->note,
+                                'created_at' => $item->note_created_at,
+                                'role' => $item->accountantRole,
+                                'userFname' => $item->accountantFname,
+                                'userrLname' => $item->accountantLname,
+                            ];
+                        })->toArray();
+
+                        $firstItem->notes = $notes;
+                        return $firstItem;
+                    })
+                    ->values();
+
+                Log::info(json_encode($journals, JSON_PRETTY_PRINT));
+
                 return view('pages.journals', compact('journals'));
+
+
+
             } catch (\Throwable $th) {
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
-    public function UpdateJournalStatus(Request $request){
-        if(Auth::check()){
+    public function UpdateJournalStatus(Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 ClientJournal::where('journal_id', $request['journal_id'])->update(['JournalStatus' => $request['JournalStatus']]);
-                    JournalNote::create([
-                        'journal_id' => $request['journalID'],
-                        'note' => $request['journal-draft-note'],
-                        'user' => Auth::user()->id
-                    ]);
+                JournalNote::create([
+                    'journal_id' => $request['journalID'],
+                    'note' => $request['journal-draft-note'],
+                    'user' => Auth::user()->id
+                ]);
                 $client = ClientJournal::where('client_journals.journal_id', $request['journal_id'])
-                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
-                ->first();
-                    $userAgent = $request->header('User-Agent');
+                    ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                    ->first();
+                $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'Client Journal Status Updated',
-                'activity' => 'Client Journal Status Updated',
-                'description' => "Journal status updated Journal ID $request[journal_id].",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Client Journal Status Updated',
+                    'activity' => 'Client Journal Status Updated',
+                    'description' => "Journal status updated Journal ID $request[journal_id].",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 Mail::to($client->CompanyEmail)->send(new JournalBilling($request['JournalStatus']));
                 DB::commit();
                 return response()->json(['journal-status', 'updated']);
@@ -795,46 +863,48 @@ foreach ($clientsData as $client) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
 
-    public function ArchiveJournalEntry($id, Request $request){
-        if(Auth::check()){
+    public function ArchiveJournalEntry($id, Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 ClientJournal::where('journal_id', $id)->update(['isVisible' => false]);
                 $client = ClientJournal::where('client_journals.journal_id', $id)
-                ->join('clients', 'clients.id', '=', 'client_journals.client_id')
-                ->first();
-                    $userAgent = $request->header('User-Agent');
+                    ->join('clients', 'clients.id', '=', 'client_journals.client_id')
+                    ->first();
+                $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'Client Journal Status Updated',
-                'activity' => 'Client Journal Status Updated',
-                'description' => "Journal status updated for Client: {$client->CEO}, Company: {$client->CompanyName}, Journal ID: {$request['journal_id']}.",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Client Journal Status Updated',
+                    'activity' => 'Client Journal Status Updated',
+                    'description' => "Journal status updated for Client: {$client->CEO}, Company: {$client->CompanyName}, Journal ID: {$request['journal_id']}.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json(['Journal Entry', 'Move to Archive']);
             } catch (\Throwable $th) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
 
-    public function EditSystemProfile(Request $request){
-        if(Auth::check()){
+    public function EditSystemProfile(Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 SystemProfile::where('id', 1)->update([
@@ -845,30 +915,30 @@ foreach ($clientsData as $client) {
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'System Profile Info Updated',
-                'activity' => 'System Profile Info Updated',
-                'description' => "System Profile was updated",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'System Profile Info Updated',
+                    'activity' => 'System Profile Info Updated',
+                    'description' => "System Profile was updated",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json(['system-profile' => 'updated']);
             } catch (\Throwable $th) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
     public function toggleUserLogInPrivilege($id, Request $request)
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 $user = User::findOrFail($id);
@@ -877,35 +947,36 @@ foreach ($clientsData as $client) {
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'User Role Updated',
-                'activity' => 'User Role Updated',
-                'description' => "User login privilege for {$user->FirstName} {$user->LastName} (ID: {$user->id}) was " . ($user->UserPrivilege == 1 ? 'enabled' : 'disabled') . ".",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'User Role Updated',
+                    'activity' => 'User Role Updated',
+                    'description' => "User login privilege for {$user->FirstName} {$user->LastName} (ID: {$user->id}) was " . ($user->UserPrivilege == 1 ? 'enabled' : 'disabled') . ".",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
                 DB::commit();
                 return response()->json([
                     'success' => true,
-                    'message' => $user->UserPrivilege == 1 
-                        ? 'User login enabled successfully.' 
+                    'message' => $user->UserPrivilege == 1
+                        ? 'User login enabled successfully.'
                         : 'User login disabled successfully.'
                 ]);
             } catch (\Throwable $th) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized accecss');
         }
     }
 
-    public function RemoveSubService($id, Request $request){
-        if(Auth::check()){
+    public function RemoveSubService($id, Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 ServicesSubTable::where('id', $id)->update(['isVisible' => false]);
@@ -930,16 +1001,17 @@ foreach ($clientsData as $client) {
                 DB::rollBack();
                 throw $th;
             }
-        }else{
+        } else {
             dd('unauthorized access');
         }
     }
-    
-    public function UpdateDescription(Request $request){
-        if(Auth::check()){
+
+    public function UpdateDescription(Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
-                $preparedPrice = (float)str_replace(',', '', $request['price']);
+                $preparedPrice = (float) str_replace(',', '', $request['price']);
                 AccountDescription::where('id', $request['ad_id'])->update([
                     'Description' => $request['description'],
                     'TaxType' => $request['taxType'],
@@ -949,10 +1021,10 @@ foreach ($clientsData as $client) {
                     'account' => $request['Type'],
                     'dataUserEntry' => Auth::user()->id,
                 ]);
-    
+
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
-    
+
                 ActivityLog::create([
                     'user_id' => Auth::user()->id,
                     'action' => 'Account Description Updated',
@@ -964,7 +1036,7 @@ foreach ($clientsData as $client) {
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-    
+
                 DB::commit();
                 return response()->json(['account_description' => 'updated']);
             } catch (\Throwable $th) {
@@ -975,10 +1047,11 @@ foreach ($clientsData as $client) {
             dd('unauthorized access');
         }
     }
-    
 
-    public function RemoveDescription($id, Request $request){
-        if(Auth::check()){
+
+    public function RemoveDescription($id, Request $request)
+    {
+        if (Auth::check()) {
             try {
                 DB::beginTransaction();
                 $accountDescription = AccountDescription::findOrFail($id);
@@ -996,7 +1069,7 @@ foreach ($clientsData as $client) {
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-    
+
                 DB::commit();
                 return response()->json(['description' => 'removed']);
             } catch (\Throwable $th) {
@@ -1007,9 +1080,10 @@ foreach ($clientsData as $client) {
             dd('unauthorized access');
         }
     }
-    
 
-    public function RemoveCOA($id, Request $request) {
+
+    public function RemoveCOA($id, Request $request)
+    {
         if (Auth::check()) {
             try {
                 DB::beginTransaction();
@@ -1017,7 +1091,7 @@ foreach ($clientsData as $client) {
                 $account->update(['isVisible' => false]);
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
-    
+
                 ActivityLog::create([
                     'user_id' => Auth::user()->id,
                     'action' => 'Chart of Accounts Updated',
@@ -1029,7 +1103,7 @@ foreach ($clientsData as $client) {
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-    
+
                 DB::commit();
                 return response()->json(['description' => 'removed']);
             } catch (\Throwable $th) {
@@ -1040,17 +1114,18 @@ foreach ($clientsData as $client) {
             dd('unauthorized access');
         }
     }
-    
 
 
-    public function AddServiceReq(Request $request) {
+
+    public function AddServiceReq(Request $request)
+    {
         if (Auth::check()) {
             try {
                 DB::beginTransaction();
-    
+
                 // Log the incoming request data (for debugging purposes)
                 Log::info("Request $request");
-    
+
                 // Iterate over the form data and create service requirements
                 foreach ($request['form'] as $value) {
                     ServiceRequirement::create([
@@ -1058,7 +1133,7 @@ foreach ($clientsData as $client) {
                         'req_name' => $value['value']
                     ]);
                 }
-    
+
                 $userAgent = $request->header('User-Agent');
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
                 ActivityLog::create([
@@ -1072,7 +1147,7 @@ foreach ($clientsData as $client) {
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-    
+
                 DB::commit();
                 return response()->json(['service_name' => 'added'], 200);
             } catch (\Throwable $th) {
@@ -1084,173 +1159,207 @@ foreach ($clientsData as $client) {
             dd('Unauthorized access');
         }
     }
-    
 
-    public function AddSubServiceReq(Request $request){
-    if(Auth::check()){
-        try {
-            DB::beginTransaction();
-            Log::info($request['reqName']);
-            SubServiceRequirement::create([
-                'req_name' => $request['reqName'],
-                'sub_service_id' => $request['idRef']
-            ]);
-            $subServiceName = ServicesSubTable::find($request['idRef'])->name ?? 'Unknown Sub-Service';
-            $userAgent = $request->header('User-Agent');
-            $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-            ActivityLog::create([
-                'user_id' => Auth::user()->id,
-                'action' => 'Sub-Service Requirement Added',
-                'activity' => 'New sub-service requirements were added',
-                'description' => "New requirements were added.",
-                'ip_address' => $request->ip(),
-                'user_agent' => $userAgent,
-                'browser' => $browserDetails['browser'] ?? null,
-                'platform' => $browserDetails['platform'] ?? null,
-                'platform_version' => $browserDetails['platform_version'] ?? null,
-            ]);
-
-            DB::commit();
-            return response()->json(['service_name' => 'added'], 200);
-        } catch (\Throwable $th) {
-            Log::info($th);
-            DB::rollBack();
-            throw $th;
-        }
-    } else {
-        dd('Unauthorized access');
-    }
-}
-
-    public function GetServiceReq($id){
-        if(Auth::check()){
+    public function AddSubServiceReq(Request $request)
+    {
+        if (Auth::check()) {
             try {
-                $prepID = explode('_', $id);
-                if($prepID[1] === 'subservice'){
-                    $isServiceDocsExisting = Clients::where('clients.id', $prepID[3])
-                    ->join('sub_service_documents', 'sub_service_documents.client_id', '=', 'clients.id')
-                    ->pluck('service_id');
-                $serviceDocs = SubServiceRequirement::whereNotIn('id', $isServiceDocsExisting)->get();
-                return response()->json(['serviceReqs' => $serviceDocs]);
-                }
-                if($prepID[1] === 'service'){
-                    $isServiceDocsExisting = Clients::where('clients.id', $prepID[3])
-                    ->join('services_documents', 'services_documents.client_id', '=', 'clients.id')
-                    ->pluck('service_id');
-                $serviceDocs = ServiceRequirement::whereNotIn('id', $isServiceDocsExisting)->get();
-                return response()->json(['serviceReqs' => $serviceDocs]);
+                DB::beginTransaction();
+                Log::info($request['reqName']);
+                SubServiceRequirement::create([
+                    'req_name' => $request['reqName'],
+                    'sub_service_id' => $request['idRef']
+                ]);
+                $subServiceName = ServicesSubTable::find($request['idRef'])->name ?? 'Unknown Sub-Service';
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Sub-Service Requirement Added',
+                    'activity' => 'New sub-service requirements were added',
+                    'description' => "New requirements were added.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['service_name' => 'added'], 200);
+            } catch (\Throwable $th) {
+                Log::info($th);
+                DB::rollBack();
+                throw $th;
             }
+        } else {
+            dd('Unauthorized access');
+        }
+    }
+
+    public function GetServiceReq($id)
+    {
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        try {
+            // Split the identifier into parts
+            $prepID = explode('_', $id);
+
+            // Ensure the ID has sufficient parts to process
+            if (count($prepID) < 4) {
+                return response()->json(['error' => 'Invalid ID format'], 400);
+            }
+
+            // Extract the relevant parts
+            $type = $prepID[1]; // 'service' or 'subservice'
+            $serviceId = $prepID[2];
+            $clientId = $prepID[3];
+
+            if ($type === 'subservice') {
+                // Get IDs of sub-service requirements that the client has already uploaded
+                $existingDocs = SubServiceDocuments::where('client_id', $clientId)
+                    ->where('service_id', $serviceId) // This links to the sub-service requirement
+                    ->pluck('service_id'); // This corresponds to sub_service_requirements.id
+
+                // Get sub-service requirements excluding those already fulfilled
+                $serviceDocs = SubServiceRequirement::where('sub_service_id', $serviceId)
+                    ->whereNotIn('id', $existingDocs)
+                    ->get();
+            } elseif ($type === 'service') {
+                // Get IDs of service requirements that the client has already uploaded
+                $existingDocs = ServicesDocuments::where('client_id', $clientId)
+                    ->where('service_id', $serviceId) // This links to the service requirement
+                    ->pluck('service_id'); // This corresponds to service_requirements.id
+
+                // Get service requirements excluding those already fulfilled
+                $serviceDocs = ServiceRequirement::where('service_id', $serviceId)
+                    ->whereNotIn('id', $existingDocs)
+                    ->get();
+                Log::info(ServiceRequirement::where('service_id', $serviceId)->whereNotIn('id', $existingDocs)->toSql());
+
+            } else {
+                return response()->json(['error' => 'Invalid service type'], 400);
+            }
+
+            // Check if the serviceDocs are being correctly filtered
+            Log::info('Existing Docs:', $existingDocs->toArray());
+            Log::info('Filtered Service Requirements:', $serviceDocs->toArray());
+
+            return response()->json(['serviceReqs' => $serviceDocs]);
+
+        } catch (\Throwable $th) {
+            Log::error("Error in GetServiceReq: " . $th->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
+
+
+
+
+
+    public function NewServiceDocument(Request $request)
+    {
+        if (Auth::check()) {
+            try {
+                DB::beginTransaction();
+                foreach ($request->file('files', []) as $key => $file) {
+                    $prepKey = explode('_', $key);
+                    $subServiceID = $prepKey[0];//service requirement id
+                    $subServiceReqID = $prepKey[1];//client service id
+                    $clientID = $prepKey[3]; //client id
+                    $category = $prepKey[2];//category
+                    $fileName = uniqid() . '_' . $file->getClientOriginalName();
+                    $profilePath = $file->storeAs('client-files', $fileName, 'public');
+                    $data = [
+                        'service_id' => $subServiceID,
+                        'client_id' => $clientID,
+                        'client_service' => $subServiceReqID,
+                        'ReqName' => $file->getClientOriginalName(),
+                        'getClientOriginalName' => $file->getClientOriginalName(),
+                        'getClientMimeType' => $file->getMimeType(),
+                        'getSize' => $file->getSize(),
+                        'getRealPath' => $profilePath,
+                        'dataEntryUser' => Auth::user()->id,
+                        'isVisible' => true,
+                    ];
+                    if ($category === 'service') {
+                        ServicesDocuments::create($data);
+                    } else {
+                        SubServiceDocuments::create($data);
+                    }
+                    $service = ClientServices::where('id', $subServiceReqID)->first();
+                    ActivityLog::create([
+                        'user_id' => Auth::user()->id,
+                        'action' => 'Service Document Uploaded',
+                        'activity' => 'Service Document Uploaded',
+                        'description' => "File '{$fileName}' uploaded for the service '{$service}'",
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->header('User-Agent'),
+                        'browser' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
+                        'platform' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
+                        'platform_version' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
+                    ]);
+                }
+                DB::commit();
+                return response()->json(['message' => 'Files uploaded successfully.']);
+
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                Log::error('Error uploading files: ' . $th->getMessage());
+                return response()->json(['message' => 'An error occurred while uploading files.'], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+
+    public function Income()
+    {
+        if (Auth::check()) {
+            try {
+                $incomeData = DB::table('client_journals')
+                    ->join('journal_incomes', 'client_journals.journal_id', '=', 'journal_incomes.journal_id')
+                    ->join('journal_income_months', 'journal_incomes.id', '=', 'journal_income_months.income_id')
+                    ->select(
+                        'client_journals.journal_id',
+                        'client_journals.created_at',
+                        DB::raw('SUM(journal_income_months.amount) as total_amount')
+                    )
+                    ->groupBy('client_journals.journal_id', 'client_journals.created_at')
+                    ->get();
+                Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
+                return view('pages.income', compact('incomeData'));
             } catch (\Throwable $th) {
                 throw $th;
             }
-        }else{
+        } else {
             abort(403, 'unauthorized access');
         }
     }
 
-    public function NewServiceDocument(Request $request)
-{
-    if (Auth::check()) {
-        try {
-            DB::beginTransaction();
-            foreach ($request->file('files', []) as $key => $file) {
-                $prepKey = explode('_', $key);
-                $subServiceID = $prepKey[0];//service requirement id
-                $subServiceReqID = $prepKey[1];//client service id
-                $clientID = $prepKey[3]; //client id
-                $category = $prepKey[2];//category
-                $fileName = uniqid() . '_' . $file->getClientOriginalName();
-                $profilePath = $file->storeAs('client-files', $fileName, 'public');
-                $data = [
-                    'service_id' => $subServiceID,
-                    'client_id' => $clientID,
-                    'client_service' => $subServiceReqID,
-                    'ReqName' => $file->getClientOriginalName(),
-                    'getClientOriginalName' => $file->getClientOriginalName(),
-                    'getClientMimeType' => $file->getMimeType(),
-                    'getSize' => $file->getSize(),
-                    'getRealPath' => $profilePath,
-                    'dataEntryUser' => Auth::user()->id,
-                    'isVisible' => true,
-                ];
-                if($category === 'service'){
-                    ServicesDocuments::create($data);
-                }
-                else{
-                    SubServiceDocuments::create($data);
-                }
-                $service = ClientServices::where('id', $subServiceReqID)->first();
-                ActivityLog::create([
-                    'user_id' => Auth::user()->id,
-                    'action' => 'Service Document Uploaded',
-                    'activity' => 'Service Document Uploaded',
-                    'description' => "File '{$fileName}' uploaded for the service '{$service}'",
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->header('User-Agent'),
-                    'browser' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['browser'] ?? null,
-                    'platform' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform'] ?? null,
-                    'platform_version' => CustomHelper::getBrowserDetails($request->header('User-Agent'))['platform_version'] ?? null,
-                ]);
-            }
-            DB::commit();            
-            return response()->json(['message' => 'Files uploaded successfully.']);
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            Log::error('Error uploading files: ' . $th->getMessage());
-            return response()->json(['message' => 'An error occurred while uploading files.'], 500);
-        }
-    }
-
-    return response()->json(['message' => 'Unauthorized'], 401);
-}
-
-
-public function Income(){
-    if(Auth::check()){
-        try {
-            $incomeData = DB::table('clients')
-            ->select(
-                'clients.CompanyName', 'clients.CEO',
-                'billings.billing_id', 'billings.created_at',
-                'billing_descriptions.amount',
-                'billing_added_descriptions.amount as addedAmount'
-            )
-            ->join('billings', 'billings.client_id', '=', 'clients.id')
-            ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
-            ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
-            ->get();
-            Log::info(json_encode($incomeData, JSON_PRETTY_PRINT));
-            return view('pages.income', compact('incomeData'));
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }else{
-        abort(403, 'unauthorized access');
-    }
-}
-
-
-    public function Expenses() {
+    public function Expenses()
+    {
         if (Auth::check()) {
             try {
-                $expenses = DB::table('clients')
-                    ->where('clients.accountCategory', true)
+                $expenses = DB::table('client_journals')
+                    ->join('journal_expenses', 'client_journals.journal_id', '=', 'journal_expenses.journal_id')
+                    ->join('journal_expense_months', 'journal_expenses.id', '=', 'journal_expense_months.expense_id')
                     ->select(
-                        'client_journals.journal_id', 'client_journals.created_at',
-                        // DB::raw('DATE(client_journals.created_at) as created_at'),
-                        DB::raw('SUM(journal_expense_months.amount) as total_expense')
+                        'client_journals.journal_id',
+                        'client_journals.created_at',
+                        DB::raw('SUM(journal_expense_months.amount) as total_amount')
                     )
-                    ->where('journal_expense_months.isAltered', false)
-                    ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
-                    ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
-                    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
-                    ->groupBy('client_journals.journal_id', 'created_at')
+                    ->groupBy('client_journals.journal_id', 'client_journals.created_at')
                     ->get();
-    
+
                 Log::info(json_encode($expenses, JSON_PRETTY_PRINT));
-    
+
                 return view('pages.expenses', compact('expenses'));
             } catch (\Throwable $th) {
                 throw $th;
@@ -1259,7 +1368,300 @@ public function Income(){
             abort(403, 'unauthorized access');
         }
     }
-    
+
+    public function QuarterlyExpense($quarter)
+{
+    if (Auth::check()) {
+        try {
+            $currentYear = date('Y');
+            $startDate = '';
+            $endDate = '';
+            $monthsInQuarter = [];
+
+            switch ($quarter) {
+                case 'Q1':
+                    $startDate = "$currentYear-01-01";
+                    $endDate = "$currentYear-03-31";
+                    $monthsInQuarter = ['Jan', 'Feb', 'Mar'];
+                    break;
+                case 'Q2':
+                    $startDate = "$currentYear-04-01";
+                    $endDate = "$currentYear-06-30";
+                    $monthsInQuarter = ['Apr', 'May', 'Jun'];
+                    break;
+                case 'Q3':
+                    $startDate = "$currentYear-07-01";
+                    $endDate = "$currentYear-09-30";
+                    $monthsInQuarter = ['Jul', 'Aug', 'Sep'];
+                    break;
+                case 'Q4':
+                    $startDate = "$currentYear-10-01";
+                    $endDate = "$currentYear-12-31";
+                    $monthsInQuarter = ['Oct', 'Nov', 'Dec'];
+                    break;
+                default:
+                    abort(400, 'Invalid quarter');
+            }
+
+            $quarterResult = [
+                'total' => 0,
+                'details' => []
+            ];
+
+            $expenses = DB::table('journal_expense_months')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->get();
+
+            $expensesByMonth = $expenses->groupBy(function ($expense) {
+                return \Carbon\Carbon::parse($expense->created_at)->format('M');
+            });
+
+            foreach ($monthsInQuarter as $month) {
+                $monthlyTotal = 0;
+
+                if (isset($expensesByMonth[$month])) {
+                    foreach ($expensesByMonth[$month] as $expense) {
+                        $monthlyTotal += $expense->amount;
+                    }
+                }
+
+                $quarterResult['total'] += $monthlyTotal;
+                $quarterResult['details'][$month] = [
+                    'total' => $monthlyTotal
+                ];
+            }
+
+            return response()->json([
+                $quarter => $quarterResult
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
+
+
+public function QuarterlyIncome($quarter)
+{
+    if (Auth::check()) {
+        try {
+            $currentYear = date('Y');
+            $startDate = '';
+            $endDate = '';
+            $monthsInQuarter = [];
+
+            switch ($quarter) {
+                case 'Q1':
+                    $startDate = "$currentYear-01-01";
+                    $endDate = "$currentYear-03-31";
+                    $monthsInQuarter = ['Jan', 'Feb', 'Mar'];
+                    break;
+                case 'Q2':
+                    $startDate = "$currentYear-04-01";
+                    $endDate = "$currentYear-06-30";
+                    $monthsInQuarter = ['Apr', 'May', 'Jun'];
+                    break;
+                case 'Q3':
+                    $startDate = "$currentYear-07-01";
+                    $endDate = "$currentYear-09-30";
+                    $monthsInQuarter = ['Jul', 'Aug', 'Sep'];
+                    break;
+                case 'Q4':
+                    $startDate = "$currentYear-10-01";
+                    $endDate = "$currentYear-12-31";
+                    $monthsInQuarter = ['Oct', 'Nov', 'Dec'];
+                    break;
+                default:
+                    abort(400, 'Invalid quarter');
+            }
+
+            $quarterResult = [
+                'total' => 0,
+                'details' => []
+            ];
+
+            $expenses = DB::table('journal_income_months')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->get();
+
+            $expensesByMonth = $expenses->groupBy(function ($expense) {
+                return \Carbon\Carbon::parse($expense->created_at)->format('M');
+            });
+
+            foreach ($monthsInQuarter as $month) {
+                $monthlyTotal = 0;
+
+                if (isset($expensesByMonth[$month])) {
+                    foreach ($expensesByMonth[$month] as $expense) {
+                        $monthlyTotal += $expense->amount;
+                    }
+                }
+
+                $quarterResult['total'] += $monthlyTotal;
+                $quarterResult['details'][$month] = [
+                    'total' => $monthlyTotal
+                ];
+            }
+
+            return response()->json([
+                $quarter => $quarterResult
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
+public function QuarterlyClient($quarter)
+{
+    Log::info("Fetching data for quarter: " . $quarter);
+
+    $year = now()->year;
+
+    $quarters = [
+        'Q1' => ['start' => '01-01', 'end' => '03-31', 'months' => ['Jan', 'Feb', 'Mar']],
+        'Q2' => ['start' => '04-01', 'end' => '06-30', 'months' => ['Apr', 'May', 'Jun']],
+        'Q3' => ['start' => '07-01', 'end' => '09-30', 'months' => ['Jul', 'Aug', 'Sep']],
+        'Q4' => ['start' => '10-01', 'end' => '12-31', 'months' => ['Oct', 'Nov', 'Dec']]
+    ];
+
+    if (!isset($quarters[$quarter])) {
+        return response()->json(['error' => 'Invalid quarter selected'], 400);
+    }
+
+    $startDate = "{$year}-{$quarters[$quarter]['start']}";
+    $endDate = "{$year}-{$quarters[$quarter]['end']}";
+
+    $data = DB::table('clients')
+        ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as total'))
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy('month', 'asc')
+        ->get();
+
+    $quarterData = [];
+
+    // Initialize the quarter data with zero values for each month in the selected quarter
+    foreach ($quarters[$quarter]['months'] as $month) {
+        $quarterData[$month] = ['total' => 0];
+    }
+
+    // Fill the data array with the actual data from the database
+    foreach ($data as $row) {
+        $monthName = $quarters[$quarter]['months'][$row->month - 1];
+        $quarterData[$monthName] = ['total' => $row->total];
+    }
+
+    return response()->json([
+        $quarter => [
+            'months' => $quarters[$quarter]['months'],
+            'details' => $quarterData
+        ]
+    ]);
+}
+
+public function QuarterlyBilling($quarter)
+{
+    Log::info("Fetching billing data for quarter: " . $quarter);
+
+    $year = now()->year;
+    // Define the start and end date for each quarter
+    $quarters = [
+        'Q1' => ['start' => '01-01', 'end' => '03-31'],
+        'Q2' => ['start' => '04-01', 'end' => '06-30'],
+        'Q3' => ['start' => '07-01', 'end' => '09-30'],
+        'Q4' => ['start' => '10-01', 'end' => '12-31']
+    ];
+
+    // Validate if the selected quarter exists
+    if (!isset($quarters[$quarter])) {
+        return response()->json(['error' => 'Invalid quarter selected'], 400);
+    }
+
+    // Calculate start and end date for the selected quarter
+    $startDate = "{$year}-{$quarters[$quarter]['start']}";
+    $endDate = "{$year}-{$quarters[$quarter]['end']}";
+
+    $startDate = Carbon::parse($startDate)->startOfDay();
+    $endDate = Carbon::parse($endDate)->endOfDay();
+
+    Log::info("Start Date: " . $startDate->toDateTimeString());
+    Log::info("End Date: " . $endDate->toDateTimeString());
+
+    // Get the billing data from the billing_descriptions table
+    $data = DB::table('billing_descriptions')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(amount) as total_billing')
+        )
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->orderBy('month', 'asc')
+        ->get();
+
+    Log::info("Data from DB: " . json_encode($data));
+
+    // Define the month names for each quarter
+    $monthNames = [
+        'Q1' => ['Jan', 'Feb', 'Mar'],
+        'Q2' => ['Apr', 'May', 'Jun'],
+        'Q3' => ['Jul', 'Aug', 'Sep'],
+        'Q4' => ['Oct', 'Nov', 'Dec']
+    ];
+
+    // Initialize the months with default values (0) for each quarter
+    $quarterData = [];
+    foreach ($monthNames[$quarter] as $month) {
+        $quarterData[$month] = ['total' => 0];
+    }
+
+    // Populate the quarter data with actual values from the database
+    $totalBilling = 0;
+    foreach ($data as $row) {
+        $monthIndex = $row->month - 1; // Convert month number to zero-based index
+        $monthName = $monthNames[$quarter][$monthIndex % 3]; // Map to quarter-specific month names
+
+        Log::info("Mapped Month: " . $monthName . ", Total Billing: " . $row->total_billing);
+
+        $quarterData[$monthName]['total'] = (float) $row->total_billing;
+        $totalBilling += (float) $row->total_billing;
+    }
+
+    Log::info("Final Quarter Data: " . json_encode($quarterData));
+
+    return response()->json([
+        $quarter => [
+            'total' => $totalBilling,
+            'details' => $quarterData
+        ]
+    ]);
+}
+
+
+    public function BillingLists(){
+        if(Auth::check()){
+            try {
+                $billing = DB::table('billings')
+                ->join('clients', 'clients.id', '=', 'billings.client_id')
+                ->select('billings.billing_id', 'clients.id', 'clients.CEO', 'clients.CompanyName', 'billings.created_at')
+                ->get();
+                return view('pages.billing-lists', compact('billing'));
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }else{
+            abort(403, 'unauthorized access');
+        }
+    }
+
+
 }
 
 // try {

@@ -13,10 +13,8 @@
                 <table class="table table-hover table-bordered table-striped">
                     <thead>
                         <tr>
-                            <td>Client</td>
-                            <td>Company Name</td>
+                            <td>Journal ID</td>
                             <td>Date</td>
-                            <td>Billing id</td>
                             <td>Total Income</td>
                         </tr>
                     </thead>
@@ -24,13 +22,12 @@
                         
                         @foreach ($incomeData as $income)
                         @php
-                            $totalIncome = $income->amount + $income->addedAmount;
+                        $totalIncome = 0;
+                            $totalIncome += $income->total_amount;
                         @endphp
                             <tr>
-                                <td>{{$income->CEO}}</td>
-                                <td>{{$income->CompanyName}}</td>
+                                <td class="fw-bold">{{$income->journal_id}}</td>
                                 <td>{{ \Carbon\Carbon::parse($income->created_at)->format('F d, Y \a\t h:i A') }}</td>
-                                <td class="fw-bold">{{$income->billing_id}}</td>
                                 <td>{{number_format($totalIncome, 2)}}</td>
                             </tr>
                         @endforeach

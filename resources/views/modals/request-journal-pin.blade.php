@@ -1,5 +1,5 @@
-<div class="modal fade" id="request_journal_pin_{{$client->id}}_{{$journal->id}}">
-    <div class="modal-dialog">
+<div class="modal fade" id="request_journal_pin_{{ $client->id }}_{{ $journal->id }}">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content rounded-0">
             <div class="modal-header rounded-0" style="background: #063D58;">
                 <h4 class="lead text-light">Select Accountant/Admin</h4>
@@ -15,21 +15,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($users as $user)
-                            <tr id="user_{{$user->id}}">
-                                <td>{{$user->LastName}}, {{$user->FirstName}}</td>
-                                <td>{{$user->Role}}</td>
-                                <td>{{$user->Email}}</td>
+
+                        @foreach ($users->filter(fn($user) => $user->Role === 'Accountant' || $user->Role === 'Admin') as $user)
+                            <tr id="user_{{ $user->id }}">
+                                <td>{{ $user->LastName }}, {{ $user->FirstName }}</td>
+                                <td>{{ $user->Role }}</td>
+                                <td>{{ $user->Email }}</td>
                                 <td>
-                                    <span class="badge bg-warning fw-bold request-journal-pin" id="{{$client->id}}_{{$journal->id}}_{{$user->id}}"><span class="far fa-envelope"></span></span>
+                                    <span class="badge bg-warning fw-bold request-journal-pin"
+                                        id="{{ $client->id }}_{{ $journal->id }}_{{ $user->id }}">
+                                        <span class="far fa-envelope"></span>
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
+
+                        @if ($users->filter(fn($user) => $user->Role === 'Accountant' || $user->Role === 'Admin')->isEmpty())
+                            <tr>
+                                <td colspan="4">No user available</td>
+                            </tr>
+                        @endif
+
                     </tbody>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-0 fw-bold" data-bs-dismiss="modal">{{__('Cancel')}}</button>
+                <button type="button" class="btn btn-secondary rounded-0 fw-bold"
+                    data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             </div>
         </div>
     </div>

@@ -83,7 +83,7 @@ class ClientController extends Controller
         $validatedData = $request->validate([
             'CompanyName' => 'required|string|max:255|unique:clients',
             'CompanyAddress' => 'required|string|max:255',
-            // 'TIN' => 'required|string|max:50',
+            'TIN' => 'required|string|max:50',
             'CompanyEmail' => 'required|email|max:255|unique:clients',
             'CEO' => 'required|string|max:255',
             'CEODateOfBirth' => 'required|date',
@@ -100,7 +100,7 @@ class ClientController extends Controller
             $client = new Clients();
             $client->CompanyName = $validatedData['CompanyName'];
             $client->CompanyAddress = $validatedData['CompanyAddress'];
-            $client->TIN = '123123';
+            $client->TIN = $validatedData['TIN'];
             $client->CompanyEmail = $validatedData['CompanyEmail'];
             $client->CEO = $validatedData['CEO'];
             $client->CEODateOfBirth = $validatedData['CEODateOfBirth'];
@@ -254,6 +254,7 @@ class ClientController extends Controller
         if(Auth::check()){
             try {
                 Log::info("asdsad $id");
+                Log::info("dick");
                 $prepID = explode('_', $id);
                 if($prepID[1] === 'subservice'){
                     $subServiceDocs = SubServiceDocuments::where('sub_service_documents.client_service', $prepID[0])
@@ -1017,6 +1018,7 @@ public function AuditPage(Request $request){
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
+                ClientJournal::where('journal_id', $prepRef[0])->update(['JournalStatus' => 'Pending']);
                 DB::commit();
                 return response()->json(['journal' => 'updated']);
             } catch (\Throwable $th) {

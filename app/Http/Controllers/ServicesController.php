@@ -17,7 +17,7 @@ class ServicesController extends Controller
     {
         if (Auth::check()) {
             try {
-                $services = services::where('isVisible', true)->get();
+                $services = services::where('services.isVisible', true)->get();
                 return view('pages.external-services', compact('services'));
             } catch (\Exception $exception) {
                 throw $exception;
@@ -61,10 +61,12 @@ class ServicesController extends Controller
                         'error' => 'Service already exists',
                     ], 409);
                 }
+                $sanitizePrice = str_replace(',', '', $request['Price']);
+                $prepPrice = floatval($sanitizePrice);
                 services::create([
                     'Service' => $request['Service'],
                     'Category' => $request['Category'],
-                    'Price' => $request['Price'],
+                    'Price' => $prepPrice,
                     'dataEntryUser' => Auth::user()->id
                 ]);
                 return response()->json(['middleware_success' => 'Service created successfully']);
@@ -210,6 +212,18 @@ class ServicesController extends Controller
         }
     } catch (\Throwable $th) {
         return response()->json(['error' => 'An error occurred'], 500);
+    }
+}
+
+public function GetServiceFunction($id){
+    if(Auth::check()){
+        try {
+            Log::info($id);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }else{
+        dd('unauthorized access');
     }
 }
 
