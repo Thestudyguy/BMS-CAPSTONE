@@ -149,7 +149,6 @@ var defaultExpense = window.defaultExpense; // Your default expenses data
                 var quarterData = response[quarter];
     
                 if (quarterData) {
-                    // Prepare the labels and data arrays for the chart
                     let labels = quarterData.months;  // Use the months of the selected quarter
                     let data = [];
     
@@ -175,6 +174,143 @@ var defaultExpense = window.defaultExpense; // Your default expenses data
             }
         });
     });
+
+
+    $('#yearInput').change(function () {
+        var year = $(this).val(); // Input year
     
+        if (!year || isNaN(year)) {
+            console.error("Invalid year entered.");
+            return;
+        }
+    
+        $.ajax({
+            method: 'POST',
+            url: 'filter-by-year-income',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            data: { year: year },
+            success: function (response) {
+                console.log('Year Data:', response);
+    
+                // Optionally process year data (e.g., for yearly summary)
+                let labels = Object.keys(response); // Months
+                let data = Object.values(response); // Totals
+    
+                // Update chart
+                lineChart.data.labels = labels;
+                lineChart.data.datasets[0].data = data;
+                lineChart.update();
+            },
+            error: function (err) {
+                console.error('AJAX Error:', err.responseText);
+            }
+        });
+    });
+    
+    $('#yearInputExpense').change(function () {
+        var year = $(this).val(); // Input year
+    
+        if (!year || isNaN(year)) {
+            console.error("Invalid year entered.");
+            return;
+        }
+    
+        $.ajax({
+            method: 'POST',
+            url: 'filter-by-year-expense',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            data: { year: year },
+            success: function (response) {
+                console.log('Year Data:', response);
+    
+                // Optionally process year data (e.g., for yearly summary)
+                let labels = Object.keys(response); // Months
+                let data = Object.values(response); // Totals
+    
+                // Update chart
+                expenseChart.data.labels = labels;
+                expenseChart.data.datasets[0].data = data;
+                expenseChart.update();
+            },
+            error: function (err) {
+                console.error('AJAX Error:', err.responseText);
+            }
+        });
+    });
+
+    $('#yearInputClient').change(function () {
+        var year = $(this).val(); // Input year
+    
+        if (!year || isNaN(year)) {
+            console.error("Invalid year entered.");
+            return;
+        }
+    
+        $.ajax({
+            method: 'POST',
+            url: 'filter-by-year-client',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            data: { year: year },
+            success: function (response) {
+                console.log('Year Data:', response);
+    
+                // Optionally process year data (e.g., for yearly summary)
+                let labels = Object.keys(response); // Months
+                let data = Object.values(response); // Totals
+    
+                // Update chart
+                clientsChart.data.labels = labels;
+                clientsChart.data.datasets[0].data = data;
+                clientsChart.update();
+            },
+            error: function (err) {
+                console.error('AJAX Error:', err.responseText);
+            }
+        });
+    });
+
+    $('#yearlySales').change(function () {
+        var year = $(this).val();
+    
+        if (!year || isNaN(year)) {
+            console.error("Invalid year entered.");
+            return;
+        }
+    
+        $.ajax({
+            method: 'POST',
+            url: 'yearly-sales',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            data: { year: year },
+            success: function (response) {
+                console.log('success');
+                
+                var yearData = response.details;
+                if (yearData) {
+                    let labels = [];
+                    let data = [];
+    
+                    $.each(yearData, function (month, total) {
+                        labels.push(month);
+                        data.push(total.total);
+                    });
+    
+                    // Update chart
+                    salesChart.data.labels = labels;
+                    salesChart.data.datasets[0].data = data;
+                    salesChart.update();
+                } else {
+                    console.error("No data found for year: " + year);
+                }
+            },
+            error: function (err, status, jqXHR) {
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Fatal Error',
+                    text: 'Oops! Something went wrong: ' + err.responseText
+                });
+            }
+        });
+    });
     
 });

@@ -90,7 +90,11 @@ Route::middleware('authenticated')->group(function(){
     Route::post('view-service-requirements-{id}', [ServicesController::class, 'GetServiceFunction']);
     Route::post('quarterly-expense-{quarter}', [Controller::class, 'QuarterlyExpense']);
     Route::post('quarterly-income-{quarter}', [Controller::class, 'QuarterlyIncome']);
+    Route::post('filter-by-year-income', [Controller::class, 'filterByYearIncome']);
+    Route::post('filter-by-year-expense', [Controller::class, 'filterByYearExpense']);
     Route::post('quarterly-client-{quarter}', [Controller::class, 'QuarterlyClient']);
+    Route::post('filter-by-year-client', [Controller::class, 'filterByYearClient']);
     Route::post('quarterly-sales-{quarter}', [Controller::class, 'QuarterlyBilling']);
+    Route::post('yearly-sales', [Controller::class, 'YearlyBilling']);
     Route::get('billings', [Controller::class, 'BillingLists'])->name('billing');
 });

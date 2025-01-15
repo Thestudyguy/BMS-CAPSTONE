@@ -160,7 +160,6 @@ $(document).on('click', '.remove-parent-service', function() {
     
     var preparedServiceRef = parentService.replace(/_/g, ' '); // Replace underscores with spaces
     console.log('Prepared Service Ref:', parentService);
-    return;
     
     // Check if the serviceName exists in the servicesData array
     var serviceToRemove = servicesData.findIndex(service => service.serviceName === preparedServiceRef);

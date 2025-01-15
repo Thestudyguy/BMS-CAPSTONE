@@ -271,6 +271,7 @@ class Controller extends BaseController
                     $month = $client->month - 1;
                     $monthlyClients[$month] += $client->total_clients;
                 }
+                Log::info($monthlySales);
                 return view('pages.dashboard', compact('salesBilling','salesFi', 'expenses', 'incomeInfo', 'income', 'clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog', 'monthlyClients'));
 
             } catch (\Exception $exception) {
@@ -1519,6 +1520,63 @@ public function QuarterlyIncome($quarter)
     }
 }
 
+public function filterByYearIncome(Request $request)
+    {
+        try {
+            $year = $request->input('year', date('Y')); // Default to current year if not provided
+    
+            $expenses = DB::table('journal_income_months')
+                ->whereYear('created_at', $year)
+                ->get();
+    
+            $yearResult = $expenses->groupBy(function ($expense) {
+                return \Carbon\Carbon::parse($expense->created_at)->format('M');
+            });
+    
+            $result = [];
+            foreach ($yearResult as $month => $expenses) {
+                $monthlyTotal = 0;
+                foreach ($expenses as $expense) {
+                    $monthlyTotal += $expense->amount;
+                }
+                $result[$month] = $monthlyTotal;
+            }
+    
+            return response()->json($result);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
+    }
+
+    public function filterByYearExpense(Request $request)
+    {
+        try {
+            $year = $request->input('year', date('Y')); // Default to current year if not provided
+    
+            $expenses = DB::table('journal_expense_months')
+                ->whereYear('created_at', $year)
+                ->get();
+    
+            $yearResult = $expenses->groupBy(function ($expense) {
+                return \Carbon\Carbon::parse($expense->created_at)->format('M');
+            });
+    
+            $result = [];
+            foreach ($yearResult as $month => $expenses) {
+                $monthlyTotal = 0;
+                foreach ($expenses as $expense) {
+                    $monthlyTotal += $expense->amount;
+                }
+                $result[$month] = $monthlyTotal;
+            }
+    
+            return response()->json($result);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
+    }
+
+
 public function QuarterlyClient($quarter)
 {
     Log::info("Fetching data for quarter: " . $quarter);
@@ -1567,82 +1625,178 @@ public function QuarterlyClient($quarter)
     ]);
 }
 
+public function filterByYearClient(Request $request)
+{
+    try {
+        $year = $request->input('year', date('Y')); // Default to the current year if not provided
+
+        // Fetch and group clients by month for the selected year
+        $clients = DB::table('clients')
+            ->whereYear('created_at', $year)
+            ->get()
+            ->groupBy(function ($client) {
+                return \Carbon\Carbon::parse($client->created_at)->format('M'); // Group by month (e.g., Jan, Feb)
+            });
+
+        // Prepare result: count the number of clients for each month
+        $result = [];
+        foreach ($clients as $month => $group) {
+            $result[$month] = $group->count(); // Count the number of clients in each month
+        }
+
+        return response()->json($result);
+    } catch (\Throwable $th) {
+        return response()->json(['error' => $th->getMessage()], 500);
+    }
+}
+
+
 public function QuarterlyBilling($quarter)
 {
-    Log::info("Fetching billing data for quarter: " . $quarter);
+    try {
+        Log::info("Fetching billing data for quarter: " . $quarter);
 
-    $year = now()->year;
-    // Define the start and end date for each quarter
-    $quarters = [
-        'Q1' => ['start' => '01-01', 'end' => '03-31'],
-        'Q2' => ['start' => '04-01', 'end' => '06-30'],
-        'Q3' => ['start' => '07-01', 'end' => '09-30'],
-        'Q4' => ['start' => '10-01', 'end' => '12-31']
-    ];
+        $year = now()->year;
 
-    // Validate if the selected quarter exists
-    if (!isset($quarters[$quarter])) {
-        return response()->json(['error' => 'Invalid quarter selected'], 400);
+        // Define the start and end dates for each quarter
+        $quarters = [
+            'Q1' => ['start' => '01-01', 'end' => '03-31'],
+            'Q2' => ['start' => '04-01', 'end' => '06-30'],
+            'Q3' => ['start' => '07-01', 'end' => '09-30'],
+            'Q4' => ['start' => '10-01', 'end' => '12-31']
+        ];
+
+        // Validate if the selected quarter exists
+        if (!isset($quarters[$quarter])) {
+            return response()->json(['error' => 'Invalid quarter selected'], 400);
+        }
+
+        // Calculate the start and end date for the selected quarter
+        $startDate = Carbon::parse("{$year}-{$quarters[$quarter]['start']}")->startOfDay();
+        $endDate = Carbon::parse("{$year}-{$quarters[$quarter]['end']}")->endOfDay();
+
+        Log::info("Start Date: " . $startDate->toDateTimeString());
+        Log::info("End Date: " . $endDate->toDateTimeString());
+
+        // Query data from services and sub-services
+        $sales = DB::table('client_services')
+            ->select(
+                DB::raw('MONTH(client_services.created_at) as month'),
+                DB::raw('SUM(services.Price) as total_service_price'),
+                DB::raw('SUM(services_sub_tables.ServiceRequirementPrice) as total_sub_service_price')
+            )
+            ->leftJoin('services', 'services.Service', '=', 'client_services.ClientService')
+            ->leftJoin('services_sub_tables', 'services_sub_tables.ServiceRequirements', '=', 'client_services.ClientService')
+            ->whereBetween('client_services.created_at', [$startDate, $endDate])
+            ->groupBy(DB::raw('MONTH(client_services.created_at)'))
+            ->orderBy('month', 'asc')
+            ->get();
+
+        Log::info("Sales Data from DB: " . json_encode($sales));
+
+        // Define the month names for the selected quarter
+        $monthNames = [
+            'Q1' => ['Jan', 'Feb', 'Mar'],
+            'Q2' => ['Apr', 'May', 'Jun'],
+            'Q3' => ['Jul', 'Aug', 'Sep'],
+            'Q4' => ['Oct', 'Nov', 'Dec']
+        ];
+
+        // Initialize the months with default values (0) for the quarter
+        $quarterData = [];
+        foreach ($monthNames[$quarter] as $month) {
+            $quarterData[$month] = ['total' => 0];
+        }
+
+        // Populate the quarter data with actual values from the query
+        $totalBilling = 0;
+        foreach ($sales as $sale) {
+            $monthIndex = $sale->month - 1; // Convert month number to zero-based index
+            $monthName = $monthNames[$quarter][$monthIndex % 3]; // Map to quarter-specific month names
+
+            $totalForMonth = (float) ($sale->total_service_price + $sale->total_sub_service_price);
+            Log::info("Mapped Month: " . $monthName . ", Total Billing: " . $totalForMonth);
+
+            $quarterData[$monthName]['total'] = $totalForMonth;
+            $totalBilling += $totalForMonth;
+        }
+
+        Log::info("Final Quarter Data: " . json_encode($quarterData));
+
+        return response()->json([
+            $quarter => [
+                'total' => $totalBilling,
+                'details' => $quarterData
+            ]
+        ]);
+    } catch (\Throwable $th) {
+        Log::error("Error fetching quarterly billing data: " . $th->getMessage());
+        return response()->json(['error' => $th->getMessage()], 500);
     }
-
-    // Calculate start and end date for the selected quarter
-    $startDate = "{$year}-{$quarters[$quarter]['start']}";
-    $endDate = "{$year}-{$quarters[$quarter]['end']}";
-
-    $startDate = Carbon::parse($startDate)->startOfDay();
-    $endDate = Carbon::parse($endDate)->endOfDay();
-
-    Log::info("Start Date: " . $startDate->toDateTimeString());
-    Log::info("End Date: " . $endDate->toDateTimeString());
-
-    // Get the billing data from the billing_descriptions table
-    $data = DB::table('billing_descriptions')
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->select(
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(amount) as total_billing')
-        )
-        ->groupBy(DB::raw('MONTH(created_at)'))
-        ->orderBy('month', 'asc')
-        ->get();
-
-    Log::info("Data from DB: " . json_encode($data));
-
-    // Define the month names for each quarter
-    $monthNames = [
-        'Q1' => ['Jan', 'Feb', 'Mar'],
-        'Q2' => ['Apr', 'May', 'Jun'],
-        'Q3' => ['Jul', 'Aug', 'Sep'],
-        'Q4' => ['Oct', 'Nov', 'Dec']
-    ];
-
-    // Initialize the months with default values (0) for each quarter
-    $quarterData = [];
-    foreach ($monthNames[$quarter] as $month) {
-        $quarterData[$month] = ['total' => 0];
-    }
-
-    // Populate the quarter data with actual values from the database
-    $totalBilling = 0;
-    foreach ($data as $row) {
-        $monthIndex = $row->month - 1; // Convert month number to zero-based index
-        $monthName = $monthNames[$quarter][$monthIndex % 3]; // Map to quarter-specific month names
-
-        Log::info("Mapped Month: " . $monthName . ", Total Billing: " . $row->total_billing);
-
-        $quarterData[$monthName]['total'] = (float) $row->total_billing;
-        $totalBilling += (float) $row->total_billing;
-    }
-
-    Log::info("Final Quarter Data: " . json_encode($quarterData));
-
-    return response()->json([
-        $quarter => [
-            'total' => $totalBilling,
-            'details' => $quarterData
-        ]
-    ]);
 }
+
+public function YearlyBilling(Request $request)
+{
+    try {
+        $year = $request->input('year', now()->year); // Default to the current year if not provided
+
+        Log::info("Fetching yearly sales data for year: " . $year);
+
+        // Retrieve sales data for the specified year
+        $sales = ClientServices::select(
+            'client_services.id as ClientServiceId',
+            'client_services.ClientService as Service',
+            'services.Price as ServicePrice',
+            'services_sub_tables.ServiceRequirementPrice as SubServicePrice',
+            'client_services.created_at'
+        )
+            ->leftJoin('services', 'services.Service', '=', 'client_services.ClientService')
+            ->leftJoin('services_sub_tables', 'services_sub_tables.ServiceRequirements', '=', 'client_services.ClientService')
+            ->whereYear('client_services.created_at', $year)
+            ->get();
+
+        // Initialize an array to hold monthly totals
+        $monthlySales = array_fill(0, 12, 0);
+        $totalSales = 0; // Track total yearly sales
+
+        // Process each sale and calculate monthly totals
+        foreach ($sales as $sale) {
+            $servicePrice = $sale->ServicePrice ?? 0;       // Default to 0 if null
+            $subServicePrice = $sale->SubServicePrice ?? 0; // Default to 0 if null
+
+            $month = \Carbon\Carbon::parse($sale->created_at)->month - 1; // Convert month to zero-based index
+
+            $monthlySales[$month] += $servicePrice + $subServicePrice;
+
+            // Calculate total sales for all months
+            $totalSales += $servicePrice + $subServicePrice;
+        }
+
+        // Prepare month names for output
+        $monthNames = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+
+        // Transform monthly sales into a more readable format
+        $yearData = [];
+        foreach ($monthlySales as $index => $monthlyTotal) {
+            $yearData[$monthNames[$index]] = ['total' => $monthlyTotal];
+        }
+
+        Log::info("Yearly sales data for year $year: " . json_encode($yearData));
+
+        return response()->json([
+            'year' => $year,
+            'total_sales' => $totalSales,
+            'details' => $yearData,
+        ]);
+    } catch (\Throwable $th) {
+        Log::error("Error fetching yearly sales data: " . $th->getMessage());
+        return response()->json(['error' => $th->getMessage()], 500);
+    }
+}
+
 
 
     public function BillingLists(){
@@ -1661,7 +1815,7 @@ public function QuarterlyBilling($quarter)
         }
     }
 
-
+    
 }
 
 // try {
@@ -1673,5 +1827,3 @@ public function QuarterlyBilling($quarter)
 // } catch (\Throwable $th) {
 //     throw $th;
 // }
-
-

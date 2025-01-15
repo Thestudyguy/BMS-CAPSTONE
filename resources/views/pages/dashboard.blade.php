@@ -55,13 +55,14 @@
                                 <div class="input-group-prepend">
                                     <button class="btn btn-light text-dark fw-bold" id="clearButtonSales">Clear</button>
                                 </div>
-                                <select name="" class="sales-quarter form-control" id="quarterSelectSales">
-                                    <option value="" selected hidden>Select Quarter</option>
+                                <select name="" class="sales-quarter rounded-0" id="quarterSelectSales">
+                                    <option value="" selected hidden>Filter</option>
                                     <option value="Q1">Q1</option>
                                     <option value="Q2">Q2</option>
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
+                                <input type="number" id="yearlySales" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
                             </div>
                         </div>
                     </div>
@@ -83,13 +84,14 @@
                                 <div class="input-group-prepend">
                                     <button class="btn btn-light text-dark fw-bold" id="clearButtonClients">Clear</button>
                                 </div>
-                                <select name="" class="client-quarter form-control" id="quarterSelectClient">
-                                    <option value="" selected hidden>Select Quarter</option>
+                                <select name="" class="client-quarter rounded-0" id="quarterSelectClient">
+                                    <option value="" selected hidden>Filter</option>
                                     <option value="Q1">Q1</option>
                                     <option value="Q2">Q2</option>
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
+                                <input type="number" id="yearInputClient" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
                             </div>
                         </div>
                     </div>
@@ -111,13 +113,14 @@
                                 <div class="input-group-prepend">
                                     <button class="btn btn-light text-dark fw-bold" id="clearButtonExpense">Clear</button>
                                 </div>
-                                <select name="" class="expense-quarter form-control" id="quarterSelectExpense">
-                                    <option value="" selected hidden>Select Quarter</option>
+                                <select name="" class="expense-quarter rounded-0" id="quarterSelectExpense">
+                                    <option value="" selected hidden>Filter</option>
                                     <option value="Q1">Q1</option>
                                     <option value="Q2">Q2</option>
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
+                                <input type="number" id="yearInputExpense" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
                             </div>
                         </div>
                     </div>
@@ -140,14 +143,15 @@
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                     <button class="btn btn-light text-dark fw-bold" id="clearButtonIncome">Clear</button>
+                                    <select name="" class="income-quarter form-control rounded-0" id="quarterSelectIncome">
+                                        <option value="" selected hidden>Filter</option>
+                                        <option value="Q1">Q1</option>
+                                        <option value="Q2">Q2</option>
+                                        <option value="Q3">Q3</option>
+                                        <option value="Q4">Q4</option>
+                                    </select>
                                 </div>
-                                <select name="" class="income-quarter form-control" id="quarterSelectIncome">
-                                    <option value="" selected hidden>Select Quarter</option>
-                                    <option value="Q1">Q1</option>
-                                    <option value="Q2">Q2</option>
-                                    <option value="Q3">Q3</option>
-                                    <option value="Q4">Q4</option>
-                                </select>
+                                <input type="number" id="yearInput" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
                             </div>
                         </div>
                     </div>
@@ -158,6 +162,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
         {{-- end of chart --}}
 
@@ -240,7 +245,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var monthlySales = @json($salesFi);
+            var monthlySales = @json($monthlySales);
             var incomeMonthly = @json($monthlyIncome);
             var expensesMonthly = @json($monthlyExpenses);
             window.defaultExpense = expensesMonthly;
