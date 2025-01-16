@@ -13,6 +13,7 @@ $(document).ready(function(){
     var serviceCategory = '';
     $('.add-new-service-req').on('click', function(e){
         console.log($(this).attr('id'));
+        console.log('this sum bulshit');
         
         var id = $(this).attr('id').split('_');
         var idref = id[1];
@@ -34,7 +35,7 @@ $(document).ready(function(){
         if(callFlag){
             $.ajax({
                 type: 'POST',
-                url: 'service/requirement/',
+                url: 'servicerequirement',
                 data: {form, idref}, 
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
                 success: function(response){
@@ -205,7 +206,7 @@ $('.add-new-sub-service-req').on('click', function(e){
     $('.view-client-service-doc').on('click', function(){
         $('.service-docs-loader').removeClass('visually-hidden');
         console.log($(this).attr('id'));
-        $('.append-service-req').empty();
+        $('.append-service-docs').empty();
         let docsTable = '';
         $.ajax({
             type: 'POST',
