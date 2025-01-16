@@ -774,7 +774,31 @@ public function GenerateExpensePDF(Request $request)
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
             $this->fpdf->Ln(5);
+
+            $this->fpdf->SetFont('Arial', 'B', 10);
+            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
+            $this->fpdf->SetX(30);
             // Output PDF
+            // Add "Certified True & Correct"
+            $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+
+            // Add Name and TIN
+            $text = 'Rogelio O. Mangandam, Jr.';
+            $textWidth = $this->fpdf->GetStringWidth($text) + 2;
+            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
+
+            // Add "Proprietor" and "TIN"
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetY(-35);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "Proprietor");
+
+            $this->fpdf->SetY(-30);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
+
             $this->fpdf->Output();
             exit;
         } catch (\Throwable $th) {
@@ -800,8 +824,8 @@ public function GenerateIncomePDF(Request $request)
                     'billing_descriptions.amount as baseAmount',
                     'billing_added_descriptions.amount as addedAmount'
                 )
-                ->join('billings', 'billings.client_id', '=', 'clients.id')
-                ->join('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
+                ->leftJoin('billings', 'billings.client_id', '=', 'clients.id')
+                ->leftJoin('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
                 ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
                 ->get();
 
@@ -835,6 +859,30 @@ public function GenerateIncomePDF(Request $request)
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
             $this->fpdf->Ln(5);
+            $this->fpdf->SetFont('Arial', 'B', 10);
+            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
+            $this->fpdf->SetX(30); // Set X position from the left
+
+            // Add "Certified True & Correct"
+            $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+
+            // Add Name and TIN
+            $text = 'Rogelio O. Mangandam, Jr.';
+            $textWidth = $this->fpdf->GetStringWidth($text) + 2;
+            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
+
+            // Add "Proprietor" and "TIN"
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetY(-35);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "Proprietor");
+
+            $this->fpdf->SetY(-30);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
+
             $this->fpdf->Output();
             exit;
         } catch (\Throwable $th) {
@@ -891,6 +939,30 @@ public function GenerateClientBillingTable($id)
             }
 
             // Output PDF
+            $this->fpdf->SetFont('Arial', 'B', 10);
+            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
+            $this->fpdf->SetX(30); // Set X position from the left
+
+            // Add "Certified True & Correct"
+            $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+
+            // Add Name and TIN
+            $text = 'Rogelio O. Mangandam, Jr.';
+            $textWidth = $this->fpdf->GetStringWidth($text) + 2;
+            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
+
+            // Add "Proprietor" and "TIN"
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetY(-35);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "Proprietor");
+
+            $this->fpdf->SetY(-30);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
+
             $this->fpdf->Output();
             exit;
         } catch (\Throwable $th) {
