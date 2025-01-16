@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('UserName');
             $table->string('Email');
             $table->string('Role');
-            $table->string('PIN')->unique();
+            $table->string('PIN')->unique()->nullable();
             $table->string('password');
             $table->boolean('isVisible')->default(true);
             $table->boolean('UserPrivilege')->default(true);//if false do not allow user to log in

@@ -39,12 +39,12 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    {{-- <div class="col-sm-6">
                         <div class="form-group">
                             <label class="fw-bold" for="PIN">PIN</label>
                             <input type="text" class="form-control" name="PIN" id="pin">
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label class="fw-bold" for="UserName">UserName</label>

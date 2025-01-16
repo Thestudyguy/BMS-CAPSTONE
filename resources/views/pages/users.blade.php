@@ -33,7 +33,7 @@
                                     <td class="fw-bold">Last Name</td>
                                     <td class="fw-bold">Email</td>
                                     <td class="fw-bold">Role</td>
-                                    <td class="fw-bold">PIN</td>
+                                    {{-- <td class="fw-bold">PIN</td> --}}
                                     <td class="fw-bold">User Name</td>
                                     <td class="fw-bold">action</td>
                                 </tr>
@@ -45,7 +45,7 @@
                                         <td>{{$user->LastName}}</td>
                                         <td>{{$user->Email}}</td>
                                         <td>{{$user->Role}}</td>
-                                        <td>{{$user->PIN}}</td>
+                                        {{-- <td>{{$user->PIN}}</td> --}}
                                         <td>{{$user->UserName}}</td>
                                         <td>
                                             <span id="{{$user->id}}" data-bs-target="#edit-user-modal-{{$user->id}}" data-bs-toggle="modal" class="badge bg-warning fw-bold"><i class="fas fa-pen"></i></span>

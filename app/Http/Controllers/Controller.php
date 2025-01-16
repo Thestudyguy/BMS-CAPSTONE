@@ -455,7 +455,7 @@ class Controller extends BaseController
                     'LastName' => 'required|string|max:255',
                     'UserName' => 'required|string|max:255|unique:users',
                     'Role' => 'required|string|max:50',
-                    'PIN' => 'required|string|min:4|max:10|unique:users',
+                    // 'PIN' => 'required|string|min:4|max:10|unique:users',
                     'password' => 'required|string|confirmed|min:8|unique:users',
                 ]);
                 User::create([
@@ -464,7 +464,7 @@ class Controller extends BaseController
                     'UserName' => $request['UserName'],
                     'Email' => $request['Email'],
                     'Role' => $request['Role'],
-                    'PIN' => $request['PIN'],
+                    // 'PIN' => $request['PIN'],
                     'password' => $request['password'],
                 ]);
                 $userAgent = $request->header('User-Agent');
