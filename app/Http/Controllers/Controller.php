@@ -792,8 +792,8 @@ class Controller extends BaseController
                         'users_note.Role as accountantRole',
                         'users_note.created_at as NoteTimeStamp'
                     )
-                    ->join('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
-                    ->join('users as users_note', 'users_note.id', '=', 'journal_notes.user')
+                    ->leftJoin('journal_notes', 'journal_notes.journal_id', '=', 'client_journals.id')
+                    ->leftJoin('users as users_note', 'users_note.id', '=', 'journal_notes.user')
                     ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                     ->join('users', 'users.id', '=', 'client_journals.dataUserEntry')
                     ->get()
@@ -815,12 +815,12 @@ class Controller extends BaseController
                         return $firstItem;
                     })
                     ->values();
+                    Log::info($journals);
 
+                    
                 Log::info(json_encode($journals, JSON_PRETTY_PRINT));
 
                 return view('pages.journals', compact('journals'));
-
-
 
             } catch (\Throwable $th) {
                 throw $th;
