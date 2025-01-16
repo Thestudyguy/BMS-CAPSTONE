@@ -35,7 +35,7 @@ $(document).ready(function(){
         if(callFlag){
             $.ajax({
                 type: 'POST',
-                url: 'servicerequirement',
+                url: 'servReq',
                 data: {form, idref}, 
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
                 success: function(response){
