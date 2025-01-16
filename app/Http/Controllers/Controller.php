@@ -1161,6 +1161,48 @@ class Controller extends BaseController
         }
     }
 
+    public function requirementForService(Request $request){
+        if (Auth::check()) {
+            try {
+                DB::beginTransaction();
+
+                // Log the incoming request data (for debugging purposes)
+                Log::info("Request $request");
+
+                // Iterate over the form data and create service requirements
+                foreach ($request['form'] as $value) {
+                    ServiceRequirement::create([
+                        'service_id' => $request['idref'],
+                        'req_name' => $value['value']
+                    ]);
+                }
+
+                $userAgent = $request->header('User-Agent');
+                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                ActivityLog::create([
+                    'user_id' => Auth::user()->id,
+                    'action' => 'Service Requirement Added',
+                    'activity' => 'New service requirements were added',
+                    'description' => "New requirements were added.",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $userAgent,
+                    'browser' => $browserDetails['browser'] ?? null,
+                    'platform' => $browserDetails['platform'] ?? null,
+                    'platform_version' => $browserDetails['platform_version'] ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['service_name' => 'added'], 200);
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                throw $th;
+            }
+        } else {
+            // Unauthorized access handling
+            dd('Unauthorized access');
+        }
+    }
+
 
     public function AddSubServiceReq(Request $request)
     {
