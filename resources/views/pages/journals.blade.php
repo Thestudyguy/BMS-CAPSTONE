@@ -47,10 +47,10 @@
                                           @else badge-secondary
                                           @endif" 
                                           id="{{$journal->id}}_{{$journal->journal_id}}" 
-                                          @if ($journal->JournalStatus === 'Pending') 
+                                         
                                               data-bs-target="#update-journal-status-{{$journal->journal_id}}" 
                                               data-bs-toggle="modal"
-                                          @endif>
+                                          >
                                         {{$journal->JournalStatus}}
                                     </span>
                                 </td>

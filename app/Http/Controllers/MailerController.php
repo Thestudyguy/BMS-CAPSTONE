@@ -38,23 +38,19 @@ class MailerController extends Controller
         }
     }
 
-    public function NewClientBilling(Request $request)
-{
-    if (Auth::check()) {
-        try {
-            $client = $request['refID'];
-            $service = $request['serviceObj'];
-            $subService = $request['subServiceObj'];
-            $descriptions = $request['accountDescriptions'];
-            $billingID = $request['billingId'];
-            $dueDate = $request['dueDate'];
-            $clientEmail = Clients::where('id', $client)->pluck('CompanyEmail');
-
-            // Handle services
-            foreach ((array) $service as $serviceGroup) {
-                foreach ((array) $serviceGroup as $items) {
-                    foreach ((array) $items as $value) {
-                        foreach ((array) $value as $values) {
+    public function NewClientBilling(Request $request){
+        if(Auth::check()){
+            try {
+                $client = $request['refID'];
+                $service = $request['serviceObj'];
+                $subService = $request['subServiceObj'];
+                $descriptions = $request['accountDescriptions'];
+                $billingID = $request['billingId'];
+                $dueDate = $request['dueDate'];
+                $clientEmail = Clients::where('id', $client)->pluck('CompanyEmail');
+                foreach ($service as $key => $items) {
+                    foreach ($items as $key => $value) {
+                        foreach ($value as $key => $values) {
                             $billingService = ClientBillingService::create([
                                 'client_id' => $client,
                                 'billing_id' => $billingID,
@@ -65,72 +61,65 @@ class MailerController extends Controller
                         }
                     }
                 }
-            }
-
-            // Handle sub-services
-            foreach ((array) $subService as $subServiceGroup) {
-                foreach ((array) $subServiceGroup as $value) {
-                    foreach ((array) $value as $subServices) {
-                        ClientBillingSubService::create([
-                            'client_id' => $client,
-                            'billing_id' => $billingID,
-                            'sub_service' => $subServices['sub_service_id'],
-                            'service' => $billingService->id,
-                            'account' => $subServices['sub_service_name'],
-                            'amount' => (float) $subServices['sub_service_price']
-                        ]);
+                foreach ($subService as $key => $value) {
+                    foreach ($value as $key => $values) {
+                        foreach ($values as $key => $subServices) {
+                            ClientBillingSubService::create([
+                                'client_id' => $client,
+                                'billing_id' => $billingID,
+                                'sub_service' => $subServices['sub_service_id'],
+                                'service' => $billingService->id,
+                                'account' => $subServices['sub_service_name'],
+                                'amount' => (float) $subServices['sub_service_price']
+                            ]);
+                        }
                     }
                 }
-            }
-
-            // Handle descriptions
-            if (!empty($descriptions)) {
-                Log::info($descriptions);
-                foreach ((array) $descriptions as $descriptionGroup) {
-                    foreach ((array) $descriptionGroup as $descriptionArray) {
-                        foreach ((array) $descriptionArray as $description) {
-                            if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
-                                BillingAddedDescriptions::create([
-                                    'client_id' => $client,
-                                    'billing_id' => $billingID,
-                                    'description' => $description['account_id'],
-                                    'account' => $description['Account'],
-                                    'amount' => (float) $description['price'],
-                                    'category' => 'not necessary'
-                                ]);
-                            } else {
-                                BillingDescriptions::create([
-                                    'client_id' => $client,
-                                    'billing_id' => $billingID,
-                                    'description' => $description['account_id'],
-                                    'account' => $description['Account'],
-                                    'amount' => (float) $description['price'],
-                                    'category' => 'not necessary'
-                                ]);
+                
+                if (!empty($descriptions)) {
+                    Log::info($descriptions);
+                    foreach ($descriptions as $descriptionGroup) {
+                        foreach ($descriptionGroup as $descriptionArray) {
+                            foreach ($descriptionArray as $description) {
+                                
+                                if (isset($description['isAdded']) && $description['isAdded'] === 'true') {
+                                    BillingAddedDescriptions::create([
+                                        'client_id' => $client,
+                                        'billing_id' => $billingID,
+                                        'description' => $description['account_id'],
+                                        'account' => $description['Account'],
+                                        'amount' => (float) $description['price'],
+                                        'category' => 'not necessary'
+                                    ]);
+                                } else {
+                                    BillingDescriptions::create([
+                                        'client_id' => $client,
+                                        'billing_id' => $billingID,
+                                        'description' => $description['account_id'],
+                                        'account' => $description['Account'],
+                                        'amount' => (float) $description['price'],
+                                        'category' => 'not necessary'
+                                    ]);
+                                }
                             }
                         }
                     }
                 }
+                $billing = Billings::create([
+                    'client_id' => $client,
+                    'billing_id' => $billingID,
+                    'due_date' => $dueDate
+                ]);
+                $this->NotifyClientBilling($billing);
+                Mail::to($clientEmail)->send(new MailBilling());
+                return response()->json(['billing' => 'billing successfully saved']);                
+            } catch (\Throwable $th) {
+                throw $th;
             }
-
-            // Create billing entry
-            $billing = Billings::create([
-                'client_id' => $client,
-                'billing_id' => $billingID,
-                'due_date' => $dueDate
-            ]);
-
-            $this->NotifyClientBilling($billing);
-            Mail::to($clientEmail)->send(new MailBilling());
-
-            return response()->json(['billing' => 'billing successfully saved']);
-        } catch (\Throwable $th) {
-            throw $th;
+        }else{
+            dd('unauthorized access');
         }
-    } else {
-        dd('unauthorized access');
     }
-}
 
 
     private function NotifyClientBilling($billing){

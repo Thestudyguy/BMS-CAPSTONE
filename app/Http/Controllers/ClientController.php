@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\JournalBilling;
 use App\Mail\MailClientNewServices;
 use App\Mail\MailClientServices;
+use App\Mail\MailNewClientJournal;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
@@ -44,8 +45,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail as FacadesMail;
-use Mail;
+// use Illuminate\Support\Facades\Mail as FacadesMail;
+use Illuminate\Support\Facades\Mail;
+
 use Illuminate\Support\Str;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use Storage;
@@ -600,7 +602,11 @@ class ClientController extends Controller
                     'journal_id' => $uniqueId,
                     'dataUserEntry' => Auth::user()->id
                 ]);
+
+                
                 $clients = Clients::where('id', $client)->first();
+                Log::info($clients->CompanyEmail);
+                Mail::to($clients->CompanyEmail)->send(new MailNewClientJournal($clients->CEO, $uniqueId, Auth::user()->LastName));
                 $userAgent = $request->header('User-Agent');
                 // $browserDetails = $this->getBrowserDetails($userAgent);
                 $browserDetails = CustomHelper::getBrowserDetails($userAgent);
