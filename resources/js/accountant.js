@@ -17,6 +17,7 @@ $(document).ready(function () {
     });
 
     $('.update-journal-status').on('click', function () {
+        $('.update-journal-status-loader').removeClass('visually-hidden');
         var journalId = $(this).attr('id');
         console.log(journalId);
         var modal = $(`#update-journal-status-${journalId}`);
@@ -34,16 +35,19 @@ $(document).ready(function () {
         }
 
         var form = $(`.update-journal-status-form-${journalId}`).serializeArray();
+        
         $.ajax({
             type: 'POST',
             url: '/update-journal-status',
             data: form,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
             success: function (response) {
+                $('.update-journal-status-loader').addClass('visually-hidden');
                 localStorage.setItem('journal-status', 'updated');
                 location.reload();
             },
             error: function (error) {
+                $('.update-journal-status-loader').addClass('visually-hidden');
                 console.error(error);
             }
         });

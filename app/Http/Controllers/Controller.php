@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CustomHelper;
 use App\Mail\JournalBilling;
+use App\Mail\MailClientJournalStatusToAccountant;
 use App\Models\AccountDescription;
 use App\Models\Accounts;
 use App\Models\AccountType;
@@ -772,7 +773,7 @@ class Controller extends BaseController
                 // ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                 // ->join('users as users_entry', 'users_entry.id', '=', 'client_journals.dataUserEntry') // Alias for users in dataUserEntry
                 // ->get();
-
+                $accountants = User::where('isVisible', true)->where('Role', '!=', 'Bookkeeper')->get();
                 $journals = ClientJournal::where('client_journals.isVisible', true)
                     ->select(
                         'clients.CEO',
@@ -820,7 +821,7 @@ class Controller extends BaseController
                     
                 Log::info(json_encode($journals, JSON_PRETTY_PRINT));
 
-                return view('pages.journals', compact('journals'));
+                return view('pages.journals', compact('journals', 'accountants'));
 
             } catch (\Throwable $th) {
                 throw $th;
@@ -840,6 +841,8 @@ class Controller extends BaseController
                     'note' => $request['journal-draft-note'],
                     'user' => Auth::user()->id
                 ]);
+                $journalID = ClientJournal::where('id', $request['journalID'])->value('journal_id');
+
                 $client = ClientJournal::where('client_journals.journal_id', $request['journal_id'])
                     ->join('clients', 'clients.id', '=', 'client_journals.client_id')
                     ->first();
@@ -858,6 +861,7 @@ class Controller extends BaseController
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
                 Mail::to($client->CompanyEmail)->send(new JournalBilling($request['JournalStatus']));
+                Mail::to($request['Accountants'])->send(new MailClientJournalStatusToAccountant($request['JournalStatus'], $client->CompanyName, $request['Accountants'], $journalID));
                 DB::commit();
                 return response()->json(['journal-status', 'updated']);
             } catch (\Throwable $th) {
