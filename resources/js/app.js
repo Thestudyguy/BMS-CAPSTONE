@@ -48,5 +48,13 @@ $(document).ready(function(){
         }
     };
     
-
+        $('.settings-info-box').hover(
+            function() {
+                $(this).find('.fa-trash').removeClass('visually-hidden'); // Show on hover
+            },
+            function() {
+                $(this).find('.fa-trash').addClass('visually-hidden'); // Hide when not hovering
+            }
+        );
+    
 });

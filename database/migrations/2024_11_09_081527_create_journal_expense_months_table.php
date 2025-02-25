@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('month');
             $table->decimal('amount', 15);
             $table->boolean('isAltered')->default(false);
+            $table->boolean('has_reset')->default(false);
             $table->timestamps();
         });
     }

@@ -308,11 +308,75 @@ $(document).ready(function(){
         });
     });
     
+    $('.reset-expense').on('click', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: `reset-expense`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                localStorage.setItem('expense', 'reset');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Translated: ' + error.responseText
+                });
+            }
+        });
+    });
+
+    $('.reset-income').on('click', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: `reset-income`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                localStorage.setItem('income', 'reset');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Translated: ' + error.responseText
+                });
+            }
+        });
+    });
+
 
     var accountDescription = localStorage.getItem('account_description');
     var sysProfile = localStorage.getItem('system-profile');
     var coa = localStorage.getItem('coa');
+    var isExpenseReset = localStorage.getItem('expense');
+    var isIncomeReset = localStorage.getItem('income');
+    var isSalesReset = localStorage.getItem('sales');
     var privilegeMessage = localStorage.getItem('user_privilege_updated');
+    if(isExpenseReset){
+        Toast.fire({
+            icon: 'success',
+            title: 'Expense Reset'
+        });
+        localStorage.removeItem('expense');
+    }
+    if(isIncomeReset){
+        Toast.fire({
+            icon: 'success',
+            title: 'Income Reset'
+        });
+        localStorage.removeItem('income');
+    }
+    if(isSalesReset){
+        Toast.fire({
+            icon: 'success',
+            title: 'Sales Reset'
+        });
+        localStorage.removeItem('sales');
+    }   
     if(accountDescription === 'created'){
         Toast.fire({
             icon: 'success',

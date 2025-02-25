@@ -60,6 +60,48 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="card">
+                            {{-- <div class="card-header">
+                                asd
+                            </div> --}}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6 settings-info-box">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-success"><i class="fas fa-edit"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Income
+                                                    <div class="float-right text-sm fw-bold"><span class="text-sm text-danger" style="cursor: pointer;" data-bs-target="#reset-income-mod" data-bs-toggle="modal"><i class="fas fa-trash text-danger visually-hidden"></i></span></div>
+                                                </span>
+                                                <span class="info-box-number">{{ number_format($incomeInfo, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 settings-info-box">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-warning"><i class="far fa-copy"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Expenses
+                                                    <div class="float-right text-sm fw-bold"><span class="text-sm text-danger" style="cursor: pointer;" data-bs-target="#reset-expenses-mod" data-bs-toggle="modal"><i class="fas fa-trash text-danger visually-hidden"></i></span></div>
+                                                </span>
+                                                <span class="info-box-number">{{ number_format($expenses, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 settings-info-box">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-danger text-light"><i class="ion ion-stats-bars"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Sales
+                                                    <div class="float-right text-sm fw-bold"><span class="text-sm text-danger" style="cursor: pointer;" data-bs-target="#resetSalesModal" data-bs-toggle="modal"><i class="fas fa-trash text-danger visually-hidden"></i></span></div>
+                                                </span>
+                                                <span class="info-box-number">{{ number_format($salesBilling, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                    <div class="col-sm-12">
                     <div class="card">
@@ -110,5 +152,8 @@
                 </div>
             </div>
             @include('modals.new-description-modal')
+            @include('modals.reset-expenses-modal')
+            @include('modals.reset-income-modal')
+            @include('modals.reset-sales-modal')
     </div>
     @endsection

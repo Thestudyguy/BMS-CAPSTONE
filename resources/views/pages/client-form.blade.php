@@ -120,7 +120,7 @@
 
           <form action="" class="client-rep multi-step" style="display: none;">
             <h4 class="h6 fw-bold text-dark mb-3"> <b class="" style="color:#063D58;">|</b> Representative Information
-            <span class="badge fw-bold bg-warning get-ceo-info" title="Use CEO info"><i class="fas fa-user"></i></span>
+            <span class="badge fw-bold bg-warning get-ceo-info" title="Use CEO info"><i class="fas fa-user"> <span class="text-sm fw-bold">same as Owner</span></i></span>
             </h4>
             <div class="mb-3">
               <label class="form-label">Name</label>

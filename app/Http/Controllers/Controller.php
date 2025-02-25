@@ -15,6 +15,7 @@ use App\Models\Billings;
 use App\Models\ClientJournal;
 use App\Models\Clients;
 use App\Models\ClientServices;
+use App\Models\journal_expense_month;
 use App\Models\JournalNote;
 use App\Models\ServiceRequirement;
 use App\Models\services;
@@ -107,16 +108,16 @@ class Controller extends BaseController
 
     public function dashboard()
     {
+        //Nostalgia is the soul’s longing for a past that time has irrevocably altered.
         if (auth::check()) {
             try {
-
-                
 
 
                 $salesBilling = 0;
                     $data = BillingDescriptions::select(DB::raw('SUM(amount) as total_amount'), DB::raw('MONTH(created_at) as month'))
                     ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)')) // Group by month and year
                     ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)')) // Order by year and month
+                    ->where('has_reset', false)
                     ->get();
 
                 // Prepare the data for the chart
@@ -186,6 +187,8 @@ class Controller extends BaseController
                 $income = 0;
                 $totalDB = 0;
                 $totalADB = 0;
+                Log::info($incomeABD);
+                Log::info($incomeBD);
                 foreach ($incomeABD as $value) {
                     if ($value->Category === 'Internal') {
                         $totalADB += $value->amount;
@@ -204,6 +207,7 @@ class Controller extends BaseController
                         'journal_expense_months.amount'
                     )
                     ->where('journal_expense_months.isAltered', false)
+                    ->where('journal_expense_months.has_reset', false)
                     ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
                     ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
                     ->get();
@@ -219,6 +223,7 @@ class Controller extends BaseController
                     DB::raw('SUM(journal_income_months.amount) as total_income')
                 )
                 ->where('journal_income_months.isAltered', false)
+                ->where('journal_income_months.has_reset', false)
                 ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
                 ->join('journal_incomes', 'journal_incomes.journal_id', '=', 'client_journals.journal_id')
                 ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
@@ -240,6 +245,7 @@ class Controller extends BaseController
                         DB::raw('SUM(journal_expense_months.amount) as total_expense')
                     )
                     ->where('journal_expense_months.isAltered', false)
+                    ->where('journal_expense_months.has_reset', false)
                     ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
                     ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
                     ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
@@ -272,7 +278,7 @@ class Controller extends BaseController
                     $month = $client->month - 1;
                     $monthlyClients[$month] += $client->total_clients;
                 }
-                Log::info($monthlySales);
+                // Log::info($monthlySales);
                 return view('pages.dashboard', compact('salesBilling','salesFi', 'expenses', 'incomeInfo', 'income', 'clientPaymentStatus', 'clientCount', 'monthlySales', 'totalSales', 'monthlyIncome', 'monthlyExpenses', 'activityLog', 'monthlyClients'));
 
             } catch (\Exception $exception) {
@@ -578,6 +584,92 @@ class Controller extends BaseController
     {
         try {
             if (Auth::check()) {
+                $salesBilling = 0;
+                    $data = BillingDescriptions::select(DB::raw('SUM(amount) as total_amount'), DB::raw('MONTH(created_at) as month'))
+                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)')) // Group by month and year
+                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)')) // Order by year and month
+                    ->get();
+
+                // Prepare the data for the chart
+                $labels = [];
+                $amounts = array_fill(0, 12, 0); // Initialize the amounts array for each month
+                Log::info($data);
+                // Loop through the data and assign the amount to the corresponding month
+                foreach ($data as $item) {
+                    $month = $item->month - 1; // Adjust month index (0-11 for JavaScript)
+                    $amounts[$month] = (float) $item->total_amount; // Set the amount for the respective month
+                    $salesBilling += $item->total_amount;
+                }
+                $expenses = 0;
+                $clients = Clients::where('clients.accountCategory', true)
+                    ->select(
+                        'journal_expense_months.amount'
+                    )
+                    ->where('journal_expense_months.isAltered', false)
+                    ->where('journal_expense_months.has_reset', false)
+                    ->join('journal_expenses', 'journal_expenses.client_id', '=', 'clients.id')
+                    ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
+                    ->get();
+
+                $expenses = 0;
+                foreach ($clients as $value) {
+                    $expenses += $value->amount;
+                }
+
+                $incomeBD = DB::table('billing_descriptions')
+                    ->join('account_descriptions', 'billing_descriptions.description', '=', 'account_descriptions.id')
+                    ->select(
+                        'account_descriptions.Category',
+                        'billing_descriptions.amount'
+                    )
+                    ->get();
+
+                $incomeABD = DB::table('billing_added_descriptions')
+                    ->join('account_descriptions', 'billing_added_descriptions.description', '=', 'account_descriptions.id')
+                    ->select(
+                        'account_descriptions.Category',
+                        'billing_added_descriptions.amount',
+                        'billing_added_descriptions.account'
+                    )
+                    ->get();
+                $income = 0;
+                $totalDB = 0;
+                $totalADB = 0;
+                foreach ($incomeABD as $value) {
+                    if ($value->Category === 'Internal') {
+                        $totalADB += $value->amount;
+                    }
+                }
+                foreach ($incomeBD as $value) {
+                    if ($value->Category === 'Internal') {
+                        $totalDB += $value->amount;
+                    }
+                }
+
+                $income = $totalDB + $totalADB;
+                $incomeData = DB::table('clients')
+                ->where('clients.accountCategory', true)
+                ->select(
+                    DB::raw('MONTH(journal_income_months.created_at) as month'),
+                    DB::raw('SUM(journal_income_months.amount) as total_income')
+                )
+                ->where('journal_income_months.isAltered', false)
+                ->where('journal_income_months.has_reset', false)
+                ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
+                ->join('journal_incomes', 'journal_incomes.journal_id', '=', 'client_journals.journal_id')
+                ->join('journal_income_months', 'journal_income_months.income_id', '=', 'journal_incomes.id')
+                ->groupBy(DB::raw('MONTH(journal_income_months.created_at)'))
+                ->get();
+
+                $monthlyIncome = array_fill(0, 12, 0);
+                $incomeInfo = 0;
+                foreach ($incomeData as $income) {
+                    $month = $income->month - 1;
+                    $monthlyIncome[$month] += $income->total_income;
+                    $incomeInfo += $income->total_income;
+                }
+
+
                 $users = User::where('isVisible', true)->get();
                 $sysProfile = SystemProfile::first();
                 $accounts = Accounts::where('isVisible', true)->get();
@@ -604,16 +696,7 @@ class Controller extends BaseController
                         'accounts.AccountName'
                     )
                     ->get();
-                // $adac = AccountDescription::where('account_descriptions.isVisible', true)
-                // ->select(
-                //     'account_descriptions.Category', 'account_descriptions.Description', 'account_descriptions.TaxType', 'account_descriptions.FormType', 'account_descriptions.Price',
-                //     'services_sub_tables.ServiceRequirements', 'services_sub_tables.BelongsToService',
-                //     'services.Service' 
-                // )
-                // ->join('services_sub_tables', 'services_sub_tables.id', '=', 'account_descriptions.account')
-                // ->join('services', 'services.id', '=', 'services_sub_tables.BelongsToService')
-                // ->get();
-                return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac'));
+                return view('pages.settings', compact('users', 'sysProfile', 'accounts', 'services', 'ad', 'adac', 'expenses', 'incomeInfo', 'salesBilling'));
             } else {
                 dd('Unauthorized Access');
             }
@@ -1169,7 +1252,6 @@ class Controller extends BaseController
         if (Auth::check()) {
             try {
                 DB::beginTransaction();
-
                 // Log the incoming request data (for debugging purposes)
                 Log::info("Request $request");
 
@@ -1860,7 +1942,32 @@ public function YearlyBilling(Request $request)
             abort(403, 'unauthorized access');
         }
     }
+    public function ResetExpense() {
+        if (Auth::check()) {
+            try {
+                DB::table('journal_expense_months')->update(['has_reset' => true]);
+                return response()->json(['message' => 'Expenses reset successfully']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            abort(403, 'Unauthorized access');
+        }
+    }
 
+    public function ResetIncome() {
+        if (Auth::check()) {
+            try {
+                DB::table('billing_descriptions')->update(['has_reset' => true]);
+                return response()->json(['message' => 'Income reset successfully']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     
 }
 

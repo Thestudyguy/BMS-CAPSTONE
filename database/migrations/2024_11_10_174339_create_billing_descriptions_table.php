@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreign('sub_service')->references('id')->on('client_billing_sub_services')->nullOnDelete();
             $table->unsignedBigInteger('description')->nullable();
             $table->foreign('description')->references('id')->on('account_descriptions')->nullOnDelete();
+            $table->boolean('has_reset')->default(false);
             $table->timestamps();
         });
     }

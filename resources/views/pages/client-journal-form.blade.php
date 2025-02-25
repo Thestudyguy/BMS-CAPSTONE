@@ -60,10 +60,12 @@
                                             <select name="income" class="form-control" id="income-category">
                                                 <option value="" selected hidden>Select Account</option>
                                                 @foreach ($accounts as $account)
+                                                @if ($account->AT === 'Revenue')
                                                     <option value="{{ $account->id }}_{{ $account->Account }}">
-                                                        {{ $account->Account }} - ({{ $account->AT }},
-                                                        {{ $account->Category }})</option>
-                                                @endforeach
+                                                        {{ $account->Account }} - ({{ $account->AT }}, {{ $account->Category }})
+                                                    </option>
+                                                @endif
+                                            @endforeach
                                             </select>
                                             <div class="row visually-hidden income-form">
                                                 <div class="col-sm-6">

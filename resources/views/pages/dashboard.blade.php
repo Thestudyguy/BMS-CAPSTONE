@@ -62,7 +62,16 @@
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
-                                <input type="number" id="yearlySales" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
+                               
+                                <select id="yearlySales" class="form-control rounded-0 custom-select" data-bs-max-height="200" aria-label="Select Year">
+                <option value="2025" selected>2025</option>
+                @for ($year = 2026; $year <= 2100; $year++)
+                    <option value="{{ $year }}">{{ $year }}</option>
+                @endfor
+            </select>
+
+
+                                <!-- <input type="number" id="yearlySales" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year"> -->
                             </div>
                         </div>
                     </div>
@@ -91,7 +100,15 @@
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
-                                <input type="number" id="yearInputClient" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
+                                <!-- <input type="number" id="yearInputClient" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year"> -->
+                                <select id="yearInputClient" class="form-control rounded-0 custom-select" data-bs-max-height="200" aria-label="Select Year">
+                        <option value="2025" selected>2025</option>
+                        <!-- Option loop for years from 2026 to 2100 -->
+                        @for ($year = 2026; $year <= 2100; $year++)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
+
                             </div>
                         </div>
                     </div>
@@ -120,7 +137,13 @@
                                     <option value="Q3">Q3</option>
                                     <option value="Q4">Q4</option>
                                 </select>
-                                <input type="number" id="yearInputExpense" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
+                                <!-- <input type="number" id="yearInputExpense" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year"> -->
+                               <select id="yearInputExpense" class="form-control rounded-0 custom-select" aria-label="Select Year">
+                        <option value="2025" selected>2025</option>
+                        @for ($year = 2026; $year <= 2100; $year++)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
                             </div>
                         </div>
                     </div>
@@ -144,14 +167,20 @@
                                 <div class="input-group-prepend">
                                     <button class="btn btn-light text-dark fw-bold" id="clearButtonIncome">Clear</button>
                                     <select name="" class="income-quarter form-control rounded-0" id="quarterSelectIncome">
-                                        <option value="" selected hidden>Filter</option>
+                                        <option value="Q1" selected hidden>Filter</option>
                                         <option value="Q1">Q1</option>
                                         <option value="Q2">Q2</option>
                                         <option value="Q3">Q3</option>
                                         <option value="Q4">Q4</option>
                                     </select>
                                 </div>
-                                <input type="number" id="yearInput" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year">
+                                <!-- <input type="number" id="yearInput" class="form-control rounded-0" name="year" min="1900" max="2100" placeholder="Enter year"> -->
+                                <select id="yearInput" class="form-control rounded-0 custom-select" aria-label="Select Year">
+                        <option value="2025" selected>2025</option>
+                        @for ($year = 2026; $year <= 2100; $year++)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
                             </div>
                         </div>
                     </div>
