@@ -115,23 +115,20 @@ class Controller extends BaseController
 
                 $salesBilling = 0;
                     $data = BillingDescriptions::select(DB::raw('SUM(amount) as total_amount'), DB::raw('MONTH(created_at) as month'))
-                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)')) // Group by month and year
-                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)')) // Order by year and month
+                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)'))
+                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
                     ->where('has_reset', false)
                     ->get();
 
-                // Prepare the data for the chart
                 $labels = [];
-                $amounts = array_fill(0, 12, 0); // Initialize the amounts array for each month
+                $amounts = array_fill(0, 12, 0);
                 Log::info($data);
-                // Loop through the data and assign the amount to the corresponding month
                 foreach ($data as $item) {
-                    $month = $item->month - 1; // Adjust month index (0-11 for JavaScript)
-                    $amounts[$month] = (float) $item->total_amount; // Set the amount for the respective month
+                    $month = $item->month - 1;
+                    $amounts[$month] = (float) $item->total_amount;
                     $salesBilling += $item->total_amount;
                 }
                 $salesFi = $amounts;
-
                 $totalSales = 0;
                 $sales = ClientServices::select(
                     'client_services.id as ClientServiceId',
@@ -586,18 +583,17 @@ class Controller extends BaseController
             if (Auth::check()) {
                 $salesBilling = 0;
                     $data = BillingDescriptions::select(DB::raw('SUM(amount) as total_amount'), DB::raw('MONTH(created_at) as month'))
-                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)')) // Group by month and year
-                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)')) // Order by year and month
+                    ->groupBy(DB::raw('MONTH(created_at), YEAR(created_at)'))
+                    ->orderBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
+                    ->where('has_reset', false)
                     ->get();
 
-                // Prepare the data for the chart
                 $labels = [];
-                $amounts = array_fill(0, 12, 0); // Initialize the amounts array for each month
+                $amounts = array_fill(0, 12, 0);
                 Log::info($data);
-                // Loop through the data and assign the amount to the corresponding month
                 foreach ($data as $item) {
-                    $month = $item->month - 1; // Adjust month index (0-11 for JavaScript)
-                    $amounts[$month] = (float) $item->total_amount; // Set the amount for the respective month
+                    $month = $item->month - 1;
+                    $amounts[$month] = (float) $item->total_amount;
                     $salesBilling += $item->total_amount;
                 }
                 $expenses = 0;
@@ -1958,7 +1954,7 @@ public function YearlyBilling(Request $request)
     public function ResetIncome() {
         if (Auth::check()) {
             try {
-                DB::table('billing_descriptions')->update(['has_reset' => true]);
+                DB::table('journal_income_months')->update(['has_reset' => true]);
                 return response()->json(['message' => 'Income reset successfully']);
             } catch (\Throwable $th) {
                 throw $th;
@@ -1968,7 +1964,18 @@ public function YearlyBilling(Request $request)
         }
     }
     
-    
+    public function ResetSales() {
+        if (Auth::check()) {
+            try {
+                DB::table('billing_descriptions')->update(['has_reset' => true]);
+                return response()->json(['message' => 'Income reset successfully']);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            abort(403, 'Unauthorized access');
+        }
+    }
 }
 
 // try {

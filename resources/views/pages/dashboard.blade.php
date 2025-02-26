@@ -274,7 +274,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var monthlySales = @json($monthlySales);
+            var monthlySales = @json($salesFi);
             var incomeMonthly = @json($monthlyIncome);
             var expensesMonthly = @json($monthlyExpenses);
             window.defaultExpense = expensesMonthly;

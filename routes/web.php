@@ -99,4 +99,5 @@ Route::middleware('authenticated')->group(function(){
     Route::get('billings', [Controller::class, 'BillingLists'])->name('billing');
     Route::post('reset-expense', [Controller::class, 'ResetExpense']);
     Route::post('reset-income', [Controller::class, 'ResetIncome']);
+    Route::post('reset-sales', [Controller::class, 'ResetSales']);
 });

@@ -348,6 +348,25 @@ $(document).ready(function(){
         });
     });
 
+    $('.reset-sales').on('click', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: `reset-sales`,
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content") },
+            success: function(response){
+                localStorage.setItem('income', 'reset');
+                location.reload();
+            },
+            error: function(error, status, jqXHR){
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'Oops! Something went wrong',
+                    text: 'Translated: ' + error.responseText
+                });
+            }
+        });
+    });
 
     var accountDescription = localStorage.getItem('account_description');
     var sysProfile = localStorage.getItem('system-profile');

@@ -41,7 +41,7 @@
             </div> --}}
             <div class="col-sm-6 login-vector d-flex justify-content-center align-items-center"
                 style="height: 100%;">
-                <div class="row justify-content-center border p-5" style="background: linear-gradient(200.48deg, #063D58 31.33%, #EFC280 72.54%); height: 60%;
+                <div class="row justify-content-center border p-5" style="background: #e5e7ea; height: 60%;
                 border-top-left-radius: 20px;
                 border-bottom-left-radius: 20px;
                 display: flex;
@@ -52,12 +52,15 @@
                         <center><img class="w-50" src="{{ asset('images/Rams_logo.png') }}" alt=""></center>
                     </div>
                     <div class="col-sm-12 text-xl login-title text-light lead fw-bold h-100">
-                        <center>BOOKKEEPING MANAGEMENT SYSTEM</center>
+                        <center>
+                            <p style="color: #063e59">
+                            BOOKKEEPING MANAGEMENT SYSTEM</center>
+                            </p>
                     </div>
                     
                 </div>
                 <div class="col-sm-6 border login-form p-5" 
-                style="background: linear-gradient(206.65deg, #073E59 61.1%, #F0C280 99.54%); height: 70%; display: flex; justify-content: center; align-items: center;
+                style="background: #063e59; height: 70%; display: flex; justify-content: center; align-items: center;
                 border-top-right-radius: 20px;
                 border-bottom-right-radius: 20px;
                 "
