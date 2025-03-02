@@ -20,7 +20,10 @@ $(document).ready(function() {
         var serviceID = $(this).attr('id');
         
         var serviceValue = $(this).val().split('_');
-        var serviceName = serviceValue[0];
+        // console.log(serviceValue);
+        
+        // var serviceName = serviceValue[0];
+        var serviceName = $(this).val();
         var parentService = $(this).val();
         var servicePrice = parseFloat(serviceValue[1]);
         servicesData = [];
@@ -116,6 +119,9 @@ $(document).ready(function() {
 
     function generateFileInput(serviceName, servicePrice, excludeFileInput) {
         const sanitizedServiceRef = serviceName.replace(/\s+/g, '_');
+        var service = serviceName.split('_');
+        console.log(serviceName);
+        
         $('.service-input').append(`
             <div class="row">
                 <div class="col-sm-12">
@@ -129,7 +135,7 @@ $(document).ready(function() {
                             </thead>
                             <tbody class='client-service-input'>
                                 <tr>
-                                    <td>${serviceName}</td>
+                                    <td>${service[0]}</td>
                                     <td>${servicePrice.toLocaleString()}</td>
                                     <td><span class="badge fw-bold text-light bg-danger rounded-1 remove-parent-service" id=${sanitizedServiceRef}><i class="fas fa-trash"></i></span></td>
                                 </tr>
@@ -155,30 +161,28 @@ $(document).on('change', '.clientDocument', function() {
 });
 
 $(document).on('click', '.remove-parent-service', function() {
-    var parentService = $(this).attr('id');
-    console.log(parentService);
-    
-    var preparedServiceRef = parentService.replace(/_/g, ' '); // Replace underscores with spaces
-    console.log('Prepared Service Ref:', parentService);
-    
-    // Check if the serviceName exists in the servicesData array
-    var serviceToRemove = servicesData.findIndex(service => service.serviceName === preparedServiceRef);
-    console.log('Service to remove index:', serviceToRemove);
-    
-    if (serviceToRemove > -1) {
-        // Check if the serviceName is indeed the correct one
-        console.log('Service to remove:', servicesData[serviceToRemove]);
+    var serviceId = $(this).attr('id');
+
+    var serviceIndex = servicesData.findIndex(service => 
+        service.serviceName.replace(/\s+/g, '_') === serviceId
+    );
+
+    if (serviceIndex > -1) {
+        console.log(serviceIndex);
         
-        // Remove the service from the array
-        servicesData.splice(serviceToRemove, 1);
+        totalAmount -= servicesData[serviceIndex].servicePrice;
+        totalServices--;
+        servicesData.splice(serviceIndex, 1);
     } else {
-        console.log('Service not found in the array!');
+        console.log('Service not found in servicesData!');
     }
-    
+
     // Remove the closest table row
     $(this).closest('tr').remove();
-    console.log('Updated Services Data:', servicesData);
+    updateTotals();
 });
+
+
 
 function submitServices() {
     $('.add-client-service-loader').removeClass('visually-hidden');

@@ -751,45 +751,69 @@ public function GenerateExpensePDF(Request $request)
 
             // Initialize FPDF
             $this->fpdf->AddPage();
-            $this->fpdf->SetFont('Arial', 'B', 14);
-
-            // Header
-            $this->fpdf->Cell(0, 10, 'Expense Report', 0, 1, 'C');
-            $this->fpdf->Ln(5);
             
+            // Add Logo
+            $logoPath = public_path('images/Rams_logo.png');
+            if (file_exists($logoPath)) {
+                $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
+            }
+
+            // Move below the image
+            $this->fpdf->SetY(23);
+            $this->fpdf->SetX(50);
+
+            // Company Name
+            $this->fpdf->SetFont('Arial', 'B', 14);
+            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            
+            // Company Details
+            $this->fpdf->SetFont('Arial', '', 8);
+            $this->fpdf->SetX(50);
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
+
+            $this->fpdf->Ln(10);
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->Cell(0, 10, 'Expense', 0, 1, 'L');
+
             // Table Headers
             $this->fpdf->SetFont('Arial', 'B', 12);
             $this->fpdf->SetFillColor(200, 220, 255);
             $this->fpdf->Cell(60, 10, 'Journal ID', 1, 0, 'C', true);
             $this->fpdf->Cell(80, 10, 'Date', 1, 0, 'C', true);
-            $this->fpdf->Cell(50, 10, 'Total Expense (PHP)', 1, 1, 'C', true);
+            $this->fpdf->Cell(50, 10, 'Total(PHP)', 1, 1, 'C', true);
 
             // Table Content
             $this->fpdf->SetFont('Arial', '', 10);
+            $totalSum = 0;
             foreach ($expenses as $expense) {
                 $this->fpdf->Cell(60, 10, $expense->journal_id, 1, 0, 'C');
                 $this->fpdf->Cell(80, 10, $expense->created_at, 1, 0, 'C');
                 $this->fpdf->Cell(50, 10, number_format($expense->total_expense, 2), 1, 1, 'R');
+                $totalSum += $expense->total_expense;
             }
+
+            // Total Sum Row
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->Cell(140, 10, 'Grand Total(PHP):', 1, 0, 'R', true);
+            $this->fpdf->Cell(50, 10, number_format($totalSum, 2), 1, 1, 'R', true);
+
+            // Footer
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
             $this->fpdf->Ln(5);
 
+            // Certification Section
             $this->fpdf->SetFont('Arial', 'B', 10);
-            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
+            $this->fpdf->SetY(-50);
             $this->fpdf->SetX(30);
-            // Output PDF
-            // Add "Certified True & Correct"
             $this->fpdf->Cell(0, 10, 'Certified True & Correct');
 
-            // Add Name and TIN
             $text = 'Rogelio O. Mangandam, Jr.';
             $textWidth = $this->fpdf->GetStringWidth($text) + 2;
-            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetY(-40);
             $this->fpdf->SetX(30);
             $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
 
-            // Add "Proprietor" and "TIN"
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->SetY(-35);
             $this->fpdf->SetX(30);
@@ -808,6 +832,8 @@ public function GenerateExpensePDF(Request $request)
         abort(403, 'Unauthorized access');
     }
 }
+
+
 
 public function GenerateIncomePDF(Request $request)
 {
@@ -815,65 +841,81 @@ public function GenerateIncomePDF(Request $request)
         try {
             date_default_timezone_set('Asia/Manila');
 
-            $incomeData = DB::table('clients')
+            $incomeToPDF = DB::table('client_journals')
+                ->join('journal_incomes', 'client_journals.journal_id', '=', 'journal_incomes.journal_id')
+                ->join('journal_income_months', 'journal_incomes.id', '=', 'journal_income_months.income_id')
                 ->select(
-                    'clients.CompanyName',
-                    'clients.CEO',
-                    'billings.billing_id',
-                    DB::raw("DATE_FORMAT(billings.created_at, '%M %d, %Y at %h:%i %p') as created_at"),
-                    'billing_descriptions.amount as baseAmount',
-                    'billing_added_descriptions.amount as addedAmount'
+                    'client_journals.journal_id',
+                    'client_journals.created_at',
+                    DB::raw('SUM(journal_income_months.amount) as total_amount'),
+                    DB::raw('Date_Format(client_journals.created_at, "%M %d, %Y at %h:%i %p") as created_at')
                 )
-                ->leftJoin('billings', 'billings.client_id', '=', 'clients.id')
-                ->leftJoin('billing_descriptions', 'billing_descriptions.billing_id', '=', 'billings.billing_id')
-                ->leftJoin('billing_added_descriptions', 'billing_added_descriptions.billing_id', '=', 'billings.billing_id')
+                ->groupBy('client_journals.journal_id', 'client_journals.created_at')
                 ->get();
 
+            // Calculate grand total
+            $grandTotal = $incomeToPDF->sum('total_amount');
+
             $this->fpdf->AddPage();
+            $logoPath = public_path('images/Rams_logo.png');
+            if (file_exists($logoPath)) {
+                $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
+            }
+
+            // Move below the image
+            $this->fpdf->SetY(23);
+            $this->fpdf->SetX(50);
+
+            // Company Name
             $this->fpdf->SetFont('Arial', 'B', 14);
+            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            
+            // Company Details
+            $this->fpdf->SetFont('Arial', '', 8);
+            $this->fpdf->SetX(50);
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
 
-            $this->fpdf->Cell(0, 10, 'Income Report', 0, 1, 'C');
-            $this->fpdf->Ln(2);
+            $this->fpdf->Ln(10);
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->Cell(0, 10, 'Income', 0, 1, 'L');
+            // $this->fpdf->SetFont('Arial', 'B', 14);
+            // $this->fpdf->Cell(0, 10, 'Income Report', 0, 1, 'C');
+            // $this->fpdf->Ln(5);
 
+            // Table Header - Make sure it spans full width
             $this->fpdf->SetFont('Arial', 'B', 12);
             $this->fpdf->SetFillColor(200, 220, 255);
-            $this->fpdf->Cell(30, 10, 'Client', 1, 0, 'C', true);
-            $this->fpdf->Cell(50, 10, 'Company Name', 1, 0, 'C', true);
-            $this->fpdf->Cell(50, 10, 'Date', 1, 0, 'C', true);
-            $this->fpdf->Cell(30, 10, 'Billing ID', 1, 0, 'C', true);
-            $this->fpdf->Cell(30, 10, 'Total Income', 1, 1, 'C', true);
+            $this->fpdf->Cell(60, 10, 'Journal ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(80, 10, 'Date Created', 1, 0, 'C', true);
+            $this->fpdf->Cell(50, 10, 'Total Income (PHP)', 1, 1, 'C', true);
 
+            // Table Body
             $this->fpdf->SetFont('Arial', '', 10);
-            $this->fpdf->SetFillColor(245, 245, 245);
-            foreach ($incomeData as $income) {
-                $totalIncome = $income->baseAmount + $income->addedAmount;
-
-                $this->fpdf->Cell(30, 10, $income->CEO, 1, 0, 'C');
-                $this->fpdf->Cell(50, 10, $income->CompanyName, 1, 0, 'C');
-                $this->fpdf->SetFont('Arial', '', 8);
-                $this->fpdf->Cell(50, 10, $income->created_at, 1, 0, 'C');
-                $this->fpdf->SetFont('Arial', '', 10);
-                $this->fpdf->Cell(30, 10, $income->billing_id, 1, 0, 'C');
-                $this->fpdf->Cell(30, 10, number_format($totalIncome, 2), 1, 1, 'R');
+            foreach ($incomeToPDF as $income) {
+                $this->fpdf->Cell(60, 10, $income->journal_id, 1, 0, 'C');
+                $this->fpdf->Cell(80, 10, $income->created_at, 1, 0, 'C');
+                $this->fpdf->Cell(50, 10, number_format($income->total_amount, 2), 1, 1, 'R');
             }
+
+            // Grand Total Row
+            $this->fpdf->SetFont('Arial', 'B', 11);
+            $this->fpdf->Cell(140, 10, 'Grand Total(PHP):', 1, 0, 'R', true);
+            $this->fpdf->Cell(50, 10, number_format($grandTotal, 2), 1, 1, 'R', true);
+
+            // Footer
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
             $this->fpdf->Ln(5);
-            $this->fpdf->SetFont('Arial', 'B', 10);
-            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
-            $this->fpdf->SetX(30); // Set X position from the left
-
-            // Add "Certified True & Correct"
+            $this->fpdf->SetY(-50);
+            $this->fpdf->SetX(30);
             $this->fpdf->Cell(0, 10, 'Certified True & Correct');
 
-            // Add Name and TIN
             $text = 'Rogelio O. Mangandam, Jr.';
             $textWidth = $this->fpdf->GetStringWidth($text) + 2;
-            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetY(-40);
             $this->fpdf->SetX(30);
             $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
 
-            // Add "Proprietor" and "TIN"
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->SetY(-35);
             $this->fpdf->SetX(30);
@@ -893,51 +935,82 @@ public function GenerateIncomePDF(Request $request)
     }
 }
 
+
 public function GenerateClientBillingTable($id)
 {
     if (Auth::check()) {
         try {
+            Log::info($id);
             // Ensure correct timezone
             date_default_timezone_set('Asia/Manila');
 
             // Fetch client billings
             $billings = Billings::select(
                 'billing_id',
-                DB::raw("DATE_FORMAT(due_date, '%Y-%m-%d') as due_date") // Ensure due date formatting
-            )
+                DB::raw("DATE_FORMAT(billings.due_date, '%Y-%m-%d') as due_date"),
+                DB::raw("DATE_FORMAT(billings.created_at, '%Y-%m-%d') as date_created"), // Ensure due date formatting
+                'clients.CompanyName as client_name', 'clients.id as client_id', 'clients.CEO as owner'
+                )
+            ->join('clients', 'clients.id', '=', 'billings.client_id')
             ->where('client_id', $id)
             ->get();
+            $client_name = $billings->isNotEmpty() ? $billings->first()->client_name : 'N/A';
 
+            
             // Log the billings data for debugging
             Log::info($billings);
 
             // Initialize FPDF
             $this->fpdf->AddPage();
+            $logoPath = public_path('images/Rams_logo.png');
+            if (file_exists($logoPath)) {
+                $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
+            }
+
+            // Move below the image
+            $this->fpdf->SetY(23);
+            $this->fpdf->SetX(50);
+
+            // Company Name
             $this->fpdf->SetFont('Arial', 'B', 14);
+            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            
+            // Company Details
+            $this->fpdf->SetFont('Arial', '', 8);
+            $this->fpdf->SetX(50);
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
+
+            $this->fpdf->Ln(10);
+
+            $this->fpdf->SetFont('Arial', 'B', 12);
 
             // Header
-            $this->fpdf->Cell(0, 10, 'Client Billing Table', 0, 1, 'C');
+            $this->fpdf->Cell(0, 10, 'Client Billing: '. $client_name, 0, 1, 'L');
             $this->fpdf->Ln(2);
 
             // Date Generated
-            $this->fpdf->SetFont('Arial', '', 10);
-            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
-            $this->fpdf->Ln(5);
+            
 
             // Table Headers (No Action Column)
+           // Table Headers
             $this->fpdf->SetFont('Arial', 'B', 12);
             $this->fpdf->SetFillColor(200, 220, 255);
-            $this->fpdf->Cell(90, 10, 'Billing #ID', 1, 0, 'C', true);
-            $this->fpdf->Cell(90, 10, 'Due Date', 1, 1, 'C', true);
+            $this->fpdf->Cell(40, 10, 'Billing #ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(80, 10, 'Due Date', 1, 0, 'C', true); // Changed width to 80
+            $this->fpdf->Cell(70, 10, 'Date Created', 1, 1, 'C', true); // Fixed width and label
 
             // Table Content
             $this->fpdf->SetFont('Arial', '', 10);
             $this->fpdf->SetFillColor(245, 245, 245);
             foreach ($billings as $billing) {
-                $this->fpdf->Cell(90, 10, $billing->billing_id, 1, 0, 'C');
-                $this->fpdf->Cell(90, 10, $billing->due_date, 1, 1, 'C');
+                $this->fpdf->Cell(40, 10, $billing->billing_id, 1, 0, 'C');
+                $this->fpdf->Cell(80, 10, $billing->due_date, 1, 0, 'C'); // Adjusted width
+                $this->fpdf->Cell(70, 10, $billing->date_created, 1, 1, 'C'); // Now aligns correctly
             }
 
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
+            $this->fpdf->Ln(5);
             // Output PDF
             $this->fpdf->SetFont('Arial', 'B', 10);
             $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
@@ -972,6 +1045,99 @@ public function GenerateClientBillingTable($id)
         abort(403, 'Unauthorized access');
     }
 }
+
+
+public function GenerateBillingPDF()
+{
+    if (Auth::check()) {
+        try {
+            date_default_timezone_set('Asia/Manila');
+            $billing = Billings::all();
+
+            // Initialize FPDF
+            $this->fpdf->AddPage();
+
+            // Logo
+            $logoPath = public_path('images/Rams_logo.png');
+            if (file_exists($logoPath)) {
+                $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
+            }
+
+            // Move below the image
+            $this->fpdf->SetY(23);
+            $this->fpdf->SetX(50);
+
+            // Company Name
+            $this->fpdf->SetFont('Arial', 'B', 14);
+            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            
+            // Company Details
+            $this->fpdf->SetFont('Arial', '', 8);
+            $this->fpdf->SetX(50);
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
+
+            $this->fpdf->Ln(10);
+
+            $this->fpdf->SetFont('Arial', 'B', 11);
+            $this->fpdf->SetX(10);
+            $this->fpdf->Cell(0, 6, 'Billing Report', 0, 1, 'L');
+
+            // Table Headers
+            $this->fpdf->SetFont('Arial', 'B', 12);
+            $this->fpdf->SetFillColor(200, 220, 255);
+            $this->fpdf->Cell(60, 10, 'Billing ID', 1, 0, 'C', true);
+            $this->fpdf->Cell(130, 10, 'Created Date', 1, 1, 'C', true);
+
+            // Table Content
+            $this->fpdf->SetFont('Arial', '', 11);
+            foreach ($billing as $item) {
+                $formattedDate = date('F d, Y h:i A', strtotime($item->created_at));
+
+                $this->fpdf->Cell(60, 10, $item->billing_id, 1, 0, 'C');
+                $this->fpdf->Cell(130, 10, $formattedDate, 1, 1, 'R');
+            }
+
+            $this->fpdf->Ln(5);
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->Cell(0, 10, 'Date Generated: ' . date('F d, Y h:i A'), 0, 1, 'R');
+            $this->fpdf->Ln(5);
+            // Certification Section (Bottom Left)
+            $this->fpdf->SetFont('Arial', 'B', 10);
+            $this->fpdf->SetY(-50); // Set Y position to 40mm from the bottom of the page
+            $this->fpdf->SetX(30); // Set X position from the left
+
+            // Add "Certified True & Correct"
+            $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+
+            // Add Name and TIN
+            $text = 'Rogelio O. Mangandam, Jr.';
+            $textWidth = $this->fpdf->GetStringWidth($text) + 2;
+            $this->fpdf->SetY(-40); // Move a bit down
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
+
+            // Add "Proprietor" and "TIN"
+            $this->fpdf->SetFont('Arial', '', 10);
+            $this->fpdf->SetY(-35);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "Proprietor");
+
+            $this->fpdf->SetY(-30);
+            $this->fpdf->SetX(30);
+            $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
+        
+
+            // Output PDF
+            $this->fpdf->Output();
+            exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    } else {
+        abort(403, 'Unauthorized access');
+    }
+}
+
 
 
 

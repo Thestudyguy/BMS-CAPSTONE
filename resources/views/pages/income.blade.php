@@ -5,7 +5,7 @@
         <div class="card">
             <div class="card-header">
                 <span class="fw-bold text-lg text-light">Firm Income</span>
-                <div class="card-tools"><button class="btn bg-transparent income-gen-pdf fw-bold text-light"><i class="fas fa-file"></i></button></div>
+                <div class="card-tools"><button class="btn bg-transparent income-gen-pdf fw-bold text-light"><i class="fas fa-print"></i></button></div>
             </div>
                 <div>
             </div>
@@ -13,9 +13,9 @@
                 <table class="table table-hover table-bordered table-striped">
                     <thead>
                         <tr>
-                            <td>Journal ID</td>
-                            <td>Date</td>
-                            <td>Total Income</td>
+                            <td class="fw-bold">Journal ID</td>
+                            <td class="fw-bold">Date</td>
+                            <td class="fw-bold">Income</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,7 +28,7 @@
                             <tr>
                                 <td class="fw-bold">{{$income->journal_id}}</td>
                                 <td>{{ \Carbon\Carbon::parse($income->created_at)->format('F d, Y \a\t h:i A') }}</td>
-                                <td>{{number_format($totalIncome, 2)}}</td>
+                                <td class="text-right">&#8369;{{number_format($totalIncome, 2)}}</td>
                             </tr>
                         @endforeach
                         {{-- <tr>

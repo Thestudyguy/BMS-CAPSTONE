@@ -86,6 +86,7 @@ Route::middleware('authenticated')->group(function(){
     Route::get('/expenses', [Controller::class, 'Expenses'])->name('expenses');
     Route::post('expense/pdf/expense', [PDFController::class, 'GenerateExpensePDF']);
     Route::post('income/pdf/income', [PDFController::class, 'GenerateIncomePDF']);
+    Route::post('billing-pdf', [PDFController::class, 'GenerateBillingPDF']);
     Route::post('client/billing/pdf/{id}', [PDFController::class, 'GenerateClientBillingTable']);
     Route::post('view-service-requirements-{id}', [ServicesController::class, 'GetServiceFunction']);
     Route::post('quarterly-expense-{quarter}', [Controller::class, 'QuarterlyExpense']);

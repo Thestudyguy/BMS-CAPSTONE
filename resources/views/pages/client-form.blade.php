@@ -16,7 +16,7 @@
         <section class="client-form-indicator">
             <div class="client-step step1 active">
                 <div class="client-step-icon">1</div>
-                <p>Company</p>
+                <p>Company </p>
             </div>
             <div class="client-form-indicator-line active"></div>
             
@@ -50,13 +50,13 @@
             <div class="row">
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Company Name</label>
+                  <label class="form-label">Company Name<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="text" name="CompanyName" id="companyname" class="form-control">
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Company Email</label>
+                  <label class="form-label">Company Email<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="email" name="CompanyEmail" id="companyemail" class="form-control">
                 </div>
               </div>
@@ -64,13 +64,13 @@
             <div class="row">
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Company Address</label>
+                  <label class="form-label">Company Address<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="text" name="CompanyAddress" id="companyaddress" class="form-control">
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">CEO/Owner</label>
+                  <label class="form-label">CEO/Owner<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="text" name="CEO" id="ceo" class="form-control">
                 </div>
               </div>
@@ -78,13 +78,13 @@
             <div class="row">
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Date of Birth</label>
+                  <label class="form-label">Date of Birth<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="date" name="CEODateOfBirth" class="form-control" id="ceodob">
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Contact Number
+                  <label class="form-label">Contact Number<sup class="text-danger text-sm fw-bold">*</sup>
                     {{-- <sup class="text-danger fw-bold">(phone or email)</sup> --}}
                   </label>
                   <div class="input-group">
@@ -101,13 +101,13 @@
               </div>
               <div class="col-lg-12">
                 <div class="mb-3">
-                  <label class="form-label">TIN</label>
+                  <label class="form-label">TIN<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="number" name="TIN" id="tin" class="form-control">
                 </div>
               </div>
               <div class="col-lg-12">
                 <div class="mb-3">
-                  <label class="form-label">Account Category</label>
+                  <label class="form-label">Account Category<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <select name="AccountCategory" id="" class="form-control">
                     <option value="" selected hidden>Select Category</option>
                     <option value="Client">Client</option>
@@ -123,23 +123,23 @@
             <span class="badge fw-bold bg-warning get-ceo-info" title="Use CEO info"><i class="fas fa-user"> <span class="text-sm fw-bold">same as Owner</span></i></span>
             </h4>
             <div class="mb-3">
-              <label class="form-label">Name</label>
+              <label class="form-label">Name<sup class="text-danger text-sm fw-bold">*</sup></label>
               <input type="text" name="RepresentativeName" id="repName" class="form-control">
             </div>
             <div class="mb-3">
-              <label class="form-label">Contact Information<sup class="text-danger fw-bold">(phone or email)</sup></label>
+              <label class="form-label">Contact Information<sup class="text-danger fw-bold">(phone or email)</sup><sup class="text-danger text-sm fw-bold">*</sup></label>
               <input type="text" name="RepresentativeContactInformation" id="repcontact" class="form-control">
             </div>
             <div class="row">
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Date of Birth</label>
+                  <label class="form-label">Date of Birth<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="date" name="RepresentativeDateOfBirth" id="repdob" class="form-control">
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-3">
-                  <label class="form-label">Position</label>
+                  <label class="form-label">Position<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="text" name="RepresentativePosition" class="form-control" id="position">
                 </div>
               </div>
@@ -147,7 +147,7 @@
             <div class="row">
               <div class="col-lg-12">
                 <div class="mb-3">
-                  <label class="form-label">Address</label>
+                  <label class="form-label">Address<sup class="text-danger text-sm fw-bold">*</sup></label>
                   <input type="text" name="RepresentativeAddress" id="repaddress" class="form-control">
                 </div>
               </div>

@@ -316,7 +316,7 @@ class Controller extends BaseController
                 // Validate the request
                 $request->validate([
                     'AccountType' => 'required|string|unique:account_types,AccountType',
-                    'Category' => 'required|string|in:Asset,Liability,Equity,Expenses',
+                    'Category' => 'required|string|in:Asset,Liability,Equity,Expenses,Revenue',
                 ]);
 
                 // Create a new account type
