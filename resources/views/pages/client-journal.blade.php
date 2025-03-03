@@ -66,7 +66,8 @@
                                     
                                     <td>
                                         @if (Auth::user()->Role === 'Admin')
-                                        <span class="badge bg-warning text-dark" style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}">
+                                        <span class="badge bg-warning text-dark" data-bs-target="#remove-journal-entry-{{$journal->id}}" 
+                                            data-bs-toggle="modal"  style="font-size: 0.8rem;" id="{{$client->id}}_{{$journal->journal_id}}">
                                             <i class="fas fa-trash" style="color: #063d58"></i>
                                             
                                         </span>
@@ -97,6 +98,7 @@
                         
                         <!-- Render Modals After the Loop -->
                         @foreach ($journals as $journal)
+                            @include('modals.remove-journal-entry', ['journal' => $journal])
                             @include('modals.journal-pin-entry', ['journal' => $journal, 'client' => $client])
                             @include('modals.request-journal-pin', ['journal' => $journal, 'client' => $client])
                         @endforeach

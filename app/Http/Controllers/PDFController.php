@@ -463,6 +463,7 @@ class PDFController extends Controller
                 $this->fpdf->Cell(0, 10, 'Capital, end');
                 $this->fpdf->SetX($pageWidth - $leftMargin - 30);
                 $this->fpdf->SetFont('Arial', 'B', 10);
+                $capEnd = $appraisalCapital - $adjustments->owners_withdrawal;
                 $this->fpdf->Cell(0, 10, number_format($appraisalCapital - $adjustments->owners_withdrawal, 2));
 
                 $yPosition += 10;
@@ -471,10 +472,11 @@ class PDFController extends Controller
                 $this->fpdf->SetFont('Arial', 'B', 10);
                 $this->fpdf->Cell(0, 10, 'Total Liabilities & Capital');
                 $this->fpdf->SetX($pageWidth - $leftMargin - 30);
-                $this->fpdf->Cell(0, 10, number_format($liabilitiesTotal + $ownersEquityTotal, 2));
-                $this->fpdf->Line(30, $yPosition + 13, 210-10, $yPosition + 13);
-                $this->fpdf->Line(30, $yPosition + 18, 210-10, $yPosition + 18);
-
+                $this->fpdf->Cell(0, 10, number_format($liabilitiesTotal + $capEnd, 2));
+                $this->fpdf->Line(30, $yPosition + 5, 200, $yPosition + 5);
+                $this->fpdf->Line(30, $yPosition + 6, 200, $yPosition + 6);
+                $this->fpdf->Line(30, $yPosition + 13, 200, $yPosition + 13);
+                $this->fpdf->Line(30, $yPosition + 22, 200, $yPosition + 22);
                 $yPosition += 15;
                 $this->fpdf->SetFont('Arial', 'B', size: 10);
                 $this->fpdf->SetY($yPosition + 5);
@@ -763,6 +765,7 @@ public function GenerateExpensePDF(Request $request)
                     DB::raw('SUM(journal_expense_months.amount) as total_expense')
                 )
                 ->where('journal_expense_months.isAltered', false)
+                ->where('journal_expense_months.has_reset', false)
                 ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
                 ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
                 ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
@@ -854,7 +857,6 @@ public function GenerateExpensePDF(Request $request)
 }
 
 
-
 public function GenerateIncomePDF(Request $request)
 {
     if (Auth::check()) {
@@ -871,6 +873,7 @@ public function GenerateIncomePDF(Request $request)
                     DB::raw('Date_Format(client_journals.created_at, "%M %d, %Y at %h:%i %p") as created_at')
                 )
                 ->groupBy('client_journals.journal_id', 'client_journals.created_at')
+                ->where('journal_income_months.has_reset', false)
                 ->get();
 
             // Calculate grand total

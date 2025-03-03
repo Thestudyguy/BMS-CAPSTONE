@@ -36,6 +36,7 @@ use \App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
 use Mail;
+use function Laravel\Prompts\select;
 
 class Controller extends BaseController
 {
@@ -952,29 +953,33 @@ class Controller extends BaseController
         }
     }
 
-    public function ArchiveJournalEntry($id, Request $request)
+    public function ArchiveJournalEntry($id)
     {
         if (Auth::check()) {
             try {
                 DB::beginTransaction();
-                ClientJournal::where('journal_id', $id)->update(['isVisible' => false]);
-                $client = ClientJournal::where('client_journals.journal_id', $id)
+                $preparedID = explode('-', $id);
+                ClientJournal::where('journal_id', $preparedID[2])->update(['isVisible' => false]);
+                $client = ClientJournal::where('client_journals.journal_id', $preparedID[2])
                     ->join('clients', 'clients.id', '=', 'client_journals.client_id')
-                    ->first();
-                $userAgent = $request->header('User-Agent');
-                $browserDetails = CustomHelper::getBrowserDetails($userAgent);
+                    ->select('clients.CEO', 'clients.CompanyName', 'client_journals.journal_id')
+                    ->get();
+                
+                    Log::info($client);
+                // $userAgent = $request->header('User-Agent');
+                // $browserDetails = CustomHelper::getBrowserDetails($userAgent);
 
-                ActivityLog::create([
-                    'user_id' => Auth::user()->id,
-                    'action' => 'Client Journal Status Updated',
-                    'activity' => 'Client Journal Status Updated',
-                    'description' => "Journal status updated for Client: {$client->CEO}, Company: {$client->CompanyName}, Journal ID: {$request['journal_id']}.",
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $userAgent,
-                    'browser' => $browserDetails['browser'] ?? null,
-                    'platform' => $browserDetails['platform'] ?? null,
-                    'platform_version' => $browserDetails['platform_version'] ?? null,
-                ]);
+                // ActivityLog::create([
+                //     'user_id' => Auth::user()->id,
+                //     'action' => 'Client Journal Status Updated',
+                //     'activity' => 'Client Journal Status Updated',
+                //     'description' => "Journal status updated for Client: {$client['CEO']}, Company: {$client['CompanyName']}, Journal ID: {$request['journal_id']}.",
+                //     'ip_address' => $request->ip(),
+                //     'user_agent' => $userAgent,
+                //     'browser' => $browserDetails['browser'] ?? null,
+                //     'platform' => $browserDetails['platform'] ?? null,
+                //     'platform_version' => $browserDetails['platform_version'] ?? null,
+                // ]);
                 DB::commit();
                 return response()->json(['Journal Entry', 'Move to Archive']);
             } catch (\Throwable $th) {
