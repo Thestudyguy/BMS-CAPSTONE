@@ -565,98 +565,118 @@ class PDFController extends Controller
                 $priceWidth = ($usableWidth * 0.3);
 
                 $this->fpdf->AddPage();
+                $logoPath = public_path('images/Rams_logo.png');
+                if (file_exists($logoPath)) {
+                    $this->fpdf->Image($logoPath, 25, 15, 30); // (file, x, y, width)
+                }
+
+                // Move below the image
+                $this->fpdf->SetY(23);
+                $this->fpdf->SetX(50);
                 $this->fpdf->SetFont('Arial', '', 10);
 
-                $this->fpdf->SetFont('Arial', 'B', 10);
-                $this->fpdf->SetX($leftMargin);
-                $this->fpdf->SetY(10);
-                $this->fpdf->Cell($columnWidth, 10, "Billed to: \t" . $client->CompanyName, 0, 1, 'L');
+                $this->fpdf->SetFont('Arial', 'B', 15);
                 $this->fpdf->SetY(15);
-                $this->fpdf->Cell($columnWidth, 10, "Due: \t" . $billing->due_date, 0, 1, 'L');
-                $this->fpdf->SetY(20);
-                $this->fpdf->Cell($columnWidth, 10, "Billing ID: \t" . $billing->billing_id, 0, 1, 'L');
+                $this->fpdf->SetX(30);
+                $this->fpdf->SetFont('Arial', 'B', 12);
 
-                $this->fpdf->SetFillColor(200, 200, 200);
-                $this->fpdf->SetX($leftMargin);
-                $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
-                $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
+                // Print "RAM'S" in yellow
+                $this->fpdf->SetTextColor(255, 255, 0); // RGB for yellow
+                $this->fpdf->Cell(0, 10, "RAM'S ", 0, 0, 'C', false);
+                
+                // Reset color to black and print "ACCOUNTING FIRM"
+                $this->fpdf->SetTextColor(0, 0, 0); // RGB for black
+                $this->fpdf->Cell(0, 10, "ACCOUNTING FIRM", 0, 1, 'C', false);
+                                // $this->fpdf->SetFont('Arial', 'B', 10);
+                // $this->fpdf->SetX($leftMargin);
+                // $this->fpdf->SetY(10);
+                // $this->fpdf->Cell($columnWidth, 10, "Billed to: \t" . $client->CompanyName, 0, 1, 'L');
+                // $this->fpdf->SetY(15);
+                // $this->fpdf->Cell($columnWidth, 10, "Due: \t" . $billing->due_date, 0, 1, 'L');
+                // $this->fpdf->SetY(20);
+                // $this->fpdf->Cell($columnWidth, 10, "Billing ID: \t" . $billing->billing_id, 0, 1, 'L');
 
-                $grandTotal = 0;
+                // $this->fpdf->SetFillColor(200, 200, 200);
+                // $this->fpdf->SetX($leftMargin);
+                // $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
+                // $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
 
-                foreach ($servicesHierarchy as $service) {
-                    $serviceTotal = $service['service_price'];
+                // $grandTotal = 0;
 
-                    $this->fpdf->SetFont('Arial', 'B', 10);
-                    $this->fpdf->SetX($leftMargin);
-                    $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$service[service_name]", 1);
-                    $this->fpdf->Cell($priceWidth, 8, number_format($service['service_price'], 2), 1, 1, 'R');
+                // foreach ($servicesHierarchy as $service) {
+                //     $serviceTotal = $service['service_price'];
+                //     $this->fpdf->SetFillColor(230, 230, 230);
+                //     $this->fpdf->SetFont('Arial', 'B', 10);
+                //     $this->fpdf->SetX($leftMargin);
+                //     $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$service[service_name]", 1, 0, '', true);
+                //     $this->fpdf->Cell($priceWidth, 8, number_format($service['service_price'], 2), 1, 1, 'R', true);
 
-                    foreach ($service['sub_services'] as $subService) {
-                        $serviceTotal += $subService['sub_service_price'];
+                //     foreach ($service['sub_services'] as $subService) {
+                //         $serviceTotal += $subService['sub_service_price'];
 
-                        $this->fpdf->SetFont('Arial', '', 10);
-                        $this->fpdf->SetX($leftMargin);
-                        $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$subService[sub_service_name]", 1);
-                        $this->fpdf->Cell($priceWidth, 8, number_format($subService['sub_service_price'], 2), 1, 1, 'R');
+                //         $this->fpdf->SetFont('Arial', '', 10);
+                //         $this->fpdf->SetX($leftMargin);
+                //         $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$subService[sub_service_name]", 1);
+                //         $this->fpdf->Cell($priceWidth, 8, number_format($subService['sub_service_price'], 2), 1, 1, 'R');
 
-                        foreach ($subService['account_descriptions'] as $accountDescription) {
-                            $serviceTotal += $accountDescription->account_price;
+                //         foreach ($subService['account_descriptions'] as $accountDescription) {
+                //             $serviceTotal += $accountDescription->account_price;
 
-                            $this->fpdf->SetX($leftMargin);
-                            $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$accountDescription->account_description", 1);
-                            $this->fpdf->Cell($priceWidth, 8, number_format($accountDescription->account_price, 2), 1, 1, 'R');
-                        }
-                    }
+                //             $this->fpdf->SetX($leftMargin);
+                //             $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t$accountDescription->account_description", 1);
+                //             $this->fpdf->Cell($priceWidth, 8, number_format($accountDescription->account_price, 2), 1, 1, 'R');
+                //         }
+                //     }
 
-                    // $this->fpdf->SetFont('Arial', 'B', 10);
-                    // $this->fpdf->SetX($leftMargin);
-                    // $this->fpdf->Cell($columnWidth, 8, "        Total for " . $service['service_name'] . ":", 1);
-                    // $this->fpdf->Cell($priceWidth, 8, number_format($serviceTotal, 2), 1, 1, 'R');
+                //     // $this->fpdf->SetFont('Arial', 'B', 10);
+                //     // $this->fpdf->SetX($leftMargin);
+                //     // $this->fpdf->Cell($columnWidth, 8, "        Total for " . $service['service_name'] . ":", 1);
+                //     // $this->fpdf->Cell($priceWidth, 8, number_format($serviceTotal, 2), 1, 1, 'R');
 
-                    $grandTotal += $serviceTotal;
+                //     $grandTotal += $serviceTotal;
 
-                    if ($this->fpdf->GetY() > 270) {
-                        $this->fpdf->AddPage();
-                        $this->fpdf->SetX($leftMargin);
+                //     if ($this->fpdf->GetY() > 270) {
+                //         $this->fpdf->AddPage();
+                //         $this->fpdf->SetX($leftMargin);
 
-                        $this->fpdf->SetFillColor(200, 200, 200);
-                        $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
-                        $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
-                    }
-                }
+                //         $this->fpdf->SetFillColor(200, 200, 200);
+                //         $this->fpdf->Cell($columnWidth, 10, 'Services', 1, 0, 'C', true);
+                //         $this->fpdf->Cell($priceWidth, 10, 'Amount', 1, 1, 'C', true);
+                //     }
+                // }
 
-                $this->fpdf->SetFont('Arial', 'B', 10);
-                $this->fpdf->SetX($leftMargin);
-                $this->fpdf->Cell($columnWidth, 10, "Total", 1, 0, '');
-                $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal, 2), 1, 1, 'R');
+                // $this->fpdf->SetFont('Arial', 'B', 10);
+                // $this->fpdf->SetX($leftMargin);
+                // $this->fpdf->Cell($columnWidth, 10, "Grand Total:", 1, 0, 'R');
+                // $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal, 2), 1, 1, 'R');
 
 
-                $addedDescriptionsTotal = 0;
-                if ($addedDescriptions->isNotEmpty()) {
-                    $this->fpdf->SetFont('Arial', 'B', 10);
-                    $this->fpdf->SetX($leftMargin);
-                    $this->fpdf->Cell($columnWidth, 10, "Added Descriptions", 1, 0, 'C', true);
-                    $this->fpdf->Cell($priceWidth, 10, "Amount", 1, 1, 'C', true);
+                // $addedDescriptionsTotal = 0;
+                // if ($addedDescriptions->isNotEmpty()) {
+                //     $this->fpdf->SetFont('Arial', 'B', 10);
+                //     $this->fpdf->SetX($leftMargin);
+                //     $this->fpdf->Cell($columnWidth, 10, "Added Descriptions", 1, 0, 'C', true);
+                //     $this->fpdf->Cell($priceWidth, 10, "Amount", 1, 1, 'C', true);
     
-                    foreach ($addedDescriptions as $description) {
-                        $addedDescriptionsTotal += $description->amount;
+                //     foreach ($addedDescriptions as $description) {
+                //         $addedDescriptionsTotal += $description->amount;
     
-                        $this->fpdf->SetFont('Arial', '', 10);
-                        $this->fpdf->SetX($leftMargin);
-                        $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$description->account", 1);
-                        $this->fpdf->Cell($priceWidth, 8, number_format($description->amount, 2), 1, 1, 'R');
-                    }
+                //         $this->fpdf->SetFont('Arial', '', 10);
+                //         $this->fpdf->SetX($leftMargin);
+                //         $this->fpdf->Cell($columnWidth, 8, "\t\t\t\t\t\t$description->account", 1);
+                //         $this->fpdf->Cell($priceWidth, 8, number_format($description->amount, 2), 1, 1, 'R');
+                //     }
     
-                    $this->fpdf->SetFont('Arial', 'B', 10);
-                    $this->fpdf->SetX($leftMargin);
-                    $this->fpdf->Cell($columnWidth, 10, "Total for Added Descriptions", 1, 0, '');
-                    $this->fpdf->Cell($priceWidth, 10, number_format($addedDescriptionsTotal, 2), 1, 1, 'R');
-                }
+                //     $this->fpdf->SetFont('Arial', 'B', 10);
+                //     $this->fpdf->SetX($leftMargin);
+                //     $this->fpdf->Cell($columnWidth, 10, "Total for Added Descriptions", 1, 0, '');
+                //     $this->fpdf->Cell($priceWidth, 10, number_format($addedDescriptionsTotal, 2), 1, 1, 'R');
+                // }
     
-                $this->fpdf->SetFont('Arial', 'B', 10);
-                $this->fpdf->SetX($leftMargin);
-                $this->fpdf->Cell($columnWidth, 10, "Total", 1, 0, '');
-                $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal + $addedDescriptionsTotal, 2), 1, 1, 'R');
+                // $this->fpdf->SetFont('Arial', 'B', 10);
+                // $this->fpdf->SetX($leftMargin);
+                // $this->fpdf->Cell($columnWidth, 10, "Total", 1, 0, '');
+                // $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal + $addedDescriptionsTotal, 2), 1, 1, 'R');
     
                 // Output the PDF
                 $this->fpdf->Output();

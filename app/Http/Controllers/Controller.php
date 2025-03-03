@@ -939,7 +939,7 @@ class Controller extends BaseController
                     'platform' => $browserDetails['platform'] ?? null,
                     'platform_version' => $browserDetails['platform_version'] ?? null,
                 ]);
-                Mail::to($client->CompanyEmail)->send(new JournalBilling($request['JournalStatus']));
+                // Mail::to($client->CompanyEmail)->send(new JournalBilling($request['JournalStatus']));
                 Mail::to($request['Accountants'])->send(new MailClientJournalStatusToAccountant($request['JournalStatus'], $client->CompanyName, $request['Accountants'], $journalID));
                 DB::commit();
                 return response()->json(['journal-status', 'updated']);
