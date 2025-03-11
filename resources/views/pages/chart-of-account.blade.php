@@ -18,20 +18,19 @@
                     </div>
                     </div>
                     <div class="card-body" style="max-height: 500px; overflow: auto;">
-                        <div class="input-group">
+                        {{-- <div class="input-group">
                             <div class="input-group-prepend">
                                 <select class="form-select form-control rounded-0" name="" id="filter-coa">
                                     <option value="" selected hidden>Filter</option>
                                     <option value="Asset">Asset</option>
                                     <option value="Liability">Liability</option>
                                     <option value="Equity">Equity</option>
-                                    <option value="Revenue">Revenue</option>
                                     <option value="clear">Clear Filter</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <input type="search" class="form-control search-coa" name="search-coa" id="search-coa"
                                 placeholder="search...">
-                        </div>
+                        {{-- </div> --}}
                         <table class="table table-hover table-bordered table-striped coa-table" id="coa-table">
                             <thead style="position: sticky;">
                                 <tr>

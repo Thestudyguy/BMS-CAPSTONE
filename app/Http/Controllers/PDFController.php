@@ -578,18 +578,294 @@ class PDFController extends Controller
                 $this->fpdf->SetFont('Arial', '', 10);
 
                 $this->fpdf->SetFont('Arial', 'B', 15);
-                $this->fpdf->SetY(15);
-                $this->fpdf->SetX(30);
-                $this->fpdf->SetFont('Arial', 'B', 12);
+                // Draw border
+                $this->fpdf->SetLineWidth(.8);
+                $this->fpdf->Rect(58, 13, 130, 33);
+                $this->fpdf->SetLineWidth(0.2); // Reset to default line width
 
-                // Print "RAM'S" in yellow
-                $this->fpdf->SetTextColor(255, 255, 0); // RGB for yellow
-                $this->fpdf->Cell(0, 10, "RAM'S ", 0, 0, 'C', false);
+                $this->fpdf->SetY(15);
+                $this->fpdf->SetX(60); // Adjust X position to be right next to the image
+                $this->fpdf->SetFont('Arial', 'B', 16);
+                $this->fpdf->SetTextColor(0, 0, 0); // RGB for blue
+                $this->fpdf->SetTextColor(0,91,150); // Set text color to blue
+                $this->fpdf->Cell(0, 10, "RAM'S", 0, 1, 'L', false);
+                $this->fpdf->SetTextColor(189,168,0); // Reset text color to black
+                $this->fpdf->SetY(15);
+                $this->fpdf->SetX(80); 
+                $this->fpdf->Cell(0, 10, "ACCOUNTING FIRM", 0, 1, 'L', false);
+
+                // Reset text color to black
+                $this->fpdf->SetTextColor(0, 0, 0);
+
+                // Print contact details
+                $this->fpdf->SetFont('Arial', '', 10);
+                $this->fpdf->SetY(25);
+                $this->fpdf->SetX(60);
+                $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com', 0, 1, 'L');
+                $this->fpdf->SetX(60);
+                $this->fpdf->Cell(0, 6, 'Contact: 0997-129-6304', 0, 1, 'L');
+                $this->fpdf->SetX(60);
+                $this->fpdf->Cell(0, 6, 'Purok Talisay 56, Herway Briz, Magugpo East Tagum City', 0, 1, 'L');
+                $this->fpdf->Ln();
+                date_default_timezone_set('Asia/Manila');
+                // Print "Name of Client" and actual client name on the same line
+                $this->fpdf->SetX(20);
+                $this->fpdf->SetFont('Arial', '', 10); // Regular font
+                $this->fpdf->Cell(40, 6, 'Name of Client: ', 0, 0, 'L'); // No line break
+                $this->fpdf->SetX(50);
+                $this->fpdf->SetFont('Arial', 'B', 10); // Bold font
+                $this->fpdf->Cell(0, 6, $client->CompanyName, 0, 1, 'L'); // Name in bold
+                $this->fpdf->SetX(20);
+                $this->fpdf->SetFont('Arial', '', 10); // Regular font
+                $this->fpdf->Cell(40, 6, 'Address: ', 0, 0, 'L'); // No line break
+                $this->fpdf->SetX(50);
+                $this->fpdf->SetFont('Arial', 'B', 10); // Bold font
+                $this->fpdf->Cell(0, 6, $client->CompanyAddress, 0, 1, 'L'); // Name in bold
+                $this->fpdf->SetX(20);
+                $this->fpdf->SetFont('Arial', '', 10); // Bold font
+                $this->fpdf->Cell(40, 6, 'Date: ', 0, 0, 'L'); // No line break
+                $this->fpdf->SetX(50);
+                $this->fpdf->SetFont('Arial', 'B', 10); // Bold font
+                $this->fpdf->Cell(0, 6, date('F j, Y. g:i A'), 0, 1, 'L');
+                $this->fpdf->SetX(40);
+                $this->fpdf->SetX(20);
+                $this->fpdf->SetFont('Arial', '', 10); // Bold font
+                $this->fpdf->Cell(40, 6, 'Billing ID: ', 0, 0, 'L'); // No line break
+                $this->fpdf->SetX(50);
+                $this->fpdf->SetFont('Arial', 'B', 10); // Bold font
+                $this->fpdf->Cell(0, 6, $billing->billing_id, 0, 1, 'L');
+                $this->fpdf->SetX(40);
+                $this->fpdf->Ln();
+                $this->fpdf->SetFont('Arial', 'B', 15);
+                // $this->fpdf->SetY(40);
+                $this->fpdf->SetX(15);
+                $this->fpdf->Cell(180, 10, "B I L L I N G  S T A T E M E N T", 1, 1, 'C');
+                $this->fpdf->Ln();
+
+                $this->fpdf->SetLineWidth(1.5);
+                $this->fpdf->Line(15, $this->fpdf->GetY(), 195, $this->fpdf->GetY());
+                $this->fpdf->Ln(5);
+
+                $grandTotal = 0;
+                foreach ($servicesHierarchy as $service) {
+                    $serviceTotal = $service['service_price'];
+                    $this->fpdf->SetFont('Arial', 'B', 10);
+                    $this->fpdf->SetX($leftMargin);
+                    $this->fpdf->Cell($columnWidth, 8, $service['service_name'], 0, 0);
+                    $this->fpdf->Cell($priceWidth, 8, number_format($service['service_price'], 2), 0, 1, 'R');
+
+                    foreach ($service['sub_services'] as $subService) {
+                        $serviceTotal += $subService['sub_service_price'];
+
+                        $this->fpdf->SetFont('Arial', '', 10);
+                        $this->fpdf->SetX($leftMargin + 10);
+                        $this->fpdf->Cell($columnWidth - 10, 8, $subService['sub_service_name'], 0, 0);
+                        $this->fpdf->Cell($priceWidth, 8, number_format($subService['sub_service_price'], 2), 0, 1, 'R');
+
+                        foreach ($subService['account_descriptions'] as $accountDescription) {
+                            $serviceTotal += $accountDescription->account_price;
+
+                            $this->fpdf->SetX($leftMargin + 20);
+                            $this->fpdf->Cell($columnWidth - 20, 8, $accountDescription->account_description, 0, 0);
+                            $this->fpdf->Cell($priceWidth, 8, number_format($accountDescription->account_price, 2), 0, 1, 'R');
+                        }
+                    }
+
+                    $grandTotal += $serviceTotal;
+                }
+
+                function numberToWords($number)
+                {
+                    $hyphen      = '-';
+                    $conjunction = ' and ';
+                    $separator   = ', ';
+                    $negative    = 'negative ';
+                    $decimal     = ' point ';
+                    $dictionary  = [
+                        0                   => 'zero',
+                        1                   => 'one',
+                        2                   => 'two',
+                        3                   => 'three',
+                        4                   => 'four',
+                        5                   => 'five',
+                        6                   => 'six',
+                        7                   => 'seven',
+                        8                   => 'eight',
+                        9                   => 'nine',
+                        10                  => 'ten',
+                        11                  => 'eleven',
+                        12                  => 'twelve',
+                        13                  => 'thirteen',
+                        14                  => 'fourteen',
+                        15                  => 'fifteen',
+                        16                  => 'sixteen',
+                        17                  => 'seventeen',
+                        18                  => 'eighteen',
+                        19                  => 'nineteen',
+                        20                  => 'twenty',
+                        30                  => 'thirty',
+                        40                  => 'forty',
+                        50                  => 'fifty',
+                        60                  => 'sixty',
+                        70                  => 'seventy',
+                        80                  => 'eighty',
+                        90                  => 'ninety',
+                        100                 => 'hundred',
+                        1000                => 'thousand',
+                        1000000             => 'million',
+                        1000000000          => 'billion',
+                        1000000000000       => 'trillion',
+                        1000000000000000    => 'quadrillion',
+                        1000000000000000000 => 'quintillion'
+                    ];
+
+                    if (!is_numeric($number)) {
+                        return false;
+                    }
+
+                    if (($number >= 0 && (int) $number < 0) || (int) $number < 0 - PHP_INT_MAX) {
+                        trigger_error(
+                            'numberToWords only accepts numbers between -' . PHP_INT_MAX . ' and ' . PHP_INT_MAX,
+                            E_USER_WARNING
+                        );
+                        return false;
+                    }
+
+                    if ($number < 0) {
+                        return $negative . numberToWords(abs($number));
+                    }
+
+                    $string = $fraction = null;
+
+                    if (strpos($number, '.') !== false) {
+                        list($number, $fraction) = explode('.', $number);
+                    }
+
+                    switch (true) {
+                        case $number < 21:
+                            $string = $dictionary[$number];
+                            break;
+                        case $number < 100:
+                            $tens   = ((int) ($number / 10)) * 10;
+                            $units  = $number % 10;
+                            $string = $dictionary[$tens];
+                            if ($units) {
+                                $string .= $hyphen . $dictionary[$units];
+                            }
+                            break;
+                        case $number < 1000:
+                            $hundreds  = $number / 100;
+                            $remainder = $number % 100;
+                            $string = $dictionary[$hundreds] . ' ' . $dictionary[100];
+                            if ($remainder) {
+                                $string .= $conjunction . numberToWords($remainder);
+                            }
+                            break;
+                        default:
+                            $baseUnit = pow(1000, floor(log($number, 1000)));
+                            $numBaseUnits = (int) ($number / $baseUnit);
+                            $remainder = $number % $baseUnit;
+                            $string = numberToWords($numBaseUnits) . ' ' . $dictionary[$baseUnit];
+                            if ($remainder) {
+                                $string .= $remainder < 100 ? $conjunction : $separator;
+                                $string .= numberToWords($remainder);
+                            }
+                            break;
+                    }
+
+                    if (null !== $fraction && is_numeric($fraction)) {
+                        $string .= $decimal;
+                        $words = [];
+                        foreach (str_split((string) $fraction) as $number) {
+                            $words[] = $dictionary[$number];
+                        }
+                        $string .= implode(' ', $words);
+                    }
+
+                    return $string;
+                }
+
+                $this->fpdf->Ln(10);
+                $this->fpdf->SetFont('Arial', 'B', 12);
+                $this->fpdf->Cell($columnWidth, 10, "Grand Total:", 0, 0, 'R');
+                $this->fpdf->Cell($priceWidth, 10, number_format($grandTotal, 2), 0, 1, 'R');
+
+                $this->fpdf->Ln(5);
+                $this->fpdf->SetFont('Arial', 'I', 10);
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->Cell(0, 10, "The sum of " . ucfirst(numberToWords($grandTotal)) . " pesos only.", 0, 1, 'R');
+                $this->fpdf->SetFont('Arial', '', 10);
+
+                // $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+                $this->fpdf->Ln();
                 
-                // Reset color to black and print "ACCOUNTING FIRM"
-                $this->fpdf->SetTextColor(0, 0, 0); // RGB for black
-                $this->fpdf->Cell(0, 10, "ACCOUNTING FIRM", 0, 1, 'C', false);
-                                // $this->fpdf->SetFont('Arial', 'B', 10);
+                
+                
+                $this->fpdf->SetFont('Arial', '', 10);
+                $this->fpdf->SetY(-80); // Move higher to prevent page overflow
+                $this->fpdf->Cell(0, 10, 'Approved by:');
+
+                // Certified True & Correct
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->SetY(-70);
+                $this->fpdf->SetX(30);
+                $this->fpdf->Cell(0, 10, 'Certified True & Correct');
+
+                // Name and underline
+                $text = 'Ryan T. Ramal';
+                $textWidth = $this->fpdf->GetStringWidth($text);
+
+                $this->fpdf->SetY(-60);
+                $this->fpdf->SetX(30);
+                $this->fpdf->SetLineWidth(0.1);
+                $this->fpdf->Cell($textWidth + 10, 0, $text, 0, 0, ''); // Print text
+
+                // Manual underline
+                $y = $this->fpdf->GetY() + 1.5;
+                $this->fpdf->Line(30, $y, 30 + $textWidth, $y);
+
+                // Business Name & Details
+                $this->fpdf->SetFont('Arial', 'B', 10);
+                $this->fpdf->SetY(-59);
+                $this->fpdf->SetX(30);
+                $this->fpdf->SetTextColor(189,168,0); // Yellow color
+                $this->fpdf->Cell(0, 10, "RAM'S", 0, 1, 'L', false);
+
+                $this->fpdf->SetY(-59);
+                $this->fpdf->SetX(42);
+                $this->fpdf->SetTextColor(0,91,150); // Blue color
+                $this->fpdf->Cell(0, 10, "ACCOUNTING FIRM", 0, 1, 'L', false);
+
+                // Proprietor Label
+                $this->fpdf->SetFont('Arial', '', 10);
+                $this->fpdf->SetTextColor(0, 0, 0);
+                $this->fpdf->SetY(-53);
+                $this->fpdf->SetX(30);
+                $this->fpdf->Cell(0, 6, "Proprietor", 0, 1, 'L');
+
+                // TIN
+                $this->fpdf->SetY(-48);
+                $this->fpdf->SetX(30);
+                $this->fpdf->Cell(0, 6, "345-980-034-000", 0, 1, 'L');
+
+                // HEAD OFFICE (Red)
+                $this->fpdf->SetY(-44);
+                $this->fpdf->SetX(30);
+                $this->fpdf->SetTextColor(255, 0, 0);
+                $this->fpdf->Cell(0, 6, "HEAD OFFICE", 0, 1, 'L');
+
+                // Address
+                $this->fpdf->SetTextColor(0,0,0);
+                $this->fpdf->SetY(-40);
+                $this->fpdf->SetX(30);
+                $this->fpdf->Cell(0, 6, "Purok Talisay 56, Herway Briz, Magugpo East Tagum City", 0, 1, 'L');
+
+                //Proprietor
+                //345-980-034-000
+                //head office - color red
+                //Purok Talisay 56, Herway Briz, Magugpo East Tagum City
+//
+                // $this->fpdf->SetFont('Arial', 'B', 10);
                 // $this->fpdf->SetX($leftMargin);
                 // $this->fpdf->SetY(10);
                 // $this->fpdf->Cell($columnWidth, 10, "Billed to: \t" . $client->CompanyName, 0, 1, 'L');

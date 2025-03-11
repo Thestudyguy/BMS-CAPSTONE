@@ -136,14 +136,14 @@
                                           id="{{ $journal->client_id }}_{{ $journal->journal_id }}">
                                         <i class="fas fa-eye"></i>
                                     </span>
-                                    @if ($journal->note)
+                                    {{-- @if ($journal->note) --}}
                                         <span class="badge fw-bold bg-warning text-dark" 
                                               id="{{ $journal->client_id }}_{{ $journal->journal_id }}" 
                                               data-bs-target="#journal-note-{{ $journal->id }}" 
                                               data-bs-toggle="modal">
                                             <i class="fas fa-book"></i>
                                         </span>
-                                    @endif
+                                    {{-- @endif --}}
                                 </td>
                             </tr>
                             @include('modals.view-journal-note')
@@ -212,14 +212,14 @@
                                           id="{{ $journal->client_id }}_{{ $journal->journal_id }}">
                                         <i class="fas fa-eye"></i>
                                     </span>
-                                    @if ($journal->note)
+                                    {{-- @if ($journal->note) --}}
                                         <span class="badge fw-bold bg-warning text-dark" 
                                               id="{{ $journal->client_id }}_{{ $journal->journal_id }}" 
                                               data-bs-target="#journal-note-{{ $journal->id }}" 
                                               data-bs-toggle="modal">
                                             <i class="fas fa-book"></i>
                                         </span>
-                                    @endif
+                                    {{-- @endif --}}
                                 </td>
                             </tr>
                             @include('modals.view-journal-note')
@@ -288,14 +288,14 @@
                                           id="{{ $journal->client_id }}_{{ $journal->journal_id }}">
                                         <i class="fas fa-eye"></i>
                                     </span>
-                                    @if ($journal->note)
+                                    {{-- @if ($journal->note) --}}
                                         <span class="badge fw-bold bg-warning text-dark" 
                                               id="{{ $journal->client_id }}_{{ $journal->journal_id }}" 
                                               data-bs-target="#journal-note-{{ $journal->id }}" 
                                               data-bs-toggle="modal">
                                             <i class="fas fa-book"></i>
                                         </span>
-                                    @endif
+                                    {{-- @endif --}}
                                 </td>
                             </tr>
                             @include('modals.view-journal-note')

@@ -698,6 +698,8 @@ $(document).ready(function () {
         $('.append-audit-oe-accounts').empty();
         let rows = ``;
         $.each(oeObj, (category, data) => {
+        console.log(category);
+                
             $.each(data.accounts, (subIndex, oes) => {
                 var prepAmount = oes.amount;
                 var sanitizedAmount = prepAmount.toString().replace(/,/g, "");
@@ -712,7 +714,7 @@ $(document).ready(function () {
                 <td class='text-sm'>${oes.oeAccount}</td>
                 <td class='text-sm'>
                     ${formattedAmount}
-                    <span class="badge fw-bold text-dark float-right remove-audit-oe" id="${category}">
+                    <span class="badge fw-bold text-dark float-right remove-audit-oe some random stuff" id="${category}">
                         <i class="fas fa-times"></i>
                     </span>
                 </td>
@@ -873,18 +875,26 @@ $(document).ready(function () {
 
     $(document).on('click', '.remove-audit-oe', function (e) {
         e.preventDefault();
+        var id = $(this).attr('id');
+        console.log('yawas');
+        
         $(this).closest('tr').remove();
+        
         var table = '<tbody class="append-audit-liability-accounts">';
         for (let category in oeObj) {
             if (oeObj[category].accounts) {
                 oeObj[category].accounts = oeObj[category].accounts.filter(
-                    item => item.oeAccount !== $(this).attr('id')
+                    item => item.oeAccount !== id
                 );
             }
             if (oeObj[category].accounts.length === 0) {
                 delete oeObj[category];
+                console.log(oeObj);
+                
             }
         }
+        console.log(oeObj);
+        
         // $.each(liabilityObj, (index, lias)=>{
         //     table += `<td>${index}</td>`
         //     $.each(lias.liabilityAccount, (index, account)=>{
@@ -1180,12 +1190,16 @@ $(document).ready(function () {
             $('.append-audit-cl').html(liasTable);
         }
         if (currentStep === 5) {
+            console.log('this line');
+            
             totalOE = 0;
             $('.append-audit-oenw').empty();
             var oeTable = '';
             const hasData = Object.keys(oeObj).some(key =>
                 oeObj[key].accounts && oeObj[key].accounts.length > 0
             );
+            console.log(oeObj);
+            
             if (!hasData) {
                 Toast.fire({
                     icon: 'warning',

@@ -365,7 +365,7 @@
                                                             <td>{{$oe->account}}</td>
                                                             <td>
                                                                 {{number_format($oe->amount, 2)}}
-                                                                <span class="badge fw-bold text-dark float-right remove-audit-oe"><i class="fas fa-times"></i></span>
+                                                                <span class="badge fw-bold text-dark float-right remove-audit-oe {{$oe->id}}" id="{{$oe->account}}"><i class="fas fa-times"></i></span>
                                                             </td>
                                                         </tr>
                                                     @endforeach
