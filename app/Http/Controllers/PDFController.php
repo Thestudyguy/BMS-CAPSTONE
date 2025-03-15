@@ -1041,7 +1041,7 @@ public function GenerateExpensePDF(Request $request)
                     DB::raw('SUM(journal_expense_months.amount) as total_expense')
                 )
                 ->where('journal_expense_months.isAltered', false)
-                ->where('journal_expense_months.has_reset', false)
+                // ->where('journal_expense_months.has_reset', false)
                 ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
                 ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
                 ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
@@ -1063,12 +1063,12 @@ public function GenerateExpensePDF(Request $request)
 
             // Company Name
             $this->fpdf->SetFont('Arial', 'B', 14);
-            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            $this->fpdf->Cell(0, 6, "Ram's Accounting Firm", 0, 1, 'L');
             
             // Company Details
             $this->fpdf->SetFont('Arial', '', 8);
             $this->fpdf->SetX(50);
-            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 0997-129-6304 | Purok Talisay 56, Herway Briz, Magugpo East Tagum City', 0, 1, 'L');
 
             $this->fpdf->Ln(10);
             $this->fpdf->SetFont('Arial', 'B', 12);
@@ -1149,7 +1149,7 @@ public function GenerateIncomePDF(Request $request)
                     DB::raw('Date_Format(client_journals.created_at, "%M %d, %Y at %h:%i %p") as created_at')
                 )
                 ->groupBy('client_journals.journal_id', 'client_journals.created_at')
-                ->where('journal_income_months.has_reset', false)
+                // ->where('journal_income_months.has_reset', false)
                 ->get();
 
             // Calculate grand total
@@ -1167,12 +1167,12 @@ public function GenerateIncomePDF(Request $request)
 
             // Company Name
             $this->fpdf->SetFont('Arial', 'B', 14);
-            $this->fpdf->Cell(0, 6, 'Rams Corporation', 0, 1, 'L');
+            $this->fpdf->Cell(0, 6, "Ram's Accounting Firm", 0, 1, 'L');
             
             // Company Details
             $this->fpdf->SetFont('Arial', '', 8);
             $this->fpdf->SetX(50);
-            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 09550072587 | Purok Narra, Briz District, Magugpo East Tagum City', 0, 1, 'L');
+            $this->fpdf->Cell(0, 6, 'Email: rams.bookkeeping22@gmail.com | Contact: 0997-129-6304 | Purok Talisay 56, Herway Briz, Magugpo East Tagum City', 0, 1, 'L');
 
             $this->fpdf->Ln(10);
             $this->fpdf->SetFont('Arial', 'B', 12);
