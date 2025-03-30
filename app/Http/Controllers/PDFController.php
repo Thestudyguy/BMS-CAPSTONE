@@ -58,7 +58,7 @@ class PDFController extends Controller
                 $this->fpdf->SetFont('Arial', 'B', 12);
                 $this->fpdf->SetY(2);
                 $this->fpdf->Cell(0, 12, "Statement of Financial Position", 0, 1, 'C');
-
+                $headerCurrentYear = date('Y');
                 $this->fpdf->SetY(10);
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->CompanyName)) / 2);
                 $this->fpdf->Cell(0, 10, $client->CompanyName);
@@ -75,7 +75,7 @@ class PDFController extends Controller
                 $this->fpdf->SetY(30);
                 $this->fpdf->SetX(30);
                 $this->fpdf->Line(30, 32, 210-10, 32);
-                $this->fpdf->Cell(0, 10, "For the year ended December 31");
+                $this->fpdf->Cell(0, 10, "For the year ended December 31, ". $headerCurrentYear);
                 $this->fpdf->Line(30, 37, 210-10, 37);
                 //expenses
                 $this->fpdf->SetFont('Arial', 'B', 10);
@@ -179,7 +179,7 @@ class PDFController extends Controller
             }
                 
                 //operating expense
-                $yPosition += 40;
+                $yPosition += 35;
                 $loetotal = 0;
                 $this->fpdf->SetFont('Arial', 'B', size: 10);
                 $this->fpdf->SetY($yPosition-5);
@@ -190,7 +190,7 @@ class PDFController extends Controller
                     $total = 0;
                     $preparedAccount = explode('_', $value['account']);
                     if(strpos($value['account'], 'Operating Expenses') !== false){
-                        $this->fpdf->SetY($yPosition);
+                        $this->fpdf->SetY($yPosition - 5);
                         $this->fpdf->SetX(35);
                         $this->fpdf->Cell(0, 10, $preparedAccount[1]);
                         $expenseMonths = journal_expense_month::where('expense_id', $value->id)->get();
@@ -198,7 +198,7 @@ class PDFController extends Controller
                             $total += (float) $expenseMonth->amount;
                         }
                         $loetotal += $total;
-                        $this->fpdf->SetY($yPosition+3);
+                        $this->fpdf->SetY($yPosition);
                         $this->fpdf->SetX(35);
                         $this->fpdf->Cell(0, 6, number_format($total, 2), '', 0, 'R');
                     }
@@ -208,6 +208,8 @@ class PDFController extends Controller
                 $this->fpdf->SetY($yPosition);
                 $this->fpdf->SetX(35);
                 $this->fpdf->Cell(0, 10, 'Total Operating Expense');
+                // $this->fpdf->Line(10, $this->fpdf->GetY() + 8, 210 - 10, $this->fpdf->GetY() + 8);
+                $this->fpdf->Line(30, $yPosition + 8, 200, $yPosition + 8);
                 $this->fpdf->SetY($yPosition+3);
                 $this->fpdf->SetX($pageWidth - $rightMargin - 30);
                 $this->fpdf->Cell(0, 6, number_format($loetotal, 2), 'T', 0, 'R');
@@ -221,25 +223,29 @@ class PDFController extends Controller
                 $this->fpdf->Cell(0, 10, 'Net Income');
                 $this->fpdf->SetY($yPosition+3);
                 $this->fpdf->SetX($pageWidth - $rightMargin - 30);
-                $this->fpdf->Cell(0, 6, number_format($totalGrossIncome - $loetotal, 2), 'T', 0, 'R');
+                $this->fpdf->Line(30, $yPosition, 200, $yPosition);
+                
+                $this->fpdf->Cell(0, 6, number_format($totalGrossIncome - $loetotal, 2), '', 0, 'R');
+                $this->fpdf->Line(30, $yPosition + 10, 200, $yPosition + 10);
+                $this->fpdf->Line(30, $yPosition + 12, 200, $yPosition + 12);
                 $netIncome = $totalGrossIncome - $loetotal;
                 $yPosition += 15;
                 $this->fpdf->SetFont('Arial', 'B', size: 10);
-                $this->fpdf->SetY($yPosition + 5);
+                $this->fpdf->SetY($yPosition + 10);
                 $this->fpdf->SetX(30);
                 $this->fpdf->Cell(0, 10, 'Certified True & Correct');
                 // $this->fpdf->SetY($yPosition + 15);
                 // $this->fpdf->SetX(30);
                 $text = 'Rogelio O. Mangandam, Jr.';
                 $textWidth = $this->fpdf->GetStringWidth($text) + 2;
-                $this->fpdf->SetY($yPosition + 15);
+                $this->fpdf->SetY($yPosition + 25);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
                 $this->fpdf->SetFont('Arial', '', size: 10);
-                $this->fpdf->SetY($yPosition + 23);
+                $this->fpdf->SetY($yPosition + 30);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "Proprietor");
-                $this->fpdf->SetY($yPosition + 30);
+                $this->fpdf->SetY($yPosition + 35);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
                 //end of statement of financial operation
@@ -266,7 +272,7 @@ class PDFController extends Controller
                 $this->fpdf->SetY(30);
                 $this->fpdf->SetX(30);
                 $this->fpdf->Line(30, 32, 210-10, 32);
-                $this->fpdf->Cell(0, 10, "as of December 31");
+                $this->fpdf->Cell(0, 10, "as of December 31, ". $headerCurrentYear);
                 $this->fpdf->Line(30, 37, 210-10, 37);
 
 
@@ -473,26 +479,26 @@ class PDFController extends Controller
                 $this->fpdf->Cell(0, 10, 'Total Liabilities & Capital');
                 $this->fpdf->SetX($pageWidth - $leftMargin - 30);
                 $this->fpdf->Cell(0, 10, number_format($liabilitiesTotal + $capEnd, 2));
-                $this->fpdf->Line(30, $yPosition + 5, 200, $yPosition + 5);
-                $this->fpdf->Line(30, $yPosition + 6, 200, $yPosition + 6);
+                $this->fpdf->Line(30, $yPosition + 8, 200, $yPosition + 8);
+                $this->fpdf->Line(30, $yPosition + 7, 200, $yPosition + 7);
                 $this->fpdf->Line(30, $yPosition + 13, 200, $yPosition + 13);
                 $this->fpdf->Line(30, $yPosition + 22, 200, $yPosition + 22);
                 $yPosition += 15;
                 $this->fpdf->SetFont('Arial', 'B', size: 10);
-                $this->fpdf->SetY($yPosition + 5);
+                $this->fpdf->SetY($yPosition + 15);
                 $this->fpdf->SetX(30);
                 $this->fpdf->Cell(0, 10, 'Certified True & Correct');
                 
                 $text = 'Rogelio O. Mangandam, Jr.';
                 $textWidth = $this->fpdf->GetStringWidth($text) + 2;
-                $this->fpdf->SetY($yPosition + 15);
+                $this->fpdf->SetY($yPosition + 25);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, $text, 'B', 0, '');
                 $this->fpdf->SetFont('Arial', '', size: 10);
-                $this->fpdf->SetY($yPosition + 23);
+                $this->fpdf->SetY($yPosition + 30);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "Proprietor");
-                $this->fpdf->SetY($yPosition + 30);
+                $this->fpdf->SetY($yPosition + 35);
                 $this->fpdf->SetX($leftMargin + 30);
                 $this->fpdf->Cell($textWidth, 6, "TIN: 291-273-180-000");
                 $this->fpdf->Output();
