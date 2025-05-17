@@ -17,7 +17,9 @@
 <body class="sidebar-mini">
     <div class="content-wrapper h-100" style="background-color: #E5E7EB;">
         @yield('content')
+       
     </div>
+        
 </body>
 
 @include('components.layout-footer')

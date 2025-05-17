@@ -79,6 +79,24 @@ $(document).ready(function() {
         }
         
     });
+    
+    // $('.search-firm-clients').on('keyup', function() {
+    //     var value = $(this).val().toLowerCase();
+    //     console.log(value);
+        
+    //     $('.firm-client-tables tbody tr').filter(function() {
+    //         $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    //     });
+    // });
+
+    // $('.search-clients').on('keyup', function() {
+    //     var value = $(this).val().toLowerCase();
+    //     console.log(value);
+        
+    //     $('.client-tables tbody tr').filter(function() {
+    //         $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    //     });
+    // });
 
     $('.remove-client-service').on('click', function(){
         $.ajax({

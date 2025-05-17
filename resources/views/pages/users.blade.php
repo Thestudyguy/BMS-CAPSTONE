@@ -12,7 +12,7 @@
                             <button class="btn btn-transparent text-light" data-bs-target='#new-user-modal' data-bs-toggle='modal'><i class="fas fa-plus"></i></button>
                         </div>
                         <div class="input-group">
-                            <div class="input-group-prepend">
+                            {{-- <div class="input-group-prepend">
                                 <select class="form-select form-control rounded-0" name="" id="filter-users">
                                     <option value="" selected hidden>Filter</option>
                                     <option value="Admin">Admin</option>
@@ -20,7 +20,7 @@
                                     <option value="Accountant">Accountant</option>
                                     <option value="clear">Clear Filter</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <input type="search" class="form-control search-users" name="search-coa" id="search-coa"
                                 placeholder="search...">
                         </div>

@@ -1,6 +1,7 @@
 @extends('layout')
 
 @section('content')
+
     <div class="container-fluid p-5">
         <div class="row">
           <div class="col-12">
@@ -8,6 +9,7 @@
               <div class="card-header clients-table-data">
                 <div class="card-title fw-bold lead">Clients</div>
                   <div class="card-tools">
+                    <input type="search" name="" class="border-0 search-clients" placeholder="search..." id="search_clients">
                       <a href="{{route('new-client-form')}}">
                           <button class="btn btn-rounded-0 new-client-button">
                               <i class="fas fa-plus"></i>
@@ -16,7 +18,7 @@
                   </div>
               </div>
               <div class="card-body" style="max-height: 600px; overflow-x: auto;">
-                  <table class="table table-hover table-striped table-bordered">
+                  <table class="table table-hover table-striped table-bordered client-tables">
                     <thead>
                       <tr class="text-sm fw-bold">
                         <td class="fw-bold">Company</td>
@@ -57,6 +59,7 @@
               <div class="card-header clients-table-data">
                 <div class="card-title fw-bold lead">Firm</div>
                   <div class="card-tools">
+                    <input type="search" name="" class="border-0 search-firm-clients" placeholder="search..." id="search_firm_clients">
                       <a href="{{route('new-client-form')}}">
                           <button class="btn btn-rounded-0 new-client-button">
                               <i class="fas fa-plus"></i>
@@ -65,7 +68,7 @@
                   </div>
               </div>
               <div class="card-body" style="max-height: 600px; overflow-x: auto;">
-                  <table class="table table-hover table-striped table-bordered">
+                  <table class="table table-hover table-striped firm-client-tables table-bordered">
                     <thead>
                       <tr class="text-sm fw-bold">
                         <td class="fw-bold">Company</td>
@@ -103,3 +106,4 @@
         </div>
     </div>
 @endsection
+   

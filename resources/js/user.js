@@ -11,6 +11,7 @@ $(document).ready(function(){
         position: 'bottom-end',
     });
     
+console.log('this is user js');
 
     $('.new-user-save').on('click', function(e){
         var userForm = $('.new-user-form').serializeArray();
@@ -152,6 +153,7 @@ $(document).ready(function(){
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
     });
+
 
     $('#filter-users').on('change', function() {
         var selectedValue = $(this).val();

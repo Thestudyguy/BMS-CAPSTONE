@@ -974,29 +974,29 @@ $(document).on('click', '.remove-asset', function (e) {
                 });
                 return;
             }
+            // var doesJesusExist = false;
+            // var hasLessDirectCost = false;
+            // var hasOperatingExpenses = false;
         
-            var hasLessDirectCost = false;
-            var hasOperatingExpenses = false;
+            // $.each(expensesObj, (index, incomeData) => {
+            //     var expenseAccount = index.split('_');
+            //     var expenseType = expenseAccount[2];
         
-            $.each(expensesObj, (index, incomeData) => {
-                var expenseAccount = index.split('_');
-                var expenseType = expenseAccount[2];
+            //     if (expenseType === 'Less Direct Cost') {
+            //         hasLessDirectCost = true;
+            //     } else if (expenseType === 'Operating Expenses') {
+            //         hasOperatingExpenses = true;
+            //     }
+            // });
         
-                if (expenseType === 'Less Direct Cost') {
-                    hasLessDirectCost = true;
-                } else if (expenseType === 'Operating Expenses') {
-                    hasOperatingExpenses = true;
-                }
-            });
-        
-            if (!hasLessDirectCost || !hasOperatingExpenses) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Missing Data',
-                    text: 'Both "Less Direct Cost" and "Operating Expenses" entries are required.'
-                });
-                return;
-            }
+            // if (!hasLessDirectCost || !hasOperatingExpenses) {
+            //     Toast.fire({
+            //         icon: 'warning',
+            //         title: 'Missing Data',
+            //         text: 'Both "Less Direct Cost" and "Operating Expenses" entries are required.'
+            //     });
+            //     return;
+            // }
         
             $.each(expensesObj, (index, incomeData) => {
                 var expenseAccount = index.split('_');

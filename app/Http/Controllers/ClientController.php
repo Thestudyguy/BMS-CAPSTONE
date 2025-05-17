@@ -67,7 +67,7 @@ class ClientController extends Controller
                 //firm = true
                 //client = false
                 $services = services::where('isVisible', true)->get();
-                $clients = Clients::where('isVisible', true)->get();
+                $clients = Clients::where('isVisible', true)->orderBy('CompanyName', 'asc')->get();
                 return view('pages.clients', compact('services', 'clients'));
             } catch (\Exception $exception) {
                 throw $exception;
@@ -83,7 +83,7 @@ class ClientController extends Controller
         }
         Log::info($request);
         $validatedData = $request->validate([
-            'CompanyName' => 'required|string|max:255|unique:clients',
+            'CompanyName' => 'required|string|max:255|',//unique:clients removed validation for client company name for re-enrolling company with different branches
             'CompanyAddress' => 'required|string|max:255',
             'TIN' => 'required|string|max:50',
             'CompanyEmail' => 'required|email|max:255|unique:clients',

@@ -63,6 +63,13 @@ class PDFController extends Controller
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->CompanyName)) / 2);
                 $this->fpdf->Cell(0, 10, $client->CompanyName);
 
+                $this->fpdf->SetFont('Arial', 'B', 10);
+
+                $this->fpdf->SetY(19);
+                $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->TIN)) / 2);
+                $this->fpdf->Cell(0, 10, "TIN: " . $client->TIN);
+                $this->fpdf->SetFont('Arial', 'B', 12);
+
                 $this->fpdf->SetY(15);
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->CompanyAddress)) / 2);
                 $this->fpdf->Cell(0, 10, $client->CompanyAddress);
@@ -260,9 +267,17 @@ class PDFController extends Controller
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->CompanyName)) / 2);
                 $this->fpdf->Cell(0, 10, $client->CompanyName);
 
+                
                 $this->fpdf->SetY(15);
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->CompanyAddress)) / 2);
                 $this->fpdf->Cell(0, 10, $client->CompanyAddress);
+
+                $this->fpdf->SetFont('Arial', 'B', 10);
+
+                $this->fpdf->SetY(19);
+                $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth($client->TIN)) / 2);
+                $this->fpdf->Cell(0, 10, "TIN: " . $client->TIN);
+                $this->fpdf->SetFont('Arial', 'B', 12);
 
                 $this->fpdf->SetY(23);
                 $this->fpdf->SetX((210 - $this->fpdf->GetStringWidth("Statement of Financial Position")) / 2);
@@ -573,7 +588,7 @@ class PDFController extends Controller
                 $priceWidth = ($usableWidth * 0.3);
 
                 $this->fpdf->AddPage();
-                $logoPath = public_path('images/Rams_logo.png');
+                $logoPath = public_path('images/Rams_Logo.png');
                 if (file_exists($logoPath)) {
                     $this->fpdf->Image($logoPath, 25, 15, 30); // (file, x, y, width)
                 }
@@ -1039,26 +1054,22 @@ public function GenerateExpensePDF(Request $request)
     if (Auth::check()) {
         try {
             date_default_timezone_set('Asia/Manila');
-            $expenses = DB::table('clients')
-                ->where('clients.accountCategory', true)
-                ->select(
-                    'client_journals.journal_id',
-                    DB::raw("DATE_FORMAT(client_journals.created_at, '%M %d, %Y at %h:%i %p') as created_at"),
-                    DB::raw('SUM(journal_expense_months.amount) as total_expense')
-                )
-                ->where('journal_expense_months.isAltered', false)
-                // ->where('journal_expense_months.has_reset', false)
-                ->join('client_journals', 'client_journals.client_id', '=', 'clients.id')
-                ->join('journal_expenses', 'journal_expenses.journal_id', '=', 'client_journals.journal_id')
-                ->join('journal_expense_months', 'journal_expense_months.expense_id', '=', 'journal_expenses.id')
-                ->groupBy('client_journals.journal_id', 'created_at')
-                ->get();
+            $expenses = DB::table('client_journals')
+                    ->join('journal_expenses', 'client_journals.journal_id', '=', 'journal_expenses.journal_id')
+                    ->join('journal_expense_months', 'journal_expenses.id', '=', 'journal_expense_months.expense_id')
+                    ->select(
+                        'client_journals.journal_id',
+                        'client_journals.created_at',
+                        DB::raw('SUM(journal_expense_months.amount) as total_expense')
+                    )
+                    ->groupBy('client_journals.journal_id', 'client_journals.created_at')
+                    ->get();
 
             // Initialize FPDF
             $this->fpdf->AddPage();
             
             // Add Logo
-            $logoPath = public_path('images/Rams_logo.png');
+            $logoPath = public_path('images/Rams_Logo.png');
             if (file_exists($logoPath)) {
                 $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
             }
@@ -1162,7 +1173,7 @@ public function GenerateIncomePDF(Request $request)
             $grandTotal = $incomeToPDF->sum('total_amount');
 
             $this->fpdf->AddPage();
-            $logoPath = public_path('images/Rams_logo.png');
+            $logoPath = public_path('images/Rams_Logo.png');
             if (file_exists($logoPath)) {
                 $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
             }
@@ -1267,7 +1278,7 @@ public function GenerateClientBillingTable($id)
 
             // Initialize FPDF
             $this->fpdf->AddPage();
-            $logoPath = public_path('images/Rams_logo.png');
+            $logoPath = public_path('images/Rams_Logo.png');
             if (file_exists($logoPath)) {
                 $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
             }
@@ -1363,7 +1374,7 @@ public function GenerateBillingPDF()
             $this->fpdf->AddPage();
 
             // Logo
-            $logoPath = public_path('images/Rams_logo.png');
+            $logoPath = public_path('images/Rams_Logo.png');
             if (file_exists($logoPath)) {
                 $this->fpdf->Image($logoPath, 10, 15, 30); // (file, x, y, width)
             }
